@@ -199,15 +199,6 @@ export const Login = () => {
             </Tabs>
           </CardContent>
         </Card>
-
-        <div className="text-center mt-6">
-          <p 
-            className="text-sm"
-            style={{ color: themeColors.accent }}
-          >
-            Admin credentials: guptaharshal / guptaharshal@1515
-          </p>
-        </div>
       </div>
     </div>
   );

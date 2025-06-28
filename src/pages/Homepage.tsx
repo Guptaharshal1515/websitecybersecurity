@@ -63,7 +63,7 @@ export const Homepage = () => {
           {homepageContent?.profile_image_url && (
             <img
               src={homepageContent.profile_image_url}
-              alt="Profile"
+              alt="Harshal Gupta"
               className="w-32 h-32 rounded-full mx-auto mb-8 border-4"
               style={{ borderColor: themeColors.primary }}
             />
@@ -76,11 +76,18 @@ export const Homepage = () => {
             {homepageContent?.welcome_message || 'Welcome to WebsiteCyberSec'}
           </h1>
           
+          <h2 
+            className="text-3xl font-semibold mb-4"
+            style={{ color: themeColors.primary }}
+          >
+            Harshal Gupta
+          </h2>
+          
           <p 
             className="text-xl mb-8"
             style={{ color: themeColors.accent }}
           >
-            {homepageContent?.introduction || 'Cybersecurity Professional & Blockchain Enthusiast'}
+            {homepageContent?.introduction || 'Enthusiast in Cybersecurity, Blockchain and Cloud Security'}
           </p>
 
           {/* Social Icons */}
@@ -111,13 +118,13 @@ export const Homepage = () => {
         </div>
       </section>
 
-      {/* Animated Blocks */}
+      {/* Animated Blocks with Pixel Effect */}
       <section className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {animatedBlocks.map(({ title, icon: Icon, path, description }, index) => (
             <Link key={path} to={path}>
               <Card 
-                className="h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer animate-fade-in border-0"
+                className="h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer animate-fade-in border-0 pixel-card"
                 style={{ 
                   backgroundColor: themeColors.surface,
                   animationDelay: `${index * 0.2}s`
@@ -164,7 +171,7 @@ export const Homepage = () => {
                 className="text-lg leading-relaxed text-center"
                 style={{ color: themeColors.text }}
               >
-                {homepageContent?.about_bio || 'Passionate about cybersecurity and blockchain technology.'}
+                {homepageContent?.about_bio || 'Passionate about cybersecurity, blockchain technology, and cloud security solutions.'}
               </p>
             </CardContent>
           </Card>
@@ -225,6 +232,52 @@ export const Homepage = () => {
           </Card>
         </div>
       </section>
+
+      <style jsx>{`
+        .pixel-card {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .pixel-card::before {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+          opacity: 0;
+          transition: opacity 0.3s;
+          pointer-events: none;
+          background-size: 20px 20px;
+          animation: pixelate 2s infinite linear;
+        }
+        
+        .pixel-card:hover::before {
+          opacity: 1;
+        }
+        
+        @keyframes pixelate {
+          0% { background-position: 0 0; }
+          100% { background-position: 20px 20px; }
+        }
+        
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.6s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 };

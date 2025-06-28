@@ -48,15 +48,343 @@ export type Database = {
         }
         Relationships: []
       }
+      certificates: {
+        Row: {
+          certificate_url: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          title: string
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          certificate_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          title: string
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          certificate_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          title?: string
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      homepage_content: {
+        Row: {
+          about_bio: string | null
+          contact_email: string | null
+          created_at: string | null
+          github_url: string | null
+          id: string
+          introduction: string | null
+          linkedin_url: string | null
+          profile_image_url: string | null
+          updated_at: string | null
+          welcome_message: string | null
+        }
+        Insert: {
+          about_bio?: string | null
+          contact_email?: string | null
+          created_at?: string | null
+          github_url?: string | null
+          id?: string
+          introduction?: string | null
+          linkedin_url?: string | null
+          profile_image_url?: string | null
+          updated_at?: string | null
+          welcome_message?: string | null
+        }
+        Update: {
+          about_bio?: string | null
+          contact_email?: string | null
+          created_at?: string | null
+          github_url?: string | null
+          id?: string
+          introduction?: string | null
+          linkedin_url?: string | null
+          profile_image_url?: string | null
+          updated_at?: string | null
+          welcome_message?: string | null
+        }
+        Relationships: []
+      }
+      journey_entries: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          entry_date: string
+          id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          entry_date: string
+          id?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          entry_date?: string
+          id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      page_layouts: {
+        Row: {
+          id: string
+          layout_type: string | null
+          page_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          layout_type?: string | null
+          page_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          layout_type?: string | null
+          page_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"] | null
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          github_url: string | null
+          id: string
+          image_url: string | null
+          project_url: string | null
+          technologies: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          github_url?: string | null
+          id?: string
+          image_url?: string | null
+          project_url?: string | null
+          technologies?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          github_url?: string | null
+          id?: string
+          image_url?: string | null
+          project_url?: string | null
+          technologies?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      roadmap_subtopics: {
+        Row: {
+          completed_by: string | null
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_completed: boolean | null
+          resource_link: string | null
+          title: string
+          topic_id: string | null
+        }
+        Insert: {
+          completed_by?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_completed?: boolean | null
+          resource_link?: string | null
+          title: string
+          topic_id?: string | null
+        }
+        Update: {
+          completed_by?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_completed?: boolean | null
+          resource_link?: string | null
+          title?: string
+          topic_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roadmap_subtopics_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "roadmap_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roadmap_topics: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          roadmap_id: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          roadmap_id?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          roadmap_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roadmap_topics_roadmap_id_fkey"
+            columns: ["roadmap_id"]
+            isOneToOne: false
+            referencedRelation: "roadmaps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roadmaps: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      tracker_entries: {
+        Row: {
+          completed_by: string | null
+          completion_date: string | null
+          created_at: string | null
+          id: string
+          is_completed: boolean | null
+          proof_link: string | null
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          completed_by?: string | null
+          completion_date?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          proof_link?: string | null
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          completed_by?: string | null
+          completion_date?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          proof_link?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "viewer" | "customer" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -171,6 +499,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["viewer", "customer", "admin"],
+    },
   },
 } as const

@@ -5,7 +5,6 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
 
 interface JourneyEntry {
   id: string;
@@ -20,9 +19,39 @@ export const Journey = () => {
   const { themeColors, userRole } = useTheme();
   const { user } = useAuth();
 
-  // Redirect viewers to homepage
-  if (!user || userRole === 'viewer') {
-    return <Navigate to="/" replace />;
+  // Only redirect if user is not logged in or is specifically a viewer
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: themeColors.background }}>
+        <Card className="border-0" style={{ backgroundColor: themeColors.surface }}>
+          <CardContent className="p-12 text-center">
+            <h2 className="text-2xl font-bold mb-2" style={{ color: themeColors.text }}>
+              Access Restricted
+            </h2>
+            <p style={{ color: themeColors.accent }}>
+              Please log in to view this page.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (userRole === 'viewer') {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: themeColors.background }}>
+        <Card className="border-0" style={{ backgroundColor: themeColors.surface }}>
+          <CardContent className="p-12 text-center">
+            <h2 className="text-2xl font-bold mb-2" style={{ color: themeColors.text }}>
+              Access Restricted
+            </h2>
+            <p style={{ color: themeColors.accent }}>
+              This page is only available to customers and administrators.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const { data: journeyEntries = [] } = useQuery({

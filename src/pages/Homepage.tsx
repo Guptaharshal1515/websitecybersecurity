@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -233,7 +232,7 @@ export const Homepage = () => {
         </div>
       </section>
 
-      <style jsx>{`
+      <style>{`
         .pixel-card {
           position: relative;
           overflow: hidden;

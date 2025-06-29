@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -5,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { Github, Linkedin, Shield, Award, Briefcase, Mail, User } from 'lucide-react';
+import { Github, Linkedin, Shield, Award, Briefcase, Mail, User, Twitter, Instagram, Facebook } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -28,7 +29,6 @@ export const Homepage = () => {
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the email
     toast.success('Message sent successfully!');
     setContactForm({ name: '', email: '', message: '' });
   };
@@ -42,7 +42,13 @@ export const Homepage = () => {
     },
     {
       title: 'Blockchain Certificates',
-      icon: Award,
+      icon: () => (
+        <div className="flex items-center">
+          <div className="w-4 h-4 border-2 border-current rounded mr-1"></div>
+          <div className="w-1 h-1 bg-current mx-1"></div>
+          <div className="w-4 h-4 border-2 border-current rounded ml-1"></div>
+        </div>
+      ),
       path: '/blockchain-certificates',
       description: 'Blockchain technology certifications and expertise'
     },
@@ -52,6 +58,14 @@ export const Homepage = () => {
       path: '/projects',
       description: 'Portfolio of cybersecurity and blockchain projects'
     }
+  ];
+
+  const socialIcons = [
+    { name: 'github', icon: Github, url: homepageContent?.github_url, bgColor: themeColors.surface },
+    { name: 'linkedin', icon: Linkedin, url: homepageContent?.linkedin_url, bgColor: '#0077b5' },
+    { name: 'twitter', icon: Twitter, url: '#', bgColor: '#1da1f2' },
+    { name: 'instagram', icon: Instagram, url: '#', bgColor: '#e1306c' },
+    { name: 'facebook', icon: Facebook, url: '#', bgColor: '#1877f2' }
   ];
 
   return (
@@ -68,62 +82,63 @@ export const Homepage = () => {
             />
           )}
           
-          <h1 
-            className="text-5xl font-bold mb-4"
-            style={{ color: themeColors.text }}
-          >
-            {homepageContent?.welcome_message || 'Welcome to WebsiteCyberSec'}
+          <h1 className="text-5xl font-bold mb-4" style={{ color: themeColors.text }}>
+            <span className="underline decoration-2" style={{ textDecorationColor: themeColors.primary }}>
+              Welcome to My Space
+            </span>
           </h1>
           
-          <h2 
-            className="text-3xl font-semibold mb-4"
-            style={{ color: themeColors.primary }}
-          >
+          <h2 className="text-3xl font-semibold mb-8" style={{ color: themeColors.primary }}>
             Harshal Gupta
           </h2>
-          
-          <p 
-            className="text-xl mb-8"
-            style={{ color: themeColors.accent }}
-          >
-            {homepageContent?.introduction || 'Enthusiast in Cybersecurity, Blockchain and Cloud Security'}
-          </p>
 
-          {/* Social Icons */}
-          <div className="flex justify-center gap-6 mb-12">
-            {homepageContent?.github_url && (
-              <a
-                href={homepageContent.github_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-full transition-transform hover:scale-110"
-                style={{ backgroundColor: themeColors.surface }}
-              >
-                <Github className="h-6 w-6" style={{ color: themeColors.text }} />
-              </a>
-            )}
-            {homepageContent?.linkedin_url && (
-              <a
-                href={homepageContent.linkedin_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-full transition-transform hover:scale-110"
-                style={{ backgroundColor: '#0077b5' }}
-              >
-                <Linkedin className="h-6 w-6 text-white" />
-              </a>
-            )}
+          {/* About Me Section */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold mb-6" style={{ color: themeColors.primary }}>
+              About Me
+            </h3>
+            <p className="text-lg leading-relaxed" style={{ color: themeColors.text }}>
+              Hey there! I'm Harshal, a passionate enthusiast in Cybersecurity, Blockchain, and FinTech. 
+              I love exploring how technology secures the digital world — from ethical hacking to blockchain protocols. 
+              With a sharp focus on Web3, digital forensics, and decentralized systems, I'm building skills to shape 
+              the future of secure, transparent tech. This space is where I showcase my journey — from certifications 
+              to real-world projects — all driven by curiosity and ambition. Let's dive into the world of secure 
+              innovation together!
+            </p>
+          </div>
+
+          {/* Social Media Section */}
+          <div className="mb-12">
+            <h4 className="text-lg font-semibold mb-6" style={{ color: themeColors.accent }}>
+              Follow me or find me here
+            </h4>
+            <div className="flex justify-center gap-6">
+              {socialIcons.map(({ name, icon: Icon, url, bgColor }) => (
+                url && (
+                  <a
+                    key={name}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 rounded-full transition-transform hover:scale-110"
+                    style={{ backgroundColor: bgColor }}
+                  >
+                    <Icon className="h-6 w-6 text-white" />
+                  </a>
+                )
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Animated Blocks with Pixel Effect */}
+      {/* Animated Blocks with Enhanced Effects */}
       <section className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {animatedBlocks.map(({ title, icon: Icon, path, description }, index) => (
             <Link key={path} to={path}>
               <Card 
-                className="h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer animate-fade-in border-0 pixel-card"
+                className="h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer animate-fade-in border-0 pixel-card glow-card"
                 style={{ 
                   backgroundColor: themeColors.surface,
                   animationDelay: `${index * 0.2}s`
@@ -155,32 +170,13 @@ export const Homepage = () => {
         </div>
       </section>
 
-      {/* About Me Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto">
-          <Card style={{ backgroundColor: themeColors.surface }} className="border-0">
-            <CardContent className="p-8">
-              <h2 
-                className="text-3xl font-bold mb-6 text-center"
-                style={{ color: themeColors.primary }}
-              >
-                About Me
-              </h2>
-              <p 
-                className="text-lg leading-relaxed text-center"
-                style={{ color: themeColors.text }}
-              >
-                {homepageContent?.about_bio || 'Passionate about cybersecurity, blockchain technology, and cloud security solutions.'}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Contact Section */}
+      {/* Contact Section with Glow Effect */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
-          <Card style={{ backgroundColor: themeColors.surface }} className="border-0">
+          <Card 
+            className="border-0 glow-card contact-glow"
+            style={{ backgroundColor: themeColors.surface }}
+          >
             <CardContent className="p-8">
               <h2 
                 className="text-3xl font-bold mb-6 text-center"
@@ -238,28 +234,91 @@ export const Homepage = () => {
           overflow: hidden;
         }
         
-        .pixel-card::before {
+        .glow-card {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .glow-card::before {
           content: '';
           position: absolute;
           top: -2px;
           left: -2px;
           right: -2px;
           bottom: -2px;
-          background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+          background: linear-gradient(45deg, transparent 30%, ${themeColors.primary}40 50%, transparent 70%);
           opacity: 0;
           transition: opacity 0.3s;
           pointer-events: none;
-          background-size: 20px 20px;
-          animation: pixelate 2s infinite linear;
+          z-index: -1;
         }
         
-        .pixel-card:hover::before {
+        .glow-card:hover::before {
           opacity: 1;
+          animation: glowMove 2s infinite linear;
         }
         
-        @keyframes pixelate {
-          0% { background-position: 0 0; }
-          100% { background-position: 20px 20px; }
+        .pixel-card::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, ${themeColors.primary}20, transparent);
+          opacity: 0;
+          transition: opacity 0.3s;
+          pointer-events: none;
+        }
+        
+        .pixel-card:hover::after {
+          opacity: 1;
+          animation: pixelMove 1.5s infinite ease-in-out;
+        }
+        
+        .contact-glow:hover::before {
+          animation: contactGlowMove 3s infinite linear;
+        }
+        
+        @keyframes glowMove {
+          0% { 
+            background: linear-gradient(0deg, transparent 30%, ${themeColors.primary}40 50%, transparent 70%);
+          }
+          25% { 
+            background: linear-gradient(90deg, transparent 30%, ${themeColors.primary}40 50%, transparent 70%);
+          }
+          50% { 
+            background: linear-gradient(180deg, transparent 30%, ${themeColors.primary}40 50%, transparent 70%);
+          }
+          75% { 
+            background: linear-gradient(270deg, transparent 30%, ${themeColors.primary}40 50%, transparent 70%);
+          }
+          100% { 
+            background: linear-gradient(360deg, transparent 30%, ${themeColors.primary}40 50%, transparent 70%);
+          }
+        }
+        
+        @keyframes pixelMove {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+        
+        @keyframes contactGlowMove {
+          0% { 
+            background: linear-gradient(0deg, transparent 20%, ${themeColors.primary}60 50%, transparent 80%);
+          }
+          25% { 
+            background: linear-gradient(90deg, transparent 20%, ${themeColors.primary}60 50%, transparent 80%);
+          }
+          50% { 
+            background: linear-gradient(180deg, transparent 20%, ${themeColors.primary}60 50%, transparent 80%);
+          }
+          75% { 
+            background: linear-gradient(270deg, transparent 20%, ${themeColors.primary}60 50%, transparent 80%);
+          }
+          100% { 
+            background: linear-gradient(360deg, transparent 20%, ${themeColors.primary}60 50%, transparent 80%);
+          }
         }
         
         @keyframes fade-in {

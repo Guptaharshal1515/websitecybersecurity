@@ -9,6 +9,9 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Header } from "@/components/layout/Header";
 import { Homepage } from "@/pages/Homepage";
 import { Login } from "@/pages/Login";
+import { CybersecurityCertificates } from "@/pages/CybersecurityCertificates";
+import { BlockchainCertificates } from "@/pages/BlockchainCertificates";
+import { Projects } from "@/pages/Projects";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,9 +29,9 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Homepage />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/cybersecurity-certificates" element={<div>Cybersecurity Certificates - Coming Soon</div>} />
-                <Route path="/blockchain-certificates" element={<div>Blockchain Certificates - Coming Soon</div>} />
-                <Route path="/projects" element={<div>Projects - Coming Soon</div>} />
+                <Route path="/cybersecurity-certificates" element={<CybersecurityCertificates />} />
+                <Route path="/blockchain-certificates" element={<BlockchainCertificates />} />
+                <Route path="/projects" element={<Projects />} />
                 <Route path="/journey" element={<div>Journey - Coming Soon</div>} />
                 <Route path="/tracker" element={<div>Tracker - Coming Soon</div>} />
                 <Route path="/roadmap" element={<div>Roadmap - Coming Soon</div>} />

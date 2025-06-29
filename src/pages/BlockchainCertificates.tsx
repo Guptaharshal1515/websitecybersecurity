@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, ExternalLink, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, Calendar, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface Certificate {
@@ -20,6 +20,7 @@ interface Certificate {
 export const BlockchainCertificates = () => {
   const { themeColors } = useTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
 
   const { data: certificates = [] } = useQuery({
     queryKey: ['blockchain-certificates'],
@@ -98,12 +99,12 @@ export const BlockchainCertificates = () => {
     const normalizedDiff = ((diff + totalCerts) % totalCerts);
     const adjustedDiff = normalizedDiff > totalCerts / 2 ? normalizedDiff - totalCerts : normalizedDiff;
     
-    const angle = (adjustedDiff * 60) * (Math.PI / 180); // 60 degrees between each cert
-    const radius = 200;
+    const angle = (adjustedDiff * 50) * (Math.PI / 180); // Increased spacing between certificates
+    const radius = 280; // Increased radius for larger arc
     const x = Math.sin(angle) * radius;
     const z = Math.cos(angle) * radius;
     
-    const scale = adjustedDiff === 0 ? 1 : Math.max(0.6, 1 - Math.abs(adjustedDiff) * 0.2);
+    const scale = adjustedDiff === 0 ? 1.2 : Math.max(0.7, 1 - Math.abs(adjustedDiff) * 0.2); // Larger center certificate
     const opacity = adjustedDiff === 0 ? 1 : Math.max(0.4, 1 - Math.abs(adjustedDiff) * 0.3);
     
     return {
@@ -178,9 +179,9 @@ export const BlockchainCertificates = () => {
             <div 
               className="relative"
               style={{ 
-                height: '400px', 
-                width: '600px',
-                perspective: '1000px'
+                height: '500px', 
+                width: '700px',
+                perspective: '1200px'
               }}
             >
               {dummyCertificates.map((cert, index) => (
@@ -190,20 +191,26 @@ export const BlockchainCertificates = () => {
                   style={{
                     ...getPositionStyle(index),
                     transformOrigin: 'center center',
-                    marginLeft: '-100px',
-                    marginTop: '-75px'
+                    marginLeft: '-120px', // Increased for larger certificates
+                    marginTop: '-90px'
                   }}
-                  onClick={() => setCurrentIndex(index)}
+                  onClick={() => {
+                    if (index === currentIndex) {
+                      setSelectedCertificate(cert);
+                    } else {
+                      setCurrentIndex(index);
+                    }
+                  }}
                 >
                   <Card 
-                    className="w-48 h-32 border-0 hover:shadow-lg transition-shadow"
+                    className="w-60 h-40 border-0 hover:shadow-xl transition-shadow duration-300" // Increased size
                     style={{ backgroundColor: themeColors.surface }}
                   >
-                    <CardContent className="p-4 h-full flex flex-col justify-center items-center text-center">
+                    <CardContent className="p-6 h-full flex flex-col justify-center items-center text-center">
                       <img
                         src={cert.image_url}
                         alt={cert.title}
-                        className="w-12 h-12 mb-2 rounded"
+                        className="w-16 h-16 mb-3 rounded" // Increased image size
                       />
                       <h3 
                         className="text-sm font-semibold truncate w-full"
@@ -223,17 +230,27 @@ export const BlockchainCertificates = () => {
                 onClick={prevCertificate}
                 variant="outline"
                 size="lg"
-                style={{ borderColor: themeColors.primary, color: themeColors.primary }}
+                className="border-2 hover:shadow-lg transition-all duration-300"
+                style={{ 
+                  borderColor: themeColors.primary, 
+                  color: themeColors.primary,
+                  backgroundColor: themeColors.background
+                }}
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-6 w-6" />
               </Button>
               <Button
                 onClick={nextCertificate}
                 variant="outline"
                 size="lg"
-                style={{ borderColor: themeColors.primary, color: themeColors.primary }}
+                className="border-2 hover:shadow-lg transition-all duration-300"
+                style={{ 
+                  borderColor: themeColors.primary, 
+                  color: themeColors.primary,
+                  backgroundColor: themeColors.background
+                }}
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-6 w-6" />
               </Button>
             </div>
 
@@ -253,6 +270,36 @@ export const BlockchainCertificates = () => {
           </div>
         </div>
       </div>
+
+      {/* Certificate Modal */}
+      {selectedCertificate && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedCertificate(null)}
+        >
+          <div 
+            className="max-w-4xl w-full max-h-[90vh] overflow-auto rounded-lg relative"
+            style={{ backgroundColor: themeColors.surface }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedCertificate(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:opacity-80 z-10"
+              style={{ backgroundColor: themeColors.primary }}
+            >
+              <X className="h-5 w-5 text-white" />
+            </button>
+            
+            <div className="p-8">
+              <img
+                src={selectedCertificate.image_url}
+                alt={selectedCertificate.title}
+                className="w-full h-auto rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

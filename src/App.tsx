@@ -12,6 +12,9 @@ import { Login } from "@/pages/Login";
 import { CybersecurityCertificates } from "@/pages/CybersecurityCertificates";
 import { BlockchainCertificates } from "@/pages/BlockchainCertificates";
 import { Projects } from "@/pages/Projects";
+import { Journey } from "@/pages/Journey";
+import { Tracker } from "@/pages/Tracker";
+import { Roadmap } from "@/pages/Roadmap";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,9 +35,9 @@ const App = () => (
                 <Route path="/cybersecurity-certificates" element={<CybersecurityCertificates />} />
                 <Route path="/blockchain-certificates" element={<BlockchainCertificates />} />
                 <Route path="/projects" element={<Projects />} />
-                <Route path="/journey" element={<div>Journey - Coming Soon</div>} />
-                <Route path="/tracker" element={<div>Tracker - Coming Soon</div>} />
-                <Route path="/roadmap" element={<div>Roadmap - Coming Soon</div>} />
+                <Route path="/journey" element={<Journey />} />
+                <Route path="/tracker" element={<Tracker />} />
+                <Route path="/roadmap" element={<Roadmap />} />
                 <Route path="/admin" element={<div>Admin Dashboard - Coming Soon</div>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

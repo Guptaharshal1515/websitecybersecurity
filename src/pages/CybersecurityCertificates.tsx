@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { ExternalLink, Calendar, Award } from 'lucide-react';
+import { ExternalLink, Calendar, Award, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface Certificate {
@@ -19,6 +19,7 @@ interface Certificate {
 export const CybersecurityCertificates = () => {
   const { themeColors } = useTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
 
   const { data: certificates = [] } = useQuery({
     queryKey: ['cybersecurity-certificates'],
@@ -102,21 +103,23 @@ export const CybersecurityCertificates = () => {
               key={cert.id}
               className={`transition-all duration-500 ${
                 index === currentIndex 
-                  ? 'scale-100 opacity-100' 
-                  : index === currentIndex - 1 || index === currentIndex + 1
-                  ? 'scale-95 opacity-60 blur-sm'
-                  : 'scale-90 opacity-30 blur-md'
+                  ? 'scale-100 opacity-100 z-10' 
+                  : index === currentIndex + 1
+                  ? 'scale-95 opacity-40 translate-y-8'
+                  : 'scale-90 opacity-20 blur-md'
               }`}
               style={{ 
                 minHeight: '80vh',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                position: 'relative'
               }}
             >
               <Card 
-                className="w-full max-w-4xl border-0"
+                className="w-full max-w-4xl border-0 cursor-pointer hover:shadow-2xl transition-shadow duration-300"
                 style={{ backgroundColor: themeColors.surface }}
+                onClick={() => setSelectedCertificate(cert)}
               >
                 <CardContent className="p-8">
                   <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -155,6 +158,7 @@ export const CybersecurityCertificates = () => {
                             backgroundColor: themeColors.primary,
                             color: 'white'
                           }}
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <ExternalLink className="h-4 w-4" />
                           View Certificate
@@ -177,6 +181,36 @@ export const CybersecurityCertificates = () => {
           ))}
         </div>
       </div>
+
+      {/* Certificate Modal */}
+      {selectedCertificate && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedCertificate(null)}
+        >
+          <div 
+            className="max-w-4xl w-full max-h-[90vh] overflow-auto rounded-lg relative"
+            style={{ backgroundColor: themeColors.surface }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedCertificate(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:opacity-80 z-10"
+              style={{ backgroundColor: themeColors.primary }}
+            >
+              <X className="h-5 w-5 text-white" />
+            </button>
+            
+            <div className="p-8">
+              <img
+                src={selectedCertificate.image_url}
+                alt={selectedCertificate.title}
+                className="w-full h-auto rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

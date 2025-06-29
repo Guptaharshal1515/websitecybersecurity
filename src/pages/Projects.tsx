@@ -42,8 +42,8 @@ export const Projects = () => {
       title: 'Decentralized Voting System',
       description: 'A blockchain-based voting application ensuring transparency and security in democratic processes. Built with Solidity smart contracts and React frontend.',
       image_url: '/placeholder.svg',
-      project_url: '#',
-      github_url: '#',
+      project_url: 'https://voting-dapp.example.com',
+      github_url: 'https://github.com/username/voting-system',
       technologies: ['Solidity', 'React', 'Web3.js', 'Ethereum'],
       created_at: '2024-01-15',
       display_order: 1
@@ -53,8 +53,8 @@ export const Projects = () => {
       title: 'Cybersecurity Dashboard',
       description: 'Real-time security monitoring dashboard with threat detection and incident response capabilities. Features automated vulnerability scanning.',
       image_url: '/placeholder.svg',
-      project_url: '#',
-      github_url: '#',
+      project_url: 'https://security-dashboard.example.com',
+      github_url: 'https://github.com/username/security-dashboard',
       technologies: ['Python', 'Django', 'React', 'PostgreSQL'],
       created_at: '2024-02-20',
       display_order: 2
@@ -64,8 +64,8 @@ export const Projects = () => {
       title: 'DeFi Yield Optimizer',
       description: 'Automated yield farming strategy optimizer that maximizes returns across different DeFi protocols while minimizing risks.',
       image_url: '/placeholder.svg',
-      project_url: '#',
-      github_url: '#',
+      project_url: 'https://defi-optimizer.example.com',
+      github_url: 'https://github.com/username/defi-optimizer',
       technologies: ['Solidity', 'Node.js', 'React', 'Web3'],
       created_at: '2024-03-10',
       display_order: 3
@@ -75,8 +75,8 @@ export const Projects = () => {
       title: 'Network Penetration Tool',
       description: 'Automated penetration testing framework for network security assessment. Includes vulnerability discovery and reporting features.',
       image_url: '/placeholder.svg',
-      project_url: '#',
-      github_url: '#',
+      project_url: 'https://pentest-tool.example.com',
+      github_url: 'https://github.com/username/pentest-tool',
       technologies: ['Python', 'Nmap', 'Metasploit', 'Bash'],
       created_at: '2024-03-25',
       display_order: 4
@@ -239,40 +239,50 @@ export const Projects = () => {
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-4">
-                      {selectedProjectData.project_url && selectedProjectData.project_url !== '#' && (
-                        <Button
-                          asChild
-                          style={{ backgroundColor: themeColors.primary }}
-                        >
-                          <a
-                            href={selectedProjectData.project_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                    {/* Project Links */}
+                    <div>
+                      <h3 
+                        className="text-lg font-semibold mb-3"
+                        style={{ color: themeColors.primary }}
+                      >
+                        Project Links
+                      </h3>
+                      <div className="flex flex-col gap-3">
+                        {selectedProjectData.project_url && selectedProjectData.project_url !== '#' && (
+                          <Button
+                            asChild
+                            className="w-full justify-start"
+                            style={{ backgroundColor: themeColors.primary }}
                           >
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            Live Demo
-                          </a>
-                        </Button>
-                      )}
-                      
-                      {selectedProjectData.github_url && selectedProjectData.github_url !== '#' && (
-                        <Button
-                          variant="outline"
-                          asChild
-                          style={{ borderColor: themeColors.primary, color: themeColors.primary }}
-                        >
-                          <a
-                            href={selectedProjectData.github_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            <a
+                              href={selectedProjectData.project_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              View Live Project
+                            </a>
+                          </Button>
+                        )}
+                        
+                        {selectedProjectData.github_url && selectedProjectData.github_url !== '#' && (
+                          <Button
+                            variant="outline"
+                            asChild
+                            className="w-full justify-start"
+                            style={{ borderColor: themeColors.primary, color: themeColors.primary }}
                           >
-                            <Github className="h-4 w-4 mr-2" />
-                            Source Code
-                          </a>
-                        </Button>
-                      )}
+                            <a
+                              href={selectedProjectData.github_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Github className="h-4 w-4 mr-2" />
+                              View Source Code
+                            </a>
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

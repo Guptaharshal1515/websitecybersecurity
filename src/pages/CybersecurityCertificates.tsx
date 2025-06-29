@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { ExternalLink, Calendar, Award, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface Certificate {
   id: string;
@@ -19,7 +19,6 @@ interface Certificate {
 export const CybersecurityCertificates = () => {
   const { themeColors } = useTheme();
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
-  const [visibleCards, setVisibleCards] = useState(new Set<number>());
 
   const { data: certificates = [] } = useQuery({
     queryKey: ['cybersecurity-certificates'],
@@ -33,34 +32,6 @@ export const CybersecurityCertificates = () => {
       return data as Certificate[];
     },
   });
-
-  // Intersection Observer for scroll animations
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = parseInt(entry.target.getAttribute('data-index') || '0');
-            setVisibleCards(prev => new Set([...prev, index]));
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '50px' }
-    );
-
-    const cards = document.querySelectorAll('[data-certificate-card]');
-    cards.forEach(card => observer.observe(card));
-
-    return () => observer.disconnect();
-  }, [certificates.length]);
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
 
   // Add dummy certificates if none exist
   const dummyCertificates = certificates.length === 0 ? [
@@ -102,10 +73,18 @@ export const CybersecurityCertificates = () => {
     }
   ] : certificates;
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   if (dummyCertificates.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: themeColors.background }}>
-        <Card className="border-0 pixel-glitch-card" style={{ backgroundColor: themeColors.surface }}>
+        <Card className="border-0" style={{ backgroundColor: themeColors.surface }}>
           <CardContent className="p-12 text-center">
             <Award className="h-16 w-16 mx-auto mb-4" style={{ color: themeColors.primary }} />
             <h2 className="text-2xl font-bold mb-2" style={{ color: themeColors.text }}>
@@ -122,9 +101,9 @@ export const CybersecurityCertificates = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8">
         <h1 
-          className="text-4xl font-bold text-center mb-16"
+          className="text-4xl font-bold text-center mb-8"
           style={{ color: themeColors.primary }}
         >
           Cybersecurity Certificates
@@ -132,73 +111,63 @@ export const CybersecurityCertificates = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
           {dummyCertificates.map((cert, index) => (
-            <div
+            <Card 
               key={cert.id}
-              data-certificate-card
-              data-index={index}
-              className={`pixel-glitch-card pixel-glitch-delay-${(index % 4) + 1} transform transition-all duration-700 ease-out ${
-                visibleCards.has(index) 
-                  ? 'translate-y-0 opacity-100' 
-                  : 'translate-y-8 opacity-0'
-              }`}
+              className="border-0 cursor-pointer hover:shadow-lg transition-all duration-300 h-full"
+              style={{ 
+                backgroundColor: themeColors.surface,
+                boxShadow: `0 4px 20px ${themeColors.primary}20`
+              }}
+              onClick={() => setSelectedCertificate(cert)}
             >
-              <Card 
-                className="border-0 cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] group h-full"
-                style={{ 
-                  backgroundColor: themeColors.surface,
-                  boxShadow: `0 4px 20px ${themeColors.primary}20`
-                }}
-                onClick={() => setSelectedCertificate(cert)}
-              >
-                <CardContent className="p-6 h-full flex flex-col">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Award className="h-6 w-6 flex-shrink-0" style={{ color: themeColors.primary }} />
-                    <h2 
-                      className="text-xl font-bold line-clamp-2"
-                      style={{ color: themeColors.text }}
-                    >
-                      {cert.title}
-                    </h2>
-                  </div>
-                  
-                  <div className="flex-1 mb-4">
-                    <img
-                      src={cert.image_url}
-                      alt={cert.title}
-                      className="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-300"
-                      onError={(e) => {
-                        e.currentTarget.src = '/placeholder.svg';
-                      }}
-                    />
-                  </div>
-                  
-                  <p 
-                    className="text-sm mb-4 line-clamp-3"
-                    style={{ color: themeColors.accent }}
+              <CardContent className="p-6 h-full flex flex-col">
+                <div className="flex items-center gap-3 mb-4">
+                  <Award className="h-6 w-6 flex-shrink-0" style={{ color: themeColors.primary }} />
+                  <h2 
+                    className="text-xl font-bold"
+                    style={{ color: themeColors.text }}
                   >
-                    {cert.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between mt-auto">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
-                      <span className="text-sm" style={{ color: themeColors.text }}>
-                        {formatDate(cert.created_at)}
-                      </span>
-                    </div>
-                    
-                    {cert.certificate_url && cert.certificate_url !== '#' && (
-                      <div
-                        className="p-2 rounded-lg transition-colors"
-                        style={{ backgroundColor: themeColors.primary + '20' }}
-                      >
-                        <ExternalLink className="h-4 w-4" style={{ color: themeColors.primary }} />
-                      </div>
-                    )}
+                    {cert.title}
+                  </h2>
+                </div>
+                
+                <div className="flex-1 mb-4">
+                  <img
+                    src={cert.image_url}
+                    alt={cert.title}
+                    className="w-full h-48 object-cover rounded-lg shadow-sm"
+                    onError={(e) => {
+                      e.currentTarget.src = '/placeholder.svg';
+                    }}
+                  />
+                </div>
+                
+                <p 
+                  className="text-sm mb-4 flex-1"
+                  style={{ color: themeColors.accent }}
+                >
+                  {cert.description}
+                </p>
+                
+                <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
+                    <span className="text-sm" style={{ color: themeColors.text }}>
+                      {formatDate(cert.created_at)}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                  
+                  {cert.certificate_url && cert.certificate_url !== '#' && (
+                    <div
+                      className="p-2 rounded-lg transition-colors"
+                      style={{ backgroundColor: themeColors.primary + '20' }}
+                    >
+                      <ExternalLink className="h-4 w-4" style={{ color: themeColors.primary }} />
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
@@ -210,7 +179,7 @@ export const CybersecurityCertificates = () => {
           onClick={() => setSelectedCertificate(null)}
         >
           <div 
-            className="max-w-4xl w-full max-h-[90vh] overflow-auto rounded-lg relative animate-scale-in"
+            className="max-w-4xl w-full max-h-[90vh] overflow-auto rounded-lg relative"
             style={{ backgroundColor: themeColors.surface }}
             onClick={(e) => e.stopPropagation()}
           >

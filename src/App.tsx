@@ -15,6 +15,7 @@ import { Projects } from "@/pages/Projects";
 import { Journey } from "@/pages/Journey";
 import { Tracker } from "@/pages/Tracker";
 import { Roadmap } from "@/pages/Roadmap";
+import { Admin } from "@/pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,7 +39,7 @@ const App = () => (
                 <Route path="/journey" element={<Journey />} />
                 <Route path="/tracker" element={<Tracker />} />
                 <Route path="/roadmap" element={<Roadmap />} />
-                <Route path="/admin" element={<div>Admin Dashboard - Coming Soon</div>} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>

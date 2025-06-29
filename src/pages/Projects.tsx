@@ -1,11 +1,10 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Github, Calendar, Code, Folder, FileText } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Project {
   id: string;
@@ -22,6 +21,7 @@ interface Project {
 export const Projects = () => {
   const { themeColors } = useTheme();
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [visibleCards, setVisibleCards] = useState(new Set<number>());
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -34,6 +34,26 @@ export const Projects = () => {
       return data as Project[];
     },
   });
+
+  // Intersection Observer for animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.getAttribute('data-index') || '0');
+            setVisibleCards(prev => new Set([...prev, index]));
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
+
+    const cards = document.querySelectorAll('[data-project-card]');
+    cards.forEach(card => observer.observe(card));
+
+    return () => observer.disconnect();
+  }, [projects.length]);
 
   // Add dummy projects if none exist
   const dummyProjects = projects.length === 0 ? [
@@ -109,7 +129,7 @@ export const Projects = () => {
           {/* Left Sidebar - Project List */}
           <div className="w-1/3">
             <Card 
-              className="h-full border-0"
+              className="h-full border-0 pixel-glitch-card"
               style={{ backgroundColor: themeColors.surface }}
             >
               <CardContent className="p-4 h-full">
@@ -122,40 +142,48 @@ export const Projects = () => {
                 </h2>
                 
                 <div className="space-y-2">
-                  {dummyProjects.map((project) => (
-                    <button
+                  {dummyProjects.map((project, index) => (
+                    <div
                       key={project.id}
-                      onClick={() => setSelectedProject(project.id)}
-                      className={`w-full text-left p-3 rounded-lg transition-all flex items-center gap-3 ${
-                        (selectedProject || dummyProjects[0].id) === project.id
-                          ? 'shadow-md'
-                          : 'hover:shadow-sm'
+                      data-project-card
+                      data-index={index}
+                      className={`pixel-glitch-card pixel-glitch-delay-${(index % 4) + 1} ${
+                        visibleCards.has(index) ? 'opacity-100' : 'opacity-0'
                       }`}
-                      style={{
-                        backgroundColor: (selectedProject || dummyProjects[0].id) === project.id
-                          ? themeColors.primary + '20'
-                          : themeColors.background,
-                        borderLeft: (selectedProject || dummyProjects[0].id) === project.id
-                          ? `3px solid ${themeColors.primary}`
-                          : '3px solid transparent'
-                      }}
                     >
-                      <FileText className="h-4 w-4" style={{ color: themeColors.primary }} />
-                      <div>
-                        <p 
-                          className="font-medium text-sm"
-                          style={{ color: themeColors.text }}
-                        >
-                          {project.title}
-                        </p>
-                        <p 
-                          className="text-xs"
-                          style={{ color: themeColors.accent }}
-                        >
-                          {formatDate(project.created_at)}
-                        </p>
-                      </div>
-                    </button>
+                      <button
+                        onClick={() => setSelectedProject(project.id)}
+                        className={`w-full text-left p-3 rounded-lg transition-all flex items-center gap-3 ${
+                          (selectedProject || dummyProjects[0].id) === project.id
+                            ? 'shadow-md'
+                            : 'hover:shadow-sm'
+                        }`}
+                        style={{
+                          backgroundColor: (selectedProject || dummyProjects[0].id) === project.id
+                            ? themeColors.primary + '20'
+                            : themeColors.background,
+                          borderLeft: (selectedProject || dummyProjects[0].id) === project.id
+                            ? `3px solid ${themeColors.primary}`
+                            : '3px solid transparent'
+                        }}
+                      >
+                        <FileText className="h-4 w-4" style={{ color: themeColors.primary }} />
+                        <div>
+                          <p 
+                            className="font-medium text-sm"
+                            style={{ color: themeColors.text }}
+                          >
+                            {project.title}
+                          </p>
+                          <p 
+                            className="text-xs"
+                            style={{ color: themeColors.accent }}
+                          >
+                            {formatDate(project.created_at)}
+                          </p>
+                        </div>
+                      </button>
+                    </div>
                   ))}
                 </div>
               </CardContent>
@@ -165,7 +193,7 @@ export const Projects = () => {
           {/* Right Panel - Project Preview */}
           <div className="w-2/3">
             <Card 
-              className="h-full border-0"
+              className="h-full border-0 pixel-glitch-card pixel-glitch-delay-2"
               style={{ backgroundColor: themeColors.surface }}
             >
               <CardContent className="p-6 h-full overflow-y-auto">

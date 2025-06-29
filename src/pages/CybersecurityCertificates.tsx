@@ -105,7 +105,7 @@ export const CybersecurityCertificates = () => {
   if (dummyCertificates.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: themeColors.background }}>
-        <Card className="border-0" style={{ backgroundColor: themeColors.surface }}>
+        <Card className="border-0 pixel-glitch-card" style={{ backgroundColor: themeColors.surface }}>
           <CardContent className="p-12 text-center">
             <Award className="h-16 w-16 mx-auto mb-4" style={{ color: themeColors.primary }} />
             <h2 className="text-2xl font-bold mb-2" style={{ color: themeColors.text }}>
@@ -136,14 +136,11 @@ export const CybersecurityCertificates = () => {
               key={cert.id}
               data-certificate-card
               data-index={index}
-              className={`transform transition-all duration-700 ease-out ${
+              className={`pixel-glitch-card pixel-glitch-delay-${(index % 4) + 1} transform transition-all duration-700 ease-out ${
                 visibleCards.has(index) 
                   ? 'translate-y-0 opacity-100' 
                   : 'translate-y-8 opacity-0'
               }`}
-              style={{ 
-                transitionDelay: `${index * 150}ms`
-              }}
             >
               <Card 
                 className="border-0 cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] group h-full"

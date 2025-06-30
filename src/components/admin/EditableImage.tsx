@@ -1,16 +1,19 @@
 
 import { useState, useRef } from 'react';
-import { Upload, Trash2 } from 'lucide-react';
+import { Upload, Trash2, Save, X } from 'lucide-react';
 import { LiveEditWrapper } from './LiveEditWrapper';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
+import { uploadImageToStorage, getPublicUrl } from '@/utils/storage';
+import { useToast } from '@/hooks/use-toast';
 
 interface EditableImageProps {
   src: string | null;
   alt: string;
-  onSave: (file: File | null) => void;
+  onSave: (url: string | null) => void;
   className?: string;
   isCircular?: boolean;
+  bucket?: string;
 }
 
 export const EditableImage = ({ 
@@ -18,11 +21,15 @@ export const EditableImage = ({
   alt, 
   onSave, 
   className = "",
-  isCircular = false 
+  isCircular = false,
+  bucket = 'images'
 }: EditableImageProps) => {
   const { themeColors } = useTheme();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [previewSrc, setPreviewSrc] = useState<string | null>(src);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEdit = () => {
@@ -32,6 +39,7 @@ export const EditableImage = ({
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreviewSrc(e.target?.result as string);
@@ -40,14 +48,36 @@ export const EditableImage = ({
     }
   };
 
-  const handleSave = () => {
-    const file = fileInputRef.current?.files?.[0] || null;
-    onSave(file);
+  const handleSave = async () => {
+    if (selectedFile) {
+      setIsUploading(true);
+      try {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        await uploadImageToStorage(selectedFile, bucket, fileName);
+        const publicUrl = getPublicUrl(bucket, fileName);
+        
+        onSave(publicUrl);
+        toast({ title: 'Image uploaded successfully!' });
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast({ title: 'Error uploading image', variant: 'destructive' });
+      } finally {
+        setIsUploading(false);
+      }
+    } else if (previewSrc === null) {
+      onSave(null);
+    } else {
+      onSave(previewSrc);
+    }
     setIsEditing(false);
+    setSelectedFile(null);
   };
 
   const handleCancel = () => {
     setPreviewSrc(src);
+    setSelectedFile(null);
     setIsEditing(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -56,6 +86,7 @@ export const EditableImage = ({
 
   const handleRemove = () => {
     setPreviewSrc(null);
+    setSelectedFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -87,23 +118,32 @@ export const EditableImage = ({
         
         {isEditing && (
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                style={{ backgroundColor: themeColors.primary }}
-              >
-                <Upload className="h-4 w-4 mr-1" />
-                Upload
-              </Button>
-              {previewSrc && (
+            <div className="flex flex-col gap-2 items-center">
+              <div className="flex gap-2">
                 <Button
                   size="sm"
-                  onClick={handleRemove}
-                  className="bg-red-500 hover:bg-red-600"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ backgroundColor: themeColors.primary }}
+                  disabled={isUploading}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Upload className="h-4 w-4 mr-1" />
+                  {isUploading ? 'Uploading...' : 'Upload'}
                 </Button>
+                {previewSrc && (
+                  <Button
+                    size="sm"
+                    onClick={handleRemove}
+                    className="bg-red-500 hover:bg-red-600"
+                    disabled={isUploading}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {selectedFile && (
+                <p className="text-white text-xs text-center">
+                  {selectedFile.name}
+                </p>
               )}
             </div>
           </div>

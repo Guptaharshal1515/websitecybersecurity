@@ -1,9 +1,15 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { ExternalLink, Github } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, Github, Plus } from 'lucide-react';
+import { EditableText } from '@/components/admin/EditableText';
+import { EditableImage } from '@/components/admin/EditableImage';
+import { useToast } from '@/hooks/use-toast';
 
 interface Project {
   id: string;
@@ -17,7 +23,11 @@ interface Project {
 }
 
 export const Projects = () => {
-  const { themeColors } = useTheme();
+  const { themeColors, userRole } = useTheme();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -31,67 +41,86 @@ export const Projects = () => {
     },
   });
 
-  // Add dummy data if no projects exist
-  const displayProjects = projects.length === 0 ? [
-    {
-      id: '1',
-      title: 'Secure Password Manager',
-      description: 'A full-stack password manager with end-to-end encryption and multi-factor authentication.',
-      image_url: '/placeholder.svg',
-      project_url: '#',
-      github_url: '#',
-      technologies: ['React', 'Node.js', 'MongoDB', 'Encryption'],
-      display_order: 1
+  const updateProjectMutation = useMutation({
+    mutationFn: async ({ id, field, value }: { id: string; field: string; value: string | string[] }) => {
+      const { data, error } = await supabase
+        .from('projects')
+        .update({ [field]: value })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
     },
-    {
-      id: '2',
-      title: 'Blockchain Voting System',
-      description: 'Decentralized voting application built on Ethereum with smart contracts for transparency.',
-      image_url: '/placeholder.svg',
-      project_url: '#',
-      github_url: '#',
-      technologies: ['Solidity', 'Web3.js', 'React', 'Ethereum'],
-      display_order: 2
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast({ title: 'Project updated successfully!' });
     }
-  ] : projects;
+  });
+
+  const handleImageSave = async (id: string, file: File | null) => {
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      updateProjectMutation.mutate({ id, field: 'image_url', value: imageUrl });
+    } else {
+      updateProjectMutation.mutate({ id, field: 'image_url', value: '' });
+    }
+  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
-        <h1 
-          className="text-4xl font-bold text-center mb-16"
-          style={{ color: themeColors.primary }}
-        >
-          My Projects
-        </h1>
+        <div className="flex justify-between items-center mb-16">
+          <h1 
+            className="text-4xl font-bold"
+            style={{ color: themeColors.primary }}
+          >
+            My Projects
+          </h1>
+          
+          {userRole === 'admin' && (
+            <Button
+              onClick={() => setShowAddForm(true)}
+              style={{ backgroundColor: themeColors.primary }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Project
+            </Button>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayProjects.map((project) => (
+          {projects.map((project) => (
             <Card 
               key={project.id}
               className="border-0 hover:shadow-lg transition-shadow duration-300"
               style={{ backgroundColor: themeColors.surface }}
             >
               <CardContent className="p-6">
-                <div className="aspect-video mb-4 rounded-lg overflow-hidden" style={{ backgroundColor: themeColors.background }}>
-                  <img
-                    src={project.image_url || '/placeholder.svg'}
+                <div className="aspect-video mb-4 rounded-lg overflow-hidden">
+                  <EditableImage
+                    src={project.image_url}
                     alt={project.title}
+                    onSave={(file) => handleImageSave(project.id, file)}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 
+                
+                <EditableText
+                  value={project.title}
+                  onSave={(value) => updateProjectMutation.mutate({ id: project.id, field: 'title', value })}
                   className="text-xl font-semibold mb-2"
-                  style={{ color: themeColors.text }}
-                >
-                  {project.title}
-                </h3>
-                <p 
+                  placeholder="Project title"
+                />
+                
+                <EditableText
+                  value={project.description || ''}
+                  onSave={(value) => updateProjectMutation.mutate({ id: project.id, field: 'description', value })}
+                  multiline={true}
                   className="text-sm mb-4 leading-relaxed"
-                  style={{ color: themeColors.accent }}
-                >
-                  {project.description}
-                </p>
+                  placeholder="Project description"
+                />
                 
                 {project.technologies && (
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -111,7 +140,7 @@ export const Projects = () => {
                 )}
 
                 <div className="flex gap-2">
-                  {project.project_url && project.project_url !== '#' && (
+                  {project.project_url && (
                     <a
                       href={project.project_url}
                       target="_blank"
@@ -123,7 +152,7 @@ export const Projects = () => {
                       Live Demo
                     </a>
                   )}
-                  {project.github_url && project.github_url !== '#' && (
+                  {project.github_url && (
                     <a
                       href={project.github_url}
                       target="_blank"

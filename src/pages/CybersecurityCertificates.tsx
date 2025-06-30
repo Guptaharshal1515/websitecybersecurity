@@ -1,9 +1,16 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, Plus } from 'lucide-react';
+import { EditableText } from '@/components/admin/EditableText';
+import { EditableImage } from '@/components/admin/EditableImage';
+import { LiveEditWrapper } from '@/components/admin/LiveEditWrapper';
+import { useToast } from '@/hooks/use-toast';
 
 interface Certificate {
   id: string;
@@ -16,7 +23,11 @@ interface Certificate {
 }
 
 export const CybersecurityCertificates = () => {
-  const { themeColors } = useTheme();
+  const { themeColors, userRole } = useTheme();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const { data: certificates = [] } = useQuery({
     queryKey: ['certificates', 'cybersecurity'],
@@ -31,66 +42,107 @@ export const CybersecurityCertificates = () => {
     },
   });
 
-  // Add dummy data if no certificates exist
-  const displayCertificates = certificates.length === 0 ? [
-    {
-      id: '1',
-      title: 'Certified Ethical Hacker (CEH)',
-      description: 'Comprehensive ethical hacking certification covering penetration testing methodologies.',
-      image_url: '/placeholder.svg',
-      certificate_url: '#',
-      type: 'cybersecurity',
-      display_order: 1
+  const addCertificateMutation = useMutation({
+    mutationFn: async (newCert: { title: string; description: string; completion_date: string }) => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .insert([{ ...newCert, type: 'cybersecurity' }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
     },
-    {
-      id: '2',
-      title: 'CompTIA Security+',
-      description: 'Foundation-level cybersecurity certification covering security concepts and practices.',
-      image_url: '/placeholder.svg',
-      certificate_url: '#',
-      type: 'cybersecurity',
-      display_order: 2
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certificates', 'cybersecurity'] });
+      toast({ title: 'Certificate added successfully!' });
+      setShowAddForm(false);
     }
-  ] : certificates;
+  });
+
+  const updateCertificateMutation = useMutation({
+    mutationFn: async ({ id, field, value }: { id: string; field: string; value: string }) => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .update({ [field]: value })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certificates', 'cybersecurity'] });
+      toast({ title: 'Certificate updated successfully!' });
+    }
+  });
+
+  const handleImageSave = async (id: string, file: File | null) => {
+    if (file) {
+      // In a real implementation, you'd upload to Supabase Storage
+      const imageUrl = URL.createObjectURL(file);
+      updateCertificateMutation.mutate({ id, field: 'image_url', value: imageUrl });
+    } else {
+      updateCertificateMutation.mutate({ id, field: 'image_url', value: '' });
+    }
+  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
-        <h1 
-          className="text-4xl font-bold text-center mb-16"
-          style={{ color: themeColors.primary }}
-        >
-          Cybersecurity Certificates
-        </h1>
+        <div className="flex justify-between items-center mb-16">
+          <h1 
+            className="text-4xl font-bold"
+            style={{ color: themeColors.primary }}
+          >
+            Cybersecurity Certificates
+          </h1>
+          
+          {userRole === 'admin' && (
+            <Button
+              onClick={() => setShowAddForm(true)}
+              style={{ backgroundColor: themeColors.primary }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Certificate
+            </Button>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayCertificates.map((cert) => (
+          {certificates.map((cert) => (
             <Card 
               key={cert.id}
               className="border-0 hover:shadow-lg transition-shadow duration-300"
               style={{ backgroundColor: themeColors.surface }}
             >
               <CardContent className="p-6">
-                <div className="aspect-video mb-4 rounded-lg overflow-hidden" style={{ backgroundColor: themeColors.background }}>
-                  <img
-                    src={cert.image_url || '/placeholder.svg'}
+                <div className="aspect-video mb-4 rounded-lg overflow-hidden">
+                  <EditableImage
+                    src={cert.image_url}
                     alt={cert.title}
+                    onSave={(file) => handleImageSave(cert.id, file)}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 
+                
+                <EditableText
+                  value={cert.title}
+                  onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'title', value })}
                   className="text-xl font-semibold mb-2"
-                  style={{ color: themeColors.text }}
-                >
-                  {cert.title}
-                </h3>
-                <p 
+                  placeholder="Certificate title"
+                />
+                
+                <EditableText
+                  value={cert.description || ''}
+                  onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'description', value })}
+                  multiline={true}
                   className="text-sm mb-4 leading-relaxed"
-                  style={{ color: themeColors.accent }}
-                >
-                  {cert.description}
-                </p>
-                {cert.certificate_url && cert.certificate_url !== '#' && (
+                  placeholder="Certificate description"
+                />
+                
+                {cert.certificate_url && (
                   <a
                     href={cert.certificate_url}
                     target="_blank"

@@ -1,10 +1,14 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, Plus } from 'lucide-react';
+import { EditableText } from '@/components/admin/EditableText';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface JourneyEntry {
   id: string;
@@ -18,8 +22,10 @@ interface JourneyEntry {
 export const Journey = () => {
   const { themeColors, userRole } = useTheme();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  // Only redirect if user is not logged in or is specifically a viewer
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: themeColors.background }}>
@@ -66,41 +72,46 @@ export const Journey = () => {
     },
   });
 
-  // Add dummy data if no entries exist
-  const dummyEntries = journeyEntries.length === 0 ? [
-    {
-      id: '1',
-      title: 'Started Bachelor\'s in Computer Science',
-      description: 'Beginning my journey into the world of cybersecurity and technology.',
-      entry_date: '2024-01-15',
-      display_order: 1,
-      created_at: '2024-01-15'
+  const addEntryMutation = useMutation({
+    mutationFn: async (newEntry: { title: string; description: string; entry_date: string }) => {
+      const { data, error } = await supabase
+        .from('journey_entries')
+        .insert([newEntry])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
     },
-    {
-      id: '2',
-      title: 'First Cybersecurity Certification',
-      description: 'Completed my first ethical hacking certification, marking a major milestone.',
-      entry_date: '2024-02-20',
-      display_order: 2,
-      created_at: '2024-02-20'
-    },
-    {
-      id: '3',
-      title: 'Blockchain Development Deep Dive',
-      description: 'Started learning Solidity and smart contract development.',
-      entry_date: '2024-03-10',
-      display_order: 3,
-      created_at: '2024-03-10'
-    },
-    {
-      id: '4',
-      title: 'First Security Hackathon',
-      description: 'Participated in my first cybersecurity hackathon, learned a lot about real-world applications.',
-      entry_date: '2024-03-25',
-      display_order: 4,
-      created_at: '2024-03-25'
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['journey-entries'] });
+      toast({ title: 'Journey entry added successfully!' });
+      setShowAddForm(false);
     }
-  ] : journeyEntries;
+  });
+
+  const updateEntryMutation = useMutation({
+    mutationFn: async ({ id, field, value }: { id: string; field: string; value: string }) => {
+      const { data, error } = await supabase
+        .from('journey_entries')
+        .update({ [field]: value })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['journey-entries'] });
+      toast({ title: 'Journey entry updated successfully!' });
+    }
+  });
+
+  // Sort entries by date (most recent first)
+  const sortedEntries = [...journeyEntries].sort((a, b) => 
+    new Date(b.entry_date).getTime() - new Date(a.entry_date).getTime()
+  );
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -113,12 +124,24 @@ export const Journey = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
-        <h1 
-          className="text-4xl font-bold text-center mb-16"
-          style={{ color: themeColors.primary }}
-        >
-          My Journey
-        </h1>
+        <div className="flex justify-between items-center mb-16">
+          <h1 
+            className="text-4xl font-bold"
+            style={{ color: themeColors.primary }}
+          >
+            My Journey
+          </h1>
+          
+          {userRole === 'admin' && (
+            <Button
+              onClick={() => setShowAddForm(true)}
+              style={{ backgroundColor: themeColors.primary }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Event
+            </Button>
+          )}
+        </div>
 
         <div className="max-w-4xl mx-auto">
           <div className="relative">
@@ -129,7 +152,7 @@ export const Journey = () => {
             />
             
             <div className="space-y-8">
-              {dummyEntries.map((entry, index) => (
+              {sortedEntries.map((entry, index) => (
                 <div key={entry.id} className="relative flex items-start gap-8">
                   {/* Timeline dot */}
                   <div 
@@ -160,19 +183,21 @@ export const Journey = () => {
                       style={{ backgroundColor: themeColors.surface }}
                     >
                       <CardContent className="p-6">
-                        <h3 
+                        <EditableText
+                          value={entry.title}
+                          onSave={(value) => updateEntryMutation.mutate({ id: entry.id, field: 'title', value })}
                           className="text-lg font-semibold mb-2"
-                          style={{ color: themeColors.text }}
-                        >
-                          {entry.title}
-                        </h3>
+                          placeholder="Event title"
+                        />
+                        
                         {entry.description && (
-                          <p 
+                          <EditableText
+                            value={entry.description}
+                            onSave={(value) => updateEntryMutation.mutate({ id: entry.id, field: 'description', value })}
+                            multiline={true}
                             className="text-sm leading-relaxed"
-                            style={{ color: themeColors.accent }}
-                          >
-                            {entry.description}
-                          </p>
+                            placeholder="Event description"
+                          />
                         )}
                       </CardContent>
                     </Card>

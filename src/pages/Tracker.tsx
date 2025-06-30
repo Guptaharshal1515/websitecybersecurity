@@ -1,9 +1,15 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Card, CardContent } from '@/components/ui/card';
-import { ExternalLink, Calendar } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { EditableText } from '@/components/admin/EditableText';
+import { LiveEditWrapper } from '@/components/admin/LiveEditWrapper';
+import { useToast } from '@/hooks/use-toast';
 
 interface TrackerEntry {
   id: string;
@@ -15,23 +21,21 @@ interface TrackerEntry {
   created_at: string | null;
 }
 
-const getTypeIcon = (type: string) => {
-  switch (type.toLowerCase()) {
-    case 'certificate':
-      return '📜';
-    case 'hands-on':
-      return '🧪';
-    case 'course':
-      return '📚';
-    default:
-      return '📄';
-  }
-};
+interface TrackerCategory {
+  name: string;
+  icon: string;
+  entries: TrackerEntry[];
+}
 
 export const Tracker = () => {
-  const { themeColors } = useTheme();
+  const { themeColors, userRole } = useTheme();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showAddEntry, setShowAddEntry] = useState(false);
+  const [showAddCategory, setShowAddCategory] = useState(false);
 
-  const { data: trackerEntries = [] } = useQuery({
+  const { data: entries = [] } = useQuery({
     queryKey: ['tracker-entries'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -43,50 +47,51 @@ export const Tracker = () => {
     },
   });
 
-  // Add dummy data if no entries exist
-  const dummyEntries = trackerEntries.length === 0 ? [
-    {
-      id: '1',
-      title: 'Certified Ethical Hacker (CEH)',
-      type: 'certificate',
-      proof_link: '#',
-      completion_date: '2024-01-15',
-      is_completed: true,
-      created_at: '2024-01-15'
-    },
-    {
-      id: '2',
-      title: 'CompTIA Security+',
-      type: 'certificate',
-      proof_link: '#',
-      completion_date: '2024-02-20',
-      is_completed: true,
-      created_at: '2024-02-20'
-    },
-    {
-      id: '3',
-      title: 'Blockchain Fundamentals',
-      type: 'course',
-      proof_link: '#',
-      completion_date: '2024-03-10',
-      is_completed: true,
-      created_at: '2024-03-10'
-    },
-    {
-      id: '4',
-      title: 'Python Penetration Testing',
-      type: 'hands-on',
-      proof_link: null,
-      completion_date: '2024-03-25',
-      is_completed: true,
-      created_at: '2024-03-25'
+  // Group entries by type
+  const categorizedEntries = entries.reduce((acc, entry) => {
+    const category = entry.type || 'Other';
+    if (!acc[category]) {
+      acc[category] = [];
     }
-  ] : trackerEntries;
+    acc[category].push(entry);
+    return acc;
+  }, {} as Record<string, TrackerEntry[]>);
+
+  // Default categories
+  const defaultCategories = [
+    { name: 'Certificates', icon: '📜' },
+    { name: 'Courses', icon: '📚' },
+    { name: 'Languages', icon: '💬' },
+    { name: 'Projects', icon: '🚀' }
+  ];
+
+  const categories: TrackerCategory[] = defaultCategories.map(cat => ({
+    ...cat,
+    entries: categorizedEntries[cat.name] || []
+  }));
+
+  const addEntryMutation = useMutation({
+    mutationFn: async (newEntry: { title: string; type: string; completion_date: string }) => {
+      const { data, error } = await supabase
+        .from('tracker_entries')
+        .insert([{ ...newEntry, is_completed: true }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracker-entries'] });
+      toast({ title: 'Entry added successfully!' });
+      setShowAddEntry(false);
+    }
+  });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric'
     });
   };
@@ -94,66 +99,83 @@ export const Tracker = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
-        <h1 
-          className="text-4xl font-bold text-center mb-16"
-          style={{ color: themeColors.primary }}
-        >
-          Skills & Achievements Tracker
-        </h1>
+        <div className="flex justify-between items-center mb-16">
+          <h1 
+            className="text-4xl font-bold"
+            style={{ color: themeColors.primary }}
+          >
+            Skills & Achievements Tracker
+          </h1>
+          
+          {userRole === 'admin' && (
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowAddEntry(true)}
+                style={{ backgroundColor: themeColors.primary }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Completion
+              </Button>
+              <Button
+                onClick={() => setShowAddCategory(true)}
+                variant="outline"
+                style={{ borderColor: themeColors.primary, color: themeColors.primary }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Category
+              </Button>
+            </div>
+          )}
+        </div>
 
-        <div className="max-w-4xl mx-auto space-y-4">
-          {dummyEntries.map((entry) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {categories.map((category) => (
             <Card 
-              key={entry.id}
-              className="border-0 hover:shadow-lg transition-all duration-300"
+              key={category.name}
+              className="border-0"
               style={{ backgroundColor: themeColors.surface }}
             >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <span className="text-2xl">{getTypeIcon(entry.type)}</span>
-                    <div>
-                      <h3 
-                        className="text-lg font-semibold"
-                        style={{ color: themeColors.text }}
-                      >
-                        {entry.title}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
-                        <span 
-                          className="text-sm"
-                          style={{ color: themeColors.accent }}
-                        >
-                          {entry.completion_date ? formatDate(entry.completion_date) : 'In Progress'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="px-3 py-1 rounded-full text-sm font-medium capitalize"
-                      style={{
-                        backgroundColor: themeColors.primary + '20',
-                        color: themeColors.primary
-                      }}
+              <CardHeader>
+                <CardTitle 
+                  className="flex items-center gap-2"
+                  style={{ color: themeColors.text }}
+                >
+                  <span className="text-2xl">{category.icon}</span>
+                  {category.name}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {category.entries
+                  .sort((a, b) => new Date(b.completion_date || '').getTime() - new Date(a.completion_date || '').getTime())
+                  .map((entry) => (
+                  <div 
+                    key={entry.id}
+                    className="p-3 rounded-lg"
+                    style={{ backgroundColor: themeColors.background }}
+                  >
+                    <h4 
+                      className="font-semibold text-sm mb-1"
+                      style={{ color: themeColors.text }}
                     >
-                      {entry.type}
-                    </span>
-                    {entry.proof_link && entry.proof_link !== '#' && (
-                      <a
-                        href={entry.proof_link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-lg hover:opacity-80 transition-opacity"
-                        style={{ backgroundColor: themeColors.primary }}
-                      >
-                        <ExternalLink className="h-4 w-4 text-white" />
-                      </a>
-                    )}
+                      {entry.title}
+                    </h4>
+                    <p 
+                      className="text-xs"
+                      style={{ color: themeColors.accent }}
+                    >
+                      {entry.completion_date ? formatDate(entry.completion_date) : 'In Progress'}
+                    </p>
                   </div>
-                </div>
+                ))}
+                
+                {category.entries.length === 0 && (
+                  <p 
+                    className="text-sm text-center py-4"
+                    style={{ color: themeColors.accent }}
+                  >
+                    No {category.name.toLowerCase()} yet
+                  </p>
+                )}
               </CardContent>
             </Card>
           ))}

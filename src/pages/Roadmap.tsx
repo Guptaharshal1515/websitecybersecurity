@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, ChevronDown, ExternalLink } from 'lucide-react';
+import { ChevronRight, ChevronDown, ExternalLink, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface RoadmapData {
@@ -29,10 +29,17 @@ interface SubtopicData {
   is_completed: boolean | null;
 }
 
+interface ResourceModal {
+  title: string;
+  description: string;
+  link: string;
+}
+
 export const Roadmap = () => {
   const { themeColors, userRole } = useTheme();
   const { user } = useAuth();
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['cybersecurity', 'blockchain', 'cloud']);
+  const [selectedResource, setSelectedResource] = useState<ResourceModal | null>(null);
 
   // Only redirect if user is not logged in or is specifically a viewer
   if (!user) {
@@ -105,19 +112,43 @@ export const Roadmap = () => {
     },
   });
 
-  // Dummy data structure
+  // Dummy data structure with clickable resources
   const dummyRoadmapData = {
     categories: [
       {
         id: 'cybersecurity',
         title: 'Cybersecurity',
         subtopics: [
-          { title: 'Ubuntu Basics', link: null },
-          { title: 'Shell Scripting', link: null },
-          { title: 'Nmap, Nikto, Metasploit', link: null },
-          { title: 'Web Pentesting', link: null },
-          { title: 'TryHackMe / HTB', link: null },
-          { title: 'Certifications', link: null }
+          { 
+            title: 'Ubuntu Basics', 
+            link: 'https://ubuntu.com/tutorials',
+            description: 'Learn the fundamentals of Ubuntu Linux operating system'
+          },
+          { 
+            title: 'Shell Scripting', 
+            link: 'https://www.shellscript.sh/',
+            description: 'Master bash scripting for automation and system administration'
+          },
+          { 
+            title: 'Nmap, Nikto, Metasploit', 
+            link: 'https://nmap.org/book/',
+            description: 'Essential penetration testing tools and techniques'
+          },
+          { 
+            title: 'Web Pentesting', 
+            link: 'https://portswigger.net/web-security',
+            description: 'Comprehensive web application security testing methodology'
+          },
+          { 
+            title: 'TryHackMe / HTB', 
+            link: 'https://tryhackme.com/',
+            description: 'Hands-on cybersecurity challenges and learning paths'
+          },
+          { 
+            title: 'Certifications', 
+            link: 'https://www.comptia.org/certifications/security',
+            description: 'Industry-recognized cybersecurity certifications'
+          }
         ]
       },
       {
@@ -229,21 +260,38 @@ export const Roadmap = () => {
     );
   };
 
+  const handleResourceClick = (subtopic: any) => {
+    if (subtopic.link) {
+      setSelectedResource({
+        title: subtopic.title,
+        description: subtopic.description,
+        link: subtopic.link
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
-        <h1 
-          className="text-4xl font-bold text-center mb-16"
-          style={{ color: themeColors.primary }}
-        >
-          Harshal Gupta's Roadmap Journey
-        </h1>
+        <div className="relative mb-16">
+          <h1 
+            className="text-4xl font-bold text-center text-white"
+          >
+            Harshal Gupta's Roadmap Journey
+          </h1>
+          <div 
+            className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-1 rounded mt-2"
+            style={{ 
+              backgroundColor: themeColors.primary,
+              boxShadow: `0 0 10px ${themeColors.primary}`
+            }}
+          />
+        </div>
 
         {/* Main Tech Categories */}
         <div className="mb-16">
           <h2 
-            className="text-2xl font-bold mb-8 text-center"
-            style={{ color: themeColors.text }}
+            className="text-2xl font-bold mb-8 text-center text-white"
           >
             🎯 Main Tech Categories (Top-Level Overview)
           </h2>
@@ -280,24 +328,20 @@ export const Roadmap = () => {
                       {category.subtopics.map((subtopic, index) => (
                         <div 
                           key={index}
-                          className="flex items-center justify-between p-2 rounded"
+                          className={`flex items-center justify-between p-2 rounded transition-all duration-200 ${
+                            subtopic.link ? 'cursor-pointer hover:scale-105' : ''
+                          }`}
                           style={{ backgroundColor: themeColors.background }}
+                          onClick={() => handleResourceClick(subtopic)}
                         >
                           <span 
-                            className="text-sm"
+                            className={`text-sm ${subtopic.link ? 'hover:underline' : ''}`}
                             style={{ color: themeColors.text }}
                           >
                             • {subtopic.title}
                           </span>
                           {subtopic.link && (
-                            <a
-                              href={subtopic.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-1 rounded hover:opacity-80"
-                            >
-                              <ExternalLink className="h-3 w-3" style={{ color: themeColors.primary }} />
-                            </a>
+                            <ExternalLink className="h-3 w-3 opacity-60" style={{ color: themeColors.primary }} />
                           )}
                         </div>
                       ))}
@@ -312,7 +356,7 @@ export const Roadmap = () => {
         {/* Semester-wise Learning Roadmap */}
         <div>
           <h2 
-            className="text-2xl font-bold mb-8 text-center"
+            className="text-2xl font-bold mb-8 text-center text-white"
             style={{ color: themeColors.text }}
           >
             📚 Semester-wise Learning Roadmap
@@ -352,6 +396,49 @@ export const Roadmap = () => {
           </div>
         </div>
       </div>
+
+      {/* Resource Modal */}
+      {selectedResource && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedResource(null)}
+        >
+          <Card 
+            className="max-w-lg w-full border-0 relative"
+            style={{ backgroundColor: themeColors.surface }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedResource(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:opacity-80 z-10"
+              style={{ backgroundColor: themeColors.primary }}
+            >
+              <X className="h-5 w-5 text-white" />
+            </button>
+            
+            <CardContent className="p-8">
+              <h2 className="text-xl font-bold mb-4 text-white">
+                {selectedResource.title}
+              </h2>
+              
+              <p className="text-base mb-6 leading-relaxed text-gray-300">
+                {selectedResource.description}
+              </p>
+              
+              <a
+                href={selectedResource.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-80 transition-opacity"
+                style={{ backgroundColor: themeColors.primary, color: 'white' }}
+              >
+                Open Resource
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

@@ -47,8 +47,48 @@ export const Tracker = () => {
     },
   });
 
-  // Group entries by type
-  const categorizedEntries = entries.reduce((acc, entry) => {
+  // Add dummy entries if none exist
+  const dummyEntries = entries.length === 0 ? [
+    {
+      id: 'dummy-1',
+      title: 'CompTIA Security+',
+      type: 'Certificates',
+      proof_link: null,
+      completion_date: '2024-02-15',
+      is_completed: true,
+      created_at: '2024-02-15'
+    },
+    {
+      id: 'dummy-2',
+      title: 'Blockchain Fundamentals Course',
+      type: 'Courses',
+      proof_link: null,
+      completion_date: '2024-03-10',
+      is_completed: true,
+      created_at: '2024-03-10'
+    },
+    {
+      id: 'dummy-3',
+      title: 'Python Programming',
+      type: 'Languages',
+      proof_link: null,
+      completion_date: '2024-01-20',
+      is_completed: true,
+      created_at: '2024-01-20'
+    },
+    {
+      id: 'dummy-4',
+      title: 'Cybersecurity Dashboard',
+      type: 'Projects',
+      proof_link: null,
+      completion_date: '2024-03-25',
+      is_completed: true,
+      created_at: '2024-03-25'
+    }
+  ] : entries;
+
+  // Group entries by type and sort by completion date
+  const categorizedEntries = dummyEntries.reduce((acc, entry) => {
     const category = entry.type || 'Other';
     if (!acc[category]) {
       acc[category] = [];
@@ -57,7 +97,14 @@ export const Tracker = () => {
     return acc;
   }, {} as Record<string, TrackerEntry[]>);
 
-  // Default categories
+  // Sort entries within each category by completion date (most recent first)
+  Object.keys(categorizedEntries).forEach(category => {
+    categorizedEntries[category].sort((a, b) => 
+      new Date(b.completion_date || '').getTime() - new Date(a.completion_date || '').getTime()
+    );
+  });
+
+  // Default categories with icons
   const defaultCategories = [
     { name: 'Certificates', icon: '📜' },
     { name: 'Courses', icon: '📚' },
@@ -100,12 +147,20 @@ export const Tracker = () => {
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-between items-center mb-16">
-          <h1 
-            className="text-4xl font-bold"
-            style={{ color: themeColors.primary }}
-          >
-            Skills & Achievements Tracker
-          </h1>
+          <div className="relative">
+            <h1 
+              className="text-4xl font-bold text-white"
+            >
+              Skills & Achievements Tracker
+            </h1>
+            <div 
+              className="absolute bottom-0 left-0 w-full h-1 rounded mt-2"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                boxShadow: `0 0 10px ${themeColors.primary}`
+              }}
+            />
+          </div>
           
           {userRole === 'admin' && (
             <div className="flex gap-2">
@@ -137,25 +192,21 @@ export const Tracker = () => {
             >
               <CardHeader>
                 <CardTitle 
-                  className="flex items-center gap-2"
-                  style={{ color: themeColors.text }}
+                  className="flex items-center gap-2 text-white"
                 >
                   <span className="text-2xl">{category.icon}</span>
                   {category.name}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {category.entries
-                  .sort((a, b) => new Date(b.completion_date || '').getTime() - new Date(a.completion_date || '').getTime())
-                  .map((entry) => (
+                {category.entries.map((entry) => (
                   <div 
                     key={entry.id}
                     className="p-3 rounded-lg"
                     style={{ backgroundColor: themeColors.background }}
                   >
                     <h4 
-                      className="font-semibold text-sm mb-1"
-                      style={{ color: themeColors.text }}
+                      className="font-semibold text-sm mb-1 text-white"
                     >
                       {entry.title}
                     </h4>

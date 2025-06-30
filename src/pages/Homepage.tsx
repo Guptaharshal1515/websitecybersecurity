@@ -9,7 +9,7 @@ import { EditableText } from '@/components/admin/EditableText';
 import { EditableImage } from '@/components/admin/EditableImage';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Code, User } from 'lucide-react';
+import { Shield, Code, User, Linkedin, Github, Twitter } from 'lucide-react';
 
 interface HomepageContent {
   id: string;
@@ -104,7 +104,7 @@ export const Homepage = () => {
 
   const defaultContent = {
     welcome_message: "Welcome to My Space",
-    introduction: "I'm a security and blockchain enthusiast, showcasing my projects and certifications",
+    introduction: "I'm a passionate Computer Science student with a strong focus on Cybersecurity, Blockchain, and Cloud technologies. My journey blends formal education with hands-on experience, where I explore offensive security, red teaming, Web3 development, and more. Through this portfolio, I document my learning, certifications, projects, and progress toward becoming a skilled cyber professional.",
     about_bio: "Passionate cybersecurity and blockchain enthusiast focused on building secure, decentralized solutions for the future.",
     profile_image_url: null
   };
@@ -113,27 +113,38 @@ export const Homepage = () => {
     {
       title: "Cybersecurity",
       subtitle: "Certificates",
-      count: `${certificatesCount?.cybersecurity || 0} Earned`,
+      count: `${certificatesCount?.cybersecurity || 1} Earned`,
       icon: Shield,
       route: "/cybersecurity-certificates",
-      gradient: "from-red-500 to-pink-500"
+      gradient: "from-red-500 to-pink-500",
+      glowColor: "#dc2626"
     },
     {
       title: "Blockchain",
       subtitle: "Certificates", 
-      count: `${certificatesCount?.blockchain || 0} Earned`,
+      count: `${certificatesCount?.blockchain || 1} Earned`,
       icon: Code,
       route: "/blockchain-certificates",
-      gradient: "from-blue-500 to-cyan-500"
+      gradient: "from-blue-500 to-cyan-500",
+      glowColor: "#2563eb"
     },
     {
       title: "Projects",
       subtitle: "Done",
-      count: `${projectsCount || 0} Completed`,
+      count: `${projectsCount || 1} Completed`,
       icon: User,
       route: "/projects",
-      gradient: "from-green-500 to-emerald-500"
+      gradient: "from-green-500 to-emerald-500",
+      glowColor: "#16a34a"
     }
+  ];
+
+  const socialLinks = [
+    { name: 'LinkedIn', icon: Linkedin, color: '#0077b5', url: 'https://linkedin.com/in/harshal-gupta' },
+    { name: 'GitHub', icon: Github, color: '#333', url: 'https://github.com/guptaharshal' },
+    { name: 'X', icon: Twitter, color: '#000', url: 'https://x.com/harshal_gupta' },
+    { name: 'TryHackMe', icon: Shield, color: '#dc2626', url: 'https://tryhackme.com/p/harshal' },
+    { name: 'HackTheBox', icon: Code, color: '#16a34a', url: 'https://hackthebox.com/profile/harshal' }
   ];
 
   return (
@@ -141,12 +152,27 @@ export const Homepage = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Message */}
         <div className="text-center mb-12">
-          <EditableText
-            value={content?.welcome_message || defaultContent.welcome_message}
-            onSave={(value) => handleTextSave('welcome_message', value)}
-            className="text-4xl md:text-6xl font-bold"
-            placeholder="Welcome message"
-          />
+          <div className="relative inline-block">
+            {userRole === 'admin' ? (
+              <EditableText
+                value={content?.welcome_message || defaultContent.welcome_message}
+                onSave={(value) => handleTextSave('welcome_message', value)}
+                className="text-4xl md:text-6xl font-bold text-white relative"
+                placeholder="Welcome message"
+              />
+            ) : (
+              <h1 className="text-4xl md:text-6xl font-bold text-white relative">
+                {content?.welcome_message || defaultContent.welcome_message}
+              </h1>
+            )}
+            <div 
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full h-1 rounded animate-pulse"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                boxShadow: `0 0 20px ${themeColors.primary}, 0 0 40px ${themeColors.primary}`
+              }}
+            />
+          </div>
         </div>
 
         {/* Main Content Grid */}
@@ -162,14 +188,20 @@ export const Homepage = () => {
               </h1>
             </div>
             
-            <EditableText
-              value={content?.introduction || defaultContent.introduction}
-              onSave={(value) => handleTextSave('introduction', value)}
-              multiline={true}
-              className="text-lg leading-relaxed opacity-90"
-              style={{ color: themeColors.accent }}
-              placeholder="Tell us about yourself..."
-            />
+            {userRole === 'admin' ? (
+              <EditableText
+                value={content?.introduction || defaultContent.introduction}
+                onSave={(value) => handleTextSave('introduction', value)}
+                multiline={true}
+                className="text-lg leading-relaxed opacity-90"
+                style={{ color: themeColors.accent }}
+                placeholder="Tell us about yourself..."
+              />
+            ) : (
+              <p className="text-lg leading-relaxed opacity-90" style={{ color: themeColors.accent }}>
+                {content?.introduction || defaultContent.introduction}
+              </p>
+            )}
           </div>
 
           {/* Right Side - Profile Image */}
@@ -177,14 +209,22 @@ export const Homepage = () => {
             <div className="relative">
               <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-1">
                 <div className="w-full h-full rounded-full overflow-hidden" style={{ backgroundColor: themeColors.surface }}>
-                  <EditableImage
-                    src={content?.profile_image_url || defaultContent.profile_image_url}
-                    alt="Profile"
-                    onSave={handleImageSave}
-                    className="w-full h-full object-cover"
-                    isCircular={true}
-                    bucket="avatars"
-                  />
+                  {userRole === 'admin' ? (
+                    <EditableImage
+                      src={content?.profile_image_url || defaultContent.profile_image_url}
+                      alt="Profile"
+                      onSave={handleImageSave}
+                      className="w-full h-full object-cover"
+                      isCircular={true}
+                      bucket="avatars"
+                    />
+                  ) : (
+                    <img
+                      src={content?.profile_image_url || "/placeholder.svg"}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
               </div>
               {/* Glowing ring effect */}
@@ -198,14 +238,22 @@ export const Homepage = () => {
           {navigationBoxes.map((box, index) => (
             <Card
               key={box.title}
-              className={`group cursor-pointer border-0 overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in`}
+              className={`group cursor-pointer border-0 overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in relative`}
               style={{ 
                 backgroundColor: themeColors.surface,
                 animationDelay: `${index * 200}ms`
               }}
               onClick={() => navigate(box.route)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = `0 0 30px ${box.glowColor}`;
+                e.currentTarget.style.border = `2px solid ${box.glowColor}`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '';
+                e.currentTarget.style.border = '';
+              }}
             >
-              <CardContent className="p-8 text-center relative">
+              <CardContent className="p-8 text-center relative pixel-animation">
                 {/* Gradient overlay on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${box.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
                 
@@ -226,9 +274,6 @@ export const Homepage = () => {
                 <p className="text-lg font-semibold" style={{ color: themeColors.primary }}>
                   {box.count}
                 </p>
-                
-                {/* Hover effect border */}
-                <div className={`absolute inset-0 border-2 border-transparent group-hover:border-gradient-to-br group-hover:${box.gradient} rounded-lg transition-all duration-300`}></div>
               </CardContent>
             </Card>
           ))}
@@ -237,30 +282,58 @@ export const Homepage = () => {
         {/* Social Links */}
         <div className="text-center">
           <p 
-            className="text-lg mb-6"
+            className="text-xl mb-6"
             style={{ color: themeColors.primary }}
           >
             Follow me or find me here
           </p>
           
           <div className="flex justify-center gap-4">
-            <div className="flex gap-4">
-              <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center hover:scale-110 transition-transform duration-200 cursor-pointer">
-                <span className="text-white font-bold">Li</span>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center hover:scale-110 transition-transform duration-200 cursor-pointer">
-                <span className="text-white font-bold">Git</span>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-blue-400 flex items-center justify-center hover:scale-110 transition-transform duration-200 cursor-pointer">
-                <span className="text-white font-bold">Tw</span>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-pink-600 flex items-center justify-center hover:scale-110 transition-transform duration-200 cursor-pointer">
-                <span className="text-white font-bold">Ig</span>
-              </div>
-            </div>
+            {socialLinks.map((social) => (
+              <a
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-200 cursor-pointer"
+                style={{ backgroundColor: social.color }}
+              >
+                <social.icon className="h-6 w-6 text-white" />
+              </a>
+            ))}
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .pixel-animation {
+          animation: pixelPop 0.3s ease-out;
+        }
+        
+        .pixel-animation:hover {
+          animation: pixelGlitch 0.5s ease-in-out;
+        }
+        
+        @keyframes pixelPop {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.02); }
+          100% { transform: scale(1); }
+        }
+        
+        @keyframes pixelGlitch {
+          0% { transform: translateX(0); }
+          10% { transform: translateX(-2px); }
+          20% { transform: translateX(2px); }
+          30% { transform: translateX(-1px); }
+          40% { transform: translateX(1px); }
+          50% { transform: translateX(-2px); }
+          60% { transform: translateX(2px); }
+          70% { transform: translateX(-1px); }
+          80% { transform: translateX(1px); }
+          90% { transform: translateX(-1px); }
+          100% { transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
 };

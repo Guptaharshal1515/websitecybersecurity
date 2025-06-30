@@ -42,7 +42,7 @@ export const BlockchainCertificates = () => {
       title: 'Blockchain Fundamentals',
       description: 'Comprehensive understanding of blockchain technology, consensus mechanisms, and decentralized systems.',
       image_url: '/placeholder.svg',
-      certificate_url: '#',
+      certificate_url: 'https://example.com/blockchain-fundamentals',
       created_at: '2024-01-20',
       display_order: 1
     },
@@ -51,7 +51,7 @@ export const BlockchainCertificates = () => {
       title: 'Ethereum Smart Contracts',
       description: 'Advanced Solidity programming and smart contract development on Ethereum blockchain.',
       image_url: '/placeholder.svg',
-      certificate_url: '#',
+      certificate_url: 'https://example.com/ethereum-smart-contracts',
       created_at: '2024-02-15',
       display_order: 2
     },
@@ -60,7 +60,7 @@ export const BlockchainCertificates = () => {
       title: 'DeFi Protocol Development',
       description: 'Building decentralized finance applications and understanding DeFi ecosystem protocols.',
       image_url: '/placeholder.svg',
-      certificate_url: '#',
+      certificate_url: 'https://example.com/defi-protocol',
       created_at: '2024-03-05',
       display_order: 3
     },
@@ -69,7 +69,7 @@ export const BlockchainCertificates = () => {
       title: 'Web3 Development',
       description: 'Full-stack Web3 application development using modern blockchain technologies.',
       image_url: '/placeholder.svg',
-      certificate_url: '#',
+      certificate_url: 'https://example.com/web3-development',
       created_at: '2024-03-25',
       display_order: 4
     }
@@ -110,19 +110,28 @@ export const BlockchainCertificates = () => {
     return {
       transform: `translateX(${x}px) translateZ(${z}px) scale(${scale})`,
       opacity,
-      zIndex: adjustedDiff === 0 ? 10 : 5 - Math.abs(adjustedDiff)
+      zIndex: adjustedDiff === 0 ? 10 : 5 - Math.abs(adjustedDiff),
+      boxShadow: adjustedDiff === 0 ? `0 0 30px ${themeColors.primary}` : 'none'
     };
   };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
-        <h1 
-          className="text-4xl font-bold text-center mb-16"
-          style={{ color: themeColors.primary }}
-        >
-          Blockchain Certificates
-        </h1>
+        <div className="relative mb-16">
+          <h1 
+            className="text-4xl font-bold text-center text-white"
+          >
+            Blockchain Certificates
+          </h1>
+          <div 
+            className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-1 rounded mt-2"
+            style={{ 
+              backgroundColor: themeColors.primary,
+              boxShadow: `0 0 10px ${themeColors.primary}`
+            }}
+          />
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-12 items-center">
           {/* Certificate Details Sidebar */}
@@ -133,28 +142,25 @@ export const BlockchainCertificates = () => {
             >
               <CardContent className="p-6">
                 <h2 
-                  className="text-2xl font-bold mb-4"
-                  style={{ color: themeColors.text }}
+                  className="text-2xl font-bold mb-4 text-white"
                 >
                   {dummyCertificates[currentIndex]?.title}
                 </h2>
                 
                 <p 
-                  className="text-base mb-4"
-                  style={{ color: themeColors.accent }}
+                  className="text-base mb-4 text-white"
                 >
                   {dummyCertificates[currentIndex]?.description}
                 </p>
                 
                 <div className="flex items-center gap-2 mb-4">
                   <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
-                  <span style={{ color: themeColors.text }}>
+                  <span className="text-white">
                     {formatDate(dummyCertificates[currentIndex]?.created_at)}
                   </span>
                 </div>
                 
-                {dummyCertificates[currentIndex]?.certificate_url && 
-                 dummyCertificates[currentIndex]?.certificate_url !== '#' && (
+                {dummyCertificates[currentIndex]?.certificate_url && (
                   <Button
                     asChild
                     className="w-full"
@@ -204,7 +210,10 @@ export const BlockchainCertificates = () => {
                 >
                   <Card 
                     className="w-60 h-40 border-0 hover:shadow-xl transition-shadow duration-300" // Increased size
-                    style={{ backgroundColor: themeColors.surface }}
+                    style={{ 
+                      backgroundColor: themeColors.surface,
+                      boxShadow: index === currentIndex ? `0 0 30px ${themeColors.primary}` : 'none'
+                    }}
                   >
                     <CardContent className="p-6 h-full flex flex-col justify-center items-center text-center">
                       <img
@@ -213,8 +222,7 @@ export const BlockchainCertificates = () => {
                         className="w-16 h-16 mb-3 rounded" // Increased image size
                       />
                       <h3 
-                        className="text-sm font-semibold truncate w-full"
-                        style={{ color: themeColors.text }}
+                        className="text-sm font-semibold truncate w-full text-white"
                       >
                         {cert.title}
                       </h3>

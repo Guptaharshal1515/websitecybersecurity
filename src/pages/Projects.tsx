@@ -28,6 +28,7 @@ export const Projects = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -40,6 +41,40 @@ export const Projects = () => {
       return data as Project[];
     },
   });
+
+  // Add dummy projects if none exist
+  const dummyProjects = projects.length === 0 ? [
+    {
+      id: 'dummy-1',
+      title: 'Cybersecurity Dashboard',
+      description: 'Real-time security monitoring dashboard with threat detection and incident response capabilities.',
+      image_url: '/placeholder.svg',
+      project_url: 'https://example.com/cybersec-dashboard',
+      github_url: 'https://github.com/guptaharshal/cybersec-dashboard',
+      technologies: ['React', 'Node.js', 'Python', 'MongoDB'],
+      display_order: 1
+    },
+    {
+      id: 'dummy-2',
+      title: 'Blockchain Voting System',
+      description: 'Decentralized voting application built on Ethereum with smart contract integration.',
+      image_url: '/placeholder.svg',
+      project_url: 'https://example.com/blockchain-voting',
+      github_url: 'https://github.com/guptaharshal/blockchain-voting',
+      technologies: ['Solidity', 'Web3.js', 'React', 'Ethereum'],
+      display_order: 2
+    },
+    {
+      id: 'dummy-3',
+      title: 'Penetration Testing Toolkit',
+      description: 'Automated penetration testing toolkit for web application vulnerability assessment.',
+      image_url: '/placeholder.svg',
+      project_url: null,
+      github_url: 'https://github.com/guptaharshal/pentest-toolkit',
+      technologies: ['Python', 'Bash', 'Nmap', 'SQLMap'],
+      display_order: 3
+    }
+  ] : projects;
 
   const updateProjectMutation = useMutation({
     mutationFn: async ({ id, field, value }: { id: string; field: string; value: string | string[] }) => {
@@ -67,12 +102,20 @@ export const Projects = () => {
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-between items-center mb-16">
-          <h1 
-            className="text-4xl font-bold"
-            style={{ color: themeColors.primary }}
-          >
-            My Projects
-          </h1>
+          <div className="relative">
+            <h1 
+              className="text-4xl font-bold text-white"
+            >
+              My Projects
+            </h1>
+            <div 
+              className="absolute bottom-0 left-0 w-full h-1 rounded mt-2"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                boxShadow: `0 0 10px ${themeColors.primary}`
+              }}
+            />
+          </div>
           
           {userRole === 'admin' && (
             <Button
@@ -85,88 +128,163 @@ export const Projects = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project) => (
-            <Card 
-              key={project.id}
-              className="border-0 hover:shadow-lg transition-shadow duration-300"
-              style={{ backgroundColor: themeColors.surface }}
-            >
-              <CardContent className="p-6">
-                <div className="aspect-video mb-4 rounded-lg overflow-hidden">
-                  <EditableImage
-                    src={project.image_url}
-                    alt={project.title}
-                    onSave={(url) => handleImageSave(project.id, url)}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                <EditableText
-                  value={project.title}
-                  onSave={(value) => updateProjectMutation.mutate({ id: project.id, field: 'title', value })}
-                  className="text-xl font-semibold mb-2"
-                  placeholder="Project title"
-                />
-                
-                <EditableText
-                  value={project.description || ''}
-                  onSave={(value) => updateProjectMutation.mutate({ id: project.id, field: 'description', value })}
-                  multiline={true}
-                  className="text-sm mb-4 leading-relaxed"
-                  placeholder="Project description"
-                />
-                
-                {project.technologies && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.technologies.map((tech, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 text-xs rounded-full"
-                        style={{
-                          backgroundColor: themeColors.primary + '20',
-                          color: themeColors.primary
+        {/* Preview Pane Based Project Showcase */}
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Projects List */}
+          <div className="space-y-4">
+            {dummyProjects.map((project, index) => (
+              <Card
+                key={project.id}
+                className={`border-0 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                  selectedProject?.id === project.id ? 'ring-2' : ''
+                }`}
+                style={{ 
+                  backgroundColor: themeColors.surface,
+                  ringColor: selectedProject?.id === project.id ? themeColors.primary : 'transparent'
+                }}
+                onClick={() => setSelectedProject(project)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src={project.image_url || '/placeholder.svg'}
+                      alt={project.title}
+                      className="w-16 h-16 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-white mb-1">
+                        {project.title}
+                      </h3>
+                      <p className="text-sm text-gray-300 line-clamp-2">
+                        {project.description}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Preview Pane */}
+          <div className="sticky top-8">
+            {selectedProject ? (
+              <Card 
+                className="border-0"
+                style={{ backgroundColor: themeColors.surface }}
+              >
+                <CardContent className="p-6">
+                  <div className="aspect-video mb-4 rounded-lg overflow-hidden">
+                    {userRole === 'admin' ? (
+                      <EditableImage
+                        src={selectedProject.image_url}
+                        alt={selectedProject.title}
+                        onSave={(url) => handleImageSave(selectedProject.id, url)}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={selectedProject.image_url || '/placeholder.svg'}
+                        alt={selectedProject.title}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  
+                  {userRole === 'admin' ? (
+                    <EditableText
+                      value={selectedProject.title}
+                      onSave={(value) => updateProjectMutation.mutate({ id: selectedProject.id, field: 'title', value })}
+                      className="text-2xl font-bold mb-4 text-white"
+                      placeholder="Project title"
+                    />
+                  ) : (
+                    <h2 className="text-2xl font-bold mb-4 text-white">
+                      {selectedProject.title}
+                    </h2>
+                  )}
+                  
+                  {userRole === 'admin' ? (
+                    <EditableText
+                      value={selectedProject.description || ''}
+                      onSave={(value) => updateProjectMutation.mutate({ id: selectedProject.id, field: 'description', value })}
+                      multiline={true}
+                      className="text-base mb-6 leading-relaxed text-white"
+                      placeholder="Project description"
+                    />
+                  ) : (
+                    <p className="text-base mb-6 leading-relaxed text-white">
+                      {selectedProject.description}
+                    </p>
+                  )}
+                  
+                  {selectedProject.technologies && (
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {selectedProject.technologies.map((tech, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 text-sm rounded-full"
+                          style={{
+                            backgroundColor: themeColors.primary + '20',
+                            color: themeColors.primary
+                          }}
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-4">
+                    {selectedProject.project_url && (
+                      <Button
+                        asChild
+                        className="flex-1"
+                        style={{ backgroundColor: themeColors.primary }}
+                      >
+                        <a
+                          href={selectedProject.project_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Live Demo
+                        </a>
+                      </Button>
+                    )}
+                    {selectedProject.github_url && (
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="flex-1"
+                        style={{ 
+                          borderColor: themeColors.primary,
+                          color: themeColors.primary 
                         }}
                       >
-                        {tech}
-                      </span>
-                    ))}
+                        <a
+                          href={selectedProject.github_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Github className="h-4 w-4 mr-2" />
+                          Code
+                        </a>
+                      </Button>
+                    )}
                   </div>
-                )}
-
-                <div className="flex gap-2">
-                  {project.project_url && (
-                    <a
-                      href={project.project_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg hover:opacity-80 transition-opacity flex-1 justify-center"
-                      style={{ backgroundColor: themeColors.primary, color: 'white' }}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      Live Demo
-                    </a>
-                  )}
-                  {project.github_url && (
-                    <a
-                      href={project.github_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg hover:opacity-80 transition-opacity"
-                      style={{ 
-                        backgroundColor: 'transparent', 
-                        border: `1px solid ${themeColors.primary}`,
-                        color: themeColors.primary 
-                      }}
-                    >
-                      <Github className="h-4 w-4" />
-                      Code
-                    </a>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ) : (
+              <Card 
+                className="border-0 h-96 flex items-center justify-center"
+                style={{ backgroundColor: themeColors.surface }}
+              >
+                <p className="text-gray-400 text-lg">
+                  Select a project to view details
+                </p>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </div>

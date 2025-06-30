@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Plus } from 'lucide-react';
+import { Calendar, Plus, X } from 'lucide-react';
 import { EditableText } from '@/components/admin/EditableText';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +25,7 @@ export const Journey = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<JourneyEntry | null>(null);
 
   if (!user) {
     return (
@@ -72,6 +73,42 @@ export const Journey = () => {
     },
   });
 
+  // Add dummy journey entries if none exist
+  const dummyEntries = journeyEntries.length === 0 ? [
+    {
+      id: 'dummy-1',
+      title: 'Started Bachelor\'s in Computer Science',
+      description: 'Beginning my journey into the world of cybersecurity and technology.',
+      entry_date: '2024-01-15',
+      display_order: 1,
+      created_at: '2024-01-15'
+    },
+    {
+      id: 'dummy-2',
+      title: 'First Cybersecurity Certification',
+      description: 'Completed my first ethical hacking certification, marking a major milestone.',
+      entry_date: '2024-02-20',
+      display_order: 2,
+      created_at: '2024-02-20'
+    },
+    {
+      id: 'dummy-3',
+      title: 'Blockchain Development Deep Dive',
+      description: 'Started learning Solidity and smart contract development.',
+      entry_date: '2024-03-10',
+      display_order: 3,
+      created_at: '2024-03-10'
+    },
+    {
+      id: 'dummy-4',
+      title: 'First Security Hackathon',
+      description: 'Participated in my first cybersecurity hackathon, learned a lot about real-world applications.',
+      entry_date: '2024-03-25',
+      display_order: 4,
+      created_at: '2024-03-25'
+    }
+  ] : journeyEntries;
+
   const addEntryMutation = useMutation({
     mutationFn: async (newEntry: { title: string; description: string; entry_date: string }) => {
       const { data, error } = await supabase
@@ -109,7 +146,7 @@ export const Journey = () => {
   });
 
   // Sort entries by date (most recent first)
-  const sortedEntries = [...journeyEntries].sort((a, b) => 
+  const sortedEntries = [...dummyEntries].sort((a, b) => 
     new Date(b.entry_date).getTime() - new Date(a.entry_date).getTime()
   );
 
@@ -125,12 +162,20 @@ export const Journey = () => {
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-between items-center mb-16">
-          <h1 
-            className="text-4xl font-bold"
-            style={{ color: themeColors.primary }}
-          >
-            My Journey
-          </h1>
+          <div className="relative">
+            <h1 
+              className="text-4xl font-bold text-white"
+            >
+              My Journey
+            </h1>
+            <div 
+              className="absolute bottom-0 left-0 w-full h-1 rounded mt-2"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                boxShadow: `0 0 10px ${themeColors.primary}`
+              }}
+            />
+          </div>
           
           {userRole === 'admin' && (
             <Button
@@ -168,8 +213,7 @@ export const Journey = () => {
                     <div className="flex items-center justify-end gap-2">
                       <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
                       <span 
-                        className="text-sm font-medium"
-                        style={{ color: themeColors.text }}
+                        className="text-sm font-medium text-white"
                       >
                         {formatDate(entry.entry_date)}
                       </span>
@@ -179,25 +223,31 @@ export const Journey = () => {
                   {/* Content */}
                   <div className="flex-1">
                     <Card 
-                      className="border-0"
+                      className="border-0 cursor-pointer hover:scale-105 transition-transform duration-200"
                       style={{ backgroundColor: themeColors.surface }}
+                      onClick={() => setSelectedEntry(entry)}
                     >
                       <CardContent className="p-6">
-                        <EditableText
-                          value={entry.title}
-                          onSave={(value) => updateEntryMutation.mutate({ id: entry.id, field: 'title', value })}
-                          className="text-lg font-semibold mb-2"
-                          placeholder="Event title"
-                        />
+                        {userRole === 'admin' ? (
+                          <EditableText
+                            value={entry.title}
+                            onSave={(value) => updateEntryMutation.mutate({ id: entry.id, field: 'title', value })}
+                            className="text-lg font-semibold mb-2 text-white"
+                            placeholder="Event title"
+                          />
+                        ) : (
+                          <h3 className="text-lg font-semibold mb-2 text-white">
+                            {entry.title}
+                          </h3>
+                        )}
                         
                         {entry.description && (
-                          <EditableText
-                            value={entry.description}
-                            onSave={(value) => updateEntryMutation.mutate({ id: entry.id, field: 'description', value })}
-                            multiline={true}
-                            className="text-sm leading-relaxed"
-                            placeholder="Event description"
-                          />
+                          <p className="text-sm leading-relaxed text-gray-300">
+                            {entry.description.length > 100 
+                              ? `${entry.description.substring(0, 100)}...` 
+                              : entry.description
+                            }
+                          </p>
                         )}
                       </CardContent>
                     </Card>
@@ -208,6 +258,47 @@ export const Journey = () => {
           </div>
         </div>
       </div>
+
+      {/* Entry Detail Modal */}
+      {selectedEntry && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedEntry(null)}
+        >
+          <Card 
+            className="max-w-2xl w-full max-h-[80vh] overflow-auto border-0 relative"
+            style={{ backgroundColor: themeColors.surface }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedEntry(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:opacity-80 z-10"
+              style={{ backgroundColor: themeColors.primary }}
+            >
+              <X className="h-5 w-5 text-white" />
+            </button>
+            
+            <CardContent className="p-8">
+              <div className="flex items-center gap-2 mb-4">
+                <Calendar className="h-5 w-5" style={{ color: themeColors.primary }} />
+                <span className="text-lg font-medium text-white">
+                  {formatDate(selectedEntry.entry_date)}
+                </span>
+              </div>
+              
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                {selectedEntry.title}
+              </h2>
+              
+              {selectedEntry.description && (
+                <p className="text-base leading-relaxed text-gray-300">
+                  {selectedEntry.description}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

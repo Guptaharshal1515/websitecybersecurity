@@ -42,6 +42,37 @@ export const CybersecurityCertificates = () => {
     },
   });
 
+  // Add dummy certificates if none exist
+  const dummyCertificates = certificates.length === 0 ? [
+    {
+      id: 'dummy-1',
+      title: 'CompTIA Security+',
+      description: 'Foundational cybersecurity certification covering network security, threats, and vulnerabilities.',
+      image_url: '/placeholder.svg',
+      certificate_url: 'https://example.com/security-plus',
+      type: 'cybersecurity',
+      display_order: 1
+    },
+    {
+      id: 'dummy-2',
+      title: 'Cisco CyberOps Associate',
+      description: 'Security operations center fundamentals and incident response methodologies.',
+      image_url: '/placeholder.svg',
+      certificate_url: 'https://example.com/cyberops',
+      type: 'cybersecurity',
+      display_order: 2
+    },
+    {
+      id: 'dummy-3',
+      title: 'CEH - Certified Ethical Hacker',
+      description: 'Comprehensive ethical hacking and penetration testing methodologies.',
+      image_url: '/placeholder.svg',
+      certificate_url: 'https://example.com/ceh',
+      type: 'cybersecurity',
+      display_order: 3
+    }
+  ] : certificates;
+
   const addCertificateMutation = useMutation({
     mutationFn: async (newCert: { title: string; description: string; completion_date: string }) => {
       const { data, error } = await supabase
@@ -86,12 +117,20 @@ export const CybersecurityCertificates = () => {
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-between items-center mb-16">
-          <h1 
-            className="text-4xl font-bold"
-            style={{ color: themeColors.primary }}
-          >
-            Cybersecurity Certificates
-          </h1>
+          <div className="relative">
+            <h1 
+              className="text-4xl font-bold text-white"
+            >
+              Cybersecurity Certificates
+            </h1>
+            <div 
+              className="absolute bottom-0 left-0 w-full h-1 rounded mt-2"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                boxShadow: `0 0 10px ${themeColors.primary}`
+              }}
+            />
+          </div>
           
           {userRole === 'admin' && (
             <Button
@@ -105,36 +144,65 @@ export const CybersecurityCertificates = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {certificates.map((cert) => (
+          {dummyCertificates.map((cert) => (
             <Card 
               key={cert.id}
-              className="border-0 hover:shadow-lg transition-shadow duration-300"
-              style={{ backgroundColor: themeColors.surface }}
+              className="border-0 hover:shadow-lg transition-shadow duration-300 group"
+              style={{ 
+                backgroundColor: themeColors.surface,
+                boxShadow: `0 0 20px ${themeColors.primary}50`
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = `0 0 30px ${themeColors.primary}`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = `0 0 20px ${themeColors.primary}50`;
+              }}
             >
               <CardContent className="p-6">
                 <div className="aspect-video mb-4 rounded-lg overflow-hidden">
-                  <EditableImage
-                    src={cert.image_url}
-                    alt={cert.title}
-                    onSave={(url) => handleImageSave(cert.id, url)}
-                    className="w-full h-full object-cover"
-                  />
+                  {userRole === 'admin' ? (
+                    <EditableImage
+                      src={cert.image_url}
+                      alt={cert.title}
+                      onSave={(url) => handleImageSave(cert.id, url)}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src={cert.image_url || '/placeholder.svg'}
+                      alt={cert.title}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
                 
-                <EditableText
-                  value={cert.title}
-                  onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'title', value })}
-                  className="text-xl font-semibold mb-2"
-                  placeholder="Certificate title"
-                />
+                {userRole === 'admin' ? (
+                  <EditableText
+                    value={cert.title}
+                    onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'title', value })}
+                    className="text-xl font-semibold mb-2 text-white"
+                    placeholder="Certificate title"
+                  />
+                ) : (
+                  <h3 className="text-xl font-semibold mb-2 text-white">
+                    {cert.title}
+                  </h3>
+                )}
                 
-                <EditableText
-                  value={cert.description || ''}
-                  onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'description', value })}
-                  multiline={true}
-                  className="text-sm mb-4 leading-relaxed"
-                  placeholder="Certificate description"
-                />
+                {userRole === 'admin' ? (
+                  <EditableText
+                    value={cert.description || ''}
+                    onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'description', value })}
+                    multiline={true}
+                    className="text-sm mb-4 leading-relaxed text-white"
+                    placeholder="Certificate description"
+                  />
+                ) : (
+                  <p className="text-sm mb-4 leading-relaxed text-white">
+                    {cert.description}
+                  </p>
+                )}
                 
                 {cert.certificate_url && (
                   <a

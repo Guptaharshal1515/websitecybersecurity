@@ -59,13 +59,8 @@ export const Projects = () => {
     }
   });
 
-  const handleImageSave = async (id: string, file: File | null) => {
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      updateProjectMutation.mutate({ id, field: 'image_url', value: imageUrl });
-    } else {
-      updateProjectMutation.mutate({ id, field: 'image_url', value: '' });
-    }
+  const handleImageSave = async (id: string, url: string | null) => {
+    updateProjectMutation.mutate({ id, field: 'image_url', value: url || '' });
   };
 
   return (
@@ -102,7 +97,7 @@ export const Projects = () => {
                   <EditableImage
                     src={project.image_url}
                     alt={project.title}
-                    onSave={(file) => handleImageSave(project.id, file)}
+                    onSave={(url) => handleImageSave(project.id, url)}
                     className="w-full h-full object-cover"
                   />
                 </div>

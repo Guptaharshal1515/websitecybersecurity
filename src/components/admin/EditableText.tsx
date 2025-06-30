@@ -10,6 +10,7 @@ interface EditableTextProps {
   multiline?: boolean;
   className?: string;
   placeholder?: string;
+  style?: React.CSSProperties;
 }
 
 export const EditableText = ({ 
@@ -17,7 +18,8 @@ export const EditableText = ({
   onSave, 
   multiline = false, 
   className = "",
-  placeholder = "Enter text..."
+  placeholder = "Enter text...",
+  style
 }: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
@@ -53,6 +55,7 @@ export const EditableText = ({
             placeholder={placeholder}
             className="w-full"
             rows={4}
+            style={style}
           />
         ) : (
           <Input
@@ -60,10 +63,11 @@ export const EditableText = ({
             onChange={(e) => setEditValue(e.target.value)}
             placeholder={placeholder}
             className="w-full"
+            style={style}
           />
         )
       ) : (
-        <div className={multiline ? "whitespace-pre-wrap" : ""}>
+        <div className={multiline ? "whitespace-pre-wrap" : ""} style={style}>
           {value || placeholder}
         </div>
       )}

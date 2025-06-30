@@ -78,14 +78,8 @@ export const CybersecurityCertificates = () => {
     }
   });
 
-  const handleImageSave = async (id: string, file: File | null) => {
-    if (file) {
-      // In a real implementation, you'd upload to Supabase Storage
-      const imageUrl = URL.createObjectURL(file);
-      updateCertificateMutation.mutate({ id, field: 'image_url', value: imageUrl });
-    } else {
-      updateCertificateMutation.mutate({ id, field: 'image_url', value: '' });
-    }
+  const handleImageSave = async (id: string, url: string | null) => {
+    updateCertificateMutation.mutate({ id, field: 'image_url', value: url || '' });
   };
 
   return (
@@ -122,7 +116,7 @@ export const CybersecurityCertificates = () => {
                   <EditableImage
                     src={cert.image_url}
                     alt={cert.title}
-                    onSave={(file) => handleImageSave(cert.id, file)}
+                    onSave={(url) => handleImageSave(cert.id, url)}
                     className="w-full h-full object-cover"
                   />
                 </div>

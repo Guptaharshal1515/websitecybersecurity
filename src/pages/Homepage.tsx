@@ -98,47 +98,8 @@ export const Homepage = () => {
     updateMutation.mutate({ [field]: value });
   };
 
-  const handleImageSave = async (file: File | null) => {
-    if (file) {
-      try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `profile-${Date.now()}.${fileExt}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(fileName, file);
-
-        if (uploadError) {
-          // If bucket doesn't exist, create it and try again
-          const { data: bucketData, error: bucketError } = await supabase.storage
-            .createBucket('avatars', { public: true });
-          
-          if (!bucketError) {
-            const { data: retryUpload, error: retryError } = await supabase.storage
-              .from('avatars')
-              .upload(fileName, file);
-            
-            if (retryError) throw retryError;
-            const { data: { publicUrl } } = supabase.storage
-              .from('avatars')
-              .getPublicUrl(fileName);
-            updateMutation.mutate({ profile_image_url: publicUrl });
-          } else {
-            throw uploadError;
-          }
-        } else {
-          const { data: { publicUrl } } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(fileName);
-          updateMutation.mutate({ profile_image_url: publicUrl });
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        toast({ title: 'Error uploading image', variant: 'destructive' });
-      }
-    } else {
-      updateMutation.mutate({ profile_image_url: null });
-    }
+  const handleImageSave = async (url: string | null) => {
+    updateMutation.mutate({ profile_image_url: url });
   };
 
   const defaultContent = {
@@ -222,6 +183,7 @@ export const Homepage = () => {
                     onSave={handleImageSave}
                     className="w-full h-full object-cover"
                     isCircular={true}
+                    bucket="avatars"
                   />
                 </div>
               </div>

@@ -1,21 +1,25 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Certificate {
   id: string;
   title: string;
-  description: string;
-  image_url: string;
-  certificate_url: string;
-  type: 'cybersecurity' | 'blockchain';
-  created_at: string;
-  display_order: number;
+  description: string | null;
+  image_url: string | null;
+  certificate_url: string | null;
+  type: string | null;
+  display_order: number | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 interface CertificateManagerProps {
@@ -24,7 +28,8 @@ interface CertificateManagerProps {
 
 export const CertificateManager = ({ type }: CertificateManagerProps) => {
   const { themeColors } = useTheme();
-  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -35,26 +40,87 @@ export const CertificateManager = ({ type }: CertificateManagerProps) => {
     display_order: 1
   });
 
+  const { data: certificates = [], isLoading } = useQuery({
+    queryKey: ['certificates', type],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .select('*')
+        .eq('type', type)
+        .order('display_order', { ascending: true });
+      
+      if (error) throw error;
+      return data as Certificate[];
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (newCert: Omit<Certificate, 'id' | 'created_at' | 'updated_at'>) => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .insert([newCert])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certificates', type] });
+      toast({ title: 'Certificate created successfully!' });
+      resetForm();
+    },
+    onError: (error) => {
+      toast({ title: 'Error creating certificate', description: error.message, variant: 'destructive' });
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<Certificate> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certificates', type] });
+      toast({ title: 'Certificate updated successfully!' });
+      resetForm();
+    },
+    onError: (error) => {
+      toast({ title: 'Error updating certificate', description: error.message, variant: 'destructive' });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('certificates')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certificates', type] });
+      toast({ title: 'Certificate deleted successfully!' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error deleting certificate', description: error.message, variant: 'destructive' });
+    }
+  });
+
   const handleSubmit = () => {
     if (editingId) {
-      // Update existing certificate
-      setCertificates(prev => prev.map(cert => 
-        cert.id === editingId 
-          ? { ...cert, ...formData }
-          : cert
-      ));
+      updateMutation.mutate({ id: editingId, ...formData, type });
     } else {
-      // Add new certificate
-      const newCert: Certificate = {
-        id: Date.now().toString(),
-        ...formData,
-        type,
-        created_at: new Date().toISOString()
-      };
-      setCertificates(prev => [...prev, newCert]);
+      createMutation.mutate({ ...formData, type });
     }
-    
-    resetForm();
   };
 
   const resetForm = () => {
@@ -72,18 +138,24 @@ export const CertificateManager = ({ type }: CertificateManagerProps) => {
   const handleEdit = (cert: Certificate) => {
     setFormData({
       title: cert.title,
-      description: cert.description,
-      image_url: cert.image_url,
-      certificate_url: cert.certificate_url,
-      display_order: cert.display_order
+      description: cert.description || '',
+      image_url: cert.image_url || '',
+      certificate_url: cert.certificate_url || '',
+      display_order: cert.display_order || 1
     });
     setEditingId(cert.id);
     setShowAddForm(true);
   };
 
   const handleDelete = (id: string) => {
-    setCertificates(prev => prev.filter(cert => cert.id !== id));
+    if (confirm('Are you sure you want to delete this certificate?')) {
+      deleteMutation.mutate(id);
+    }
   };
+
+  if (isLoading) {
+    return <div>Loading certificates...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -139,7 +211,11 @@ export const CertificateManager = ({ type }: CertificateManagerProps) => {
               onChange={(e) => setFormData(prev => ({ ...prev, display_order: parseInt(e.target.value) || 1 }))}
             />
             <div className="flex gap-2">
-              <Button onClick={handleSubmit} style={{ backgroundColor: themeColors.primary }}>
+              <Button 
+                onClick={handleSubmit} 
+                style={{ backgroundColor: themeColors.primary }}
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
                 <Save className="h-4 w-4 mr-2" />
                 {editingId ? 'Update' : 'Save'}
               </Button>
@@ -182,6 +258,7 @@ export const CertificateManager = ({ type }: CertificateManagerProps) => {
                     variant="outline"
                     onClick={() => handleDelete(cert.id)}
                     className="text-red-500 hover:text-red-700"
+                    disabled={deleteMutation.isPending}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

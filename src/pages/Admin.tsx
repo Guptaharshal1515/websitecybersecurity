@@ -9,6 +9,7 @@ import { CertificateManager } from '@/components/admin/CertificateManager';
 import { ProjectManager } from '@/components/admin/ProjectManager';
 import { TrackerManager } from '@/components/admin/TrackerManager';
 import { JourneyManager } from '@/components/admin/JourneyManager';
+import { UserRoleManager } from '@/components/admin/UserRoleManager';
 
 export const Admin = () => {
   const { themeColors, userRole } = useTheme();
@@ -47,6 +48,7 @@ export const Admin = () => {
     { id: 'projects', label: 'Projects' },
     { id: 'tracker', label: 'Tracker' },
     { id: 'journey', label: 'Journey' },
+    { id: 'users', label: 'User Management' },
   ];
 
   const renderContent = () => {
@@ -61,6 +63,8 @@ export const Admin = () => {
         return <TrackerManager />;
       case 'journey':
         return <JourneyManager />;
+      case 'users':
+        return <UserRoleManager />;
       default:
         return (
           <div>

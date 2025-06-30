@@ -1,55 +1,126 @@
 
 import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface TrackerEntry {
   id: string;
-  skill_name: string;
-  tag: '📜' | '🧪' | '📚';
-  link: string;
-  date_completed: string;
+  title: string;
+  type: string;
+  proof_link: string | null;
+  completion_date: string | null;
+  is_completed: boolean | null;
+  completed_by: string | null;
+  created_at: string | null;
 }
 
 export const TrackerManager = () => {
   const { themeColors } = useTheme();
-  const [entries, setEntries] = useState<TrackerEntry[]>([]);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
-    skill_name: '',
-    tag: '📜' as '📜' | '🧪' | '📚',
-    link: '',
-    date_completed: ''
+    title: '',
+    type: 'Course',
+    proof_link: '',
+    completion_date: ''
+  });
+
+  const { data: entries = [], isLoading } = useQuery({
+    queryKey: ['tracker-entries'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tracker_entries')
+        .select('*')
+        .order('completion_date', { ascending: false });
+      
+      if (error) throw error;
+      return data as TrackerEntry[];
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (newEntry: Omit<TrackerEntry, 'id' | 'created_at' | 'updated_at' | 'completed_by' | 'is_completed'>) => {
+      const { data, error } = await supabase
+        .from('tracker_entries')
+        .insert([{ ...newEntry, is_completed: true }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracker-entries'] });
+      toast({ title: 'Tracker entry created successfully!' });
+      resetForm();
+    },
+    onError: (error) => {
+      toast({ title: 'Error creating entry', description: error.message, variant: 'destructive' });
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<TrackerEntry> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('tracker_entries')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracker-entries'] });
+      toast({ title: 'Tracker entry updated successfully!' });
+      resetForm();
+    },
+    onError: (error) => {
+      toast({ title: 'Error updating entry', description: error.message, variant: 'destructive' });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('tracker_entries')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracker-entries'] });
+      toast({ title: 'Tracker entry deleted successfully!' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error deleting entry', description: error.message, variant: 'destructive' });
+    }
   });
 
   const handleSubmit = () => {
     if (editingId) {
-      setEntries(prev => prev.map(entry => 
-        entry.id === editingId 
-          ? { ...entry, ...formData }
-          : entry
-      ));
+      updateMutation.mutate({ id: editingId, ...formData });
     } else {
-      const newEntry: TrackerEntry = {
-        id: Date.now().toString(),
-        ...formData
-      };
-      setEntries(prev => [...prev, newEntry]);
+      createMutation.mutate(formData);
     }
-    
-    resetForm();
   };
 
   const resetForm = () => {
     setFormData({
-      skill_name: '',
-      tag: '📜',
-      link: '',
-      date_completed: ''
+      title: '',
+      type: 'Course',
+      proof_link: '',
+      completion_date: ''
     });
     setEditingId(null);
     setShowAddForm(false);
@@ -57,18 +128,24 @@ export const TrackerManager = () => {
 
   const handleEdit = (entry: TrackerEntry) => {
     setFormData({
-      skill_name: entry.skill_name,
-      tag: entry.tag,
-      link: entry.link,
-      date_completed: entry.date_completed
+      title: entry.title,
+      type: entry.type,
+      proof_link: entry.proof_link || '',
+      completion_date: entry.completion_date || ''
     });
     setEditingId(entry.id);
     setShowAddForm(true);
   };
 
   const handleDelete = (id: string) => {
-    setEntries(prev => prev.filter(entry => entry.id !== id));
+    if (confirm('Are you sure you want to delete this entry?')) {
+      deleteMutation.mutate(id);
+    }
   };
+
+  if (isLoading) {
+    return <div>Loading tracker entries...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -99,30 +176,34 @@ export const TrackerManager = () => {
           <CardContent className="space-y-4">
             <Input
               placeholder="Skill/Course Name"
-              value={formData.skill_name}
-              onChange={(e) => setFormData(prev => ({ ...prev, skill_name: e.target.value }))}
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
             />
             <select
-              value={formData.tag}
-              onChange={(e) => setFormData(prev => ({ ...prev, tag: e.target.value as '📜' | '🧪' | '📚' }))}
+              value={formData.type}
+              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
               className="w-full p-2 border rounded"
             >
-              <option value="📜">📜 Certificate</option>
-              <option value="🧪">🧪 Hands-on</option>
-              <option value="📚">📚 Course</option>
+              <option value="Course">Course</option>
+              <option value="Certificate">Certificate</option>
+              <option value="Custom">Custom</option>
             </select>
             <Input
               placeholder="Link (optional)"
-              value={formData.link}
-              onChange={(e) => setFormData(prev => ({ ...prev, link: e.target.value }))}
+              value={formData.proof_link}
+              onChange={(e) => setFormData(prev => ({ ...prev, proof_link: e.target.value }))}
             />
             <Input
               type="date"
-              value={formData.date_completed}
-              onChange={(e) => setFormData(prev => ({ ...prev, date_completed: e.target.value }))}
+              value={formData.completion_date}
+              onChange={(e) => setFormData(prev => ({ ...prev, completion_date: e.target.value }))}
             />
             <div className="flex gap-2">
-              <Button onClick={handleSubmit} style={{ backgroundColor: themeColors.primary }}>
+              <Button 
+                onClick={handleSubmit} 
+                style={{ backgroundColor: themeColors.primary }}
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
                 <Save className="h-4 w-4 mr-2" />
                 {editingId ? 'Update' : 'Save'}
               </Button>
@@ -143,17 +224,19 @@ export const TrackerManager = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg">{entry.tag}</span>
+                    <span className="text-lg">
+                      {entry.type === 'Certificate' ? '📜' : entry.type === 'Custom' ? '🧪' : '📚'}
+                    </span>
                     <h3 className="font-bold" style={{ color: themeColors.text }}>
-                      {entry.skill_name}
+                      {entry.title}
                     </h3>
                   </div>
                   <p className="text-sm" style={{ color: themeColors.accent }}>
-                    Completed: {new Date(entry.date_completed).toLocaleDateString()}
+                    Completed: {entry.completion_date ? new Date(entry.completion_date).toLocaleDateString() : 'Not set'}
                   </p>
-                  {entry.link && (
+                  {entry.proof_link && (
                     <a 
-                      href={entry.link} 
+                      href={entry.proof_link} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-sm underline"
@@ -176,6 +259,7 @@ export const TrackerManager = () => {
                     variant="outline"
                     onClick={() => handleDelete(entry.id)}
                     className="text-red-500 hover:text-red-700"
+                    disabled={deleteMutation.isPending}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

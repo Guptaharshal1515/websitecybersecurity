@@ -113,7 +113,7 @@ export const Homepage = () => {
     {
       title: "Cybersecurity",
       subtitle: "Certificates",
-      count: `${certificatesCount?.cybersecurity || 1} Earned`,
+      count: `${certificatesCount?.cybersecurity || 3} Earned`,
       icon: Shield,
       route: "/cybersecurity-certificates",
       gradient: "from-red-500 to-pink-500",
@@ -122,7 +122,7 @@ export const Homepage = () => {
     {
       title: "Blockchain",
       subtitle: "Certificates", 
-      count: `${certificatesCount?.blockchain || 1} Earned`,
+      count: `${certificatesCount?.blockchain || 2} Earned`,
       icon: Code,
       route: "/blockchain-certificates",
       gradient: "from-blue-500 to-cyan-500",
@@ -131,7 +131,7 @@ export const Homepage = () => {
     {
       title: "Projects",
       subtitle: "Done",
-      count: `${projectsCount || 1} Completed`,
+      count: `${projectsCount || 5} Completed`,
       icon: User,
       route: "/projects",
       gradient: "from-green-500 to-emerald-500",
@@ -157,16 +157,16 @@ export const Homepage = () => {
               <EditableText
                 value={content?.welcome_message || defaultContent.welcome_message}
                 onSave={(value) => handleTextSave('welcome_message', value)}
-                className="text-4xl md:text-6xl font-bold text-white relative"
+                className="text-4xl md:text-6xl font-bold text-white relative welcome-glow"
                 placeholder="Welcome message"
               />
             ) : (
-              <h1 className="text-4xl md:text-6xl font-bold text-white relative">
+              <h1 className="text-4xl md:text-6xl font-bold text-white relative welcome-glow">
                 {content?.welcome_message || defaultContent.welcome_message}
               </h1>
             )}
             <div 
-              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full h-1 rounded animate-pulse"
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full h-1 rounded animate-pulse glow-underline"
               style={{ 
                 backgroundColor: themeColors.primary,
                 boxShadow: `0 0 20px ${themeColors.primary}, 0 0 40px ${themeColors.primary}`
@@ -193,12 +193,11 @@ export const Homepage = () => {
                 value={content?.introduction || defaultContent.introduction}
                 onSave={(value) => handleTextSave('introduction', value)}
                 multiline={true}
-                className="text-lg leading-relaxed opacity-90"
-                style={{ color: themeColors.accent }}
+                className="text-lg leading-relaxed opacity-90 text-white"
                 placeholder="Tell us about yourself..."
               />
             ) : (
-              <p className="text-lg leading-relaxed opacity-90" style={{ color: themeColors.accent }}>
+              <p className="text-lg leading-relaxed opacity-90 text-white">
                 {content?.introduction || defaultContent.introduction}
               </p>
             )}
@@ -215,8 +214,6 @@ export const Homepage = () => {
                       alt="Profile"
                       onSave={handleImageSave}
                       className="w-full h-full object-cover"
-                      isCircular={true}
-                      bucket="avatars"
                     />
                   ) : (
                     <img
@@ -238,7 +235,7 @@ export const Homepage = () => {
           {navigationBoxes.map((box, index) => (
             <Card
               key={box.title}
-              className={`group cursor-pointer border-0 overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in relative`}
+              className={`group cursor-pointer border-0 overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in relative pixel-box`}
               style={{ 
                 backgroundColor: themeColors.surface,
                 animationDelay: `${index * 200}ms`
@@ -282,7 +279,7 @@ export const Homepage = () => {
         {/* Social Links */}
         <div className="text-center">
           <p 
-            className="text-xl mb-6"
+            className="text-2xl mb-6 font-semibold"
             style={{ color: themeColors.primary }}
           >
             Follow me or find me here
@@ -305,19 +302,40 @@ export const Homepage = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
+        .welcome-glow {
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .glow-underline {
+          animation: glow-pulse 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow-pulse {
+          from {
+            box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+          }
+          to {
+            box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+          }
+        }
+        
         .pixel-animation {
-          animation: pixelPop 0.3s ease-out;
+          transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
         
         .pixel-animation:hover {
           animation: pixelGlitch 0.5s ease-in-out;
         }
         
+        .pixel-box:hover {
+          animation: pixelPop 0.3s ease-out;
+        }
+        
         @keyframes pixelPop {
           0% { transform: scale(1); }
           50% { transform: scale(1.02); }
-          100% { transform: scale(1); }
+          100% { transform: scale(1.05); }
         }
         
         @keyframes pixelGlitch {

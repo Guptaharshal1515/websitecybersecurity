@@ -47,32 +47,52 @@ export const Projects = () => {
     {
       id: 'dummy-1',
       title: 'Cybersecurity Dashboard',
-      description: 'Real-time security monitoring dashboard with threat detection and incident response capabilities.',
+      description: 'Real-time security monitoring dashboard with threat detection and incident response capabilities. Built with React and Node.js, featuring live threat feeds, vulnerability scanning, and automated alerting systems.',
       image_url: '/placeholder.svg',
       project_url: 'https://example.com/cybersec-dashboard',
       github_url: 'https://github.com/guptaharshal/cybersec-dashboard',
-      technologies: ['React', 'Node.js', 'Python', 'MongoDB'],
+      technologies: ['React', 'Node.js', 'Python', 'MongoDB', 'Socket.io'],
       display_order: 1
     },
     {
       id: 'dummy-2',
       title: 'Blockchain Voting System',
-      description: 'Decentralized voting application built on Ethereum with smart contract integration.',
+      description: 'Decentralized voting application built on Ethereum with smart contract integration. Features voter authentication, transparent ballot counting, and immutable vote records.',
       image_url: '/placeholder.svg',
       project_url: 'https://example.com/blockchain-voting',
       github_url: 'https://github.com/guptaharshal/blockchain-voting',
-      technologies: ['Solidity', 'Web3.js', 'React', 'Ethereum'],
+      technologies: ['Solidity', 'Web3.js', 'React', 'Ethereum', 'MetaMask'],
       display_order: 2
     },
     {
       id: 'dummy-3',
       title: 'Penetration Testing Toolkit',
-      description: 'Automated penetration testing toolkit for web application vulnerability assessment.',
+      description: 'Automated penetration testing toolkit for web application vulnerability assessment. Includes custom scripts for OWASP Top 10 testing and comprehensive reporting.',
       image_url: '/placeholder.svg',
       project_url: null,
       github_url: 'https://github.com/guptaharshal/pentest-toolkit',
-      technologies: ['Python', 'Bash', 'Nmap', 'SQLMap'],
+      technologies: ['Python', 'Bash', 'Nmap', 'SQLMap', 'Burp Suite'],
       display_order: 3
+    },
+    {
+      id: 'dummy-4',
+      title: 'Cloud Infrastructure Monitor',
+      description: 'Multi-cloud monitoring solution for AWS, Azure, and GCP. Real-time resource tracking, cost optimization alerts, and security compliance monitoring.',
+      image_url: '/placeholder.svg',
+      project_url: 'https://example.com/cloud-monitor',
+      github_url: 'https://github.com/guptaharshal/cloud-monitor',
+      technologies: ['AWS', 'Azure', 'GCP', 'Terraform', 'Docker'],
+      display_order: 4
+    },
+    {
+      id: 'dummy-5',
+      title: 'DeFi Portfolio Tracker',
+      description: 'Comprehensive DeFi portfolio management tool with yield farming analytics, impermanent loss calculation, and cross-chain asset tracking.',
+      image_url: '/placeholder.svg',
+      project_url: 'https://example.com/defi-tracker',
+      github_url: 'https://github.com/guptaharshal/defi-tracker',
+      technologies: ['React', 'Web3', 'GraphQL', 'The Graph', 'Uniswap API'],
+      display_order: 5
     }
   ] : projects;
 
@@ -140,7 +160,10 @@ export const Projects = () => {
                 }`}
                 style={{ 
                   backgroundColor: themeColors.surface,
-                  ringColor: selectedProject?.id === project.id ? themeColors.primary : 'transparent'
+                  ...(selectedProject?.id === project.id && {
+                    '--tw-ring-color': themeColors.primary,
+                    borderColor: themeColors.primary
+                  } as any)
                 }}
                 onClick={() => setSelectedProject(project)}
               >

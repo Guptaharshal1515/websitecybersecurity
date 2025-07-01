@@ -39,6 +39,13 @@ const getThemeColors = (role: UserRole) => {
         secondary: '#991b1b',
         accent: '#fca5a5',
       };
+    case 'editor':
+      return {
+        ...baseTheme,
+        primary: '#8b5cf6', // Violet
+        secondary: '#7c3aed',
+        accent: '#c4b5fd',
+      };
     case 'customer':
       return {
         ...baseTheme,

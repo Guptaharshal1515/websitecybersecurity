@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -155,24 +156,72 @@ export const Roadmap = () => {
         id: 'blockchain',
         title: 'Blockchain & Web3',
         subtopics: [
-          { title: 'Blockchain Basics', link: null },
-          { title: 'Ethereum, DeFi Concepts', link: null },
-          { title: 'Solidity Programming', link: null },
-          { title: 'Smart Contract Auditing', link: null },
-          { title: 'Web3 Tools (Metamask, etc.)', link: null },
-          { title: 'NFT, Tokens, Crypto', link: null }
+          { 
+            title: 'Blockchain Basics', 
+            link: 'https://blockchain.info/learn',
+            description: 'Fundamental concepts of blockchain technology'
+          },
+          { 
+            title: 'Ethereum, DeFi Concepts', 
+            link: 'https://ethereum.org/en/',
+            description: 'Understanding Ethereum blockchain and DeFi protocols'
+          },
+          { 
+            title: 'Solidity Programming', 
+            link: 'https://soliditylang.org/',
+            description: 'Smart contract development with Solidity'
+          },
+          { 
+            title: 'Smart Contract Auditing', 
+            link: 'https://consensys.github.io/smart-contract-best-practices/',
+            description: 'Security auditing for smart contracts'
+          },
+          { 
+            title: 'Web3 Tools (Metamask, etc.)', 
+            link: 'https://metamask.io/',
+            description: 'Essential Web3 development tools and wallets'
+          },
+          { 
+            title: 'NFT, Tokens, Crypto', 
+            link: 'https://opensea.io/learn',
+            description: 'Understanding NFTs, tokens, and cryptocurrency'
+          }
         ]
       },
       {
         id: 'cloud',
         title: 'Cloud & Infrastructure',
         subtopics: [
-          { title: 'Cloud Fundamentals', link: null },
-          { title: 'IAM, VPC, Storage', link: null },
-          { title: 'Cloud Security Practices', link: null },
-          { title: 'Cloud Pentesting Labs', link: null },
-          { title: 'AWS / Azure Essentials', link: null },
-          { title: 'Certifications (AWS, GCP)', link: null }
+          { 
+            title: 'Cloud Fundamentals', 
+            link: 'https://aws.amazon.com/getting-started/',
+            description: 'Basic cloud computing concepts and services'
+          },
+          { 
+            title: 'IAM, VPC, Storage', 
+            link: 'https://docs.aws.amazon.com/iam/',
+            description: 'Identity management, networking, and storage in cloud'
+          },
+          { 
+            title: 'Cloud Security Practices', 
+            link: 'https://aws.amazon.com/security/',
+            description: 'Security best practices for cloud infrastructure'
+          },
+          { 
+            title: 'Cloud Pentesting Labs', 
+            link: 'https://flaws.cloud/',
+            description: 'Hands-on cloud penetration testing exercises'
+          },
+          { 
+            title: 'AWS / Azure Essentials', 
+            link: 'https://aws.amazon.com/training/',
+            description: 'Core services and features of major cloud providers'
+          },
+          { 
+            title: 'Certifications (AWS, GCP)', 
+            link: 'https://aws.amazon.com/certification/',
+            description: 'Professional cloud certifications and career paths'
+          }
         ]
       }
     ],
@@ -181,72 +230,216 @@ export const Roadmap = () => {
         id: '1st',
         title: '1st Semester',
         items: [
-          'Ubuntu Basics & Terminal Practice',
-          'Cisco Intro to Cybersecurity',
-          'TryHackMe Pre-Security & Cyberi01',
-          'Blockchain Intro (Bitcoin, Ethereum, DeFi)',
-          'C Programming (GeeksForGeeks)',
-          'Python Basics (Loops, Functions)'
+          { 
+            title: 'Ubuntu Basics & Terminal Practice',
+            link: 'https://ubuntu.com/tutorials',
+            description: 'Learn Ubuntu Linux basics and command line interface'
+          },
+          { 
+            title: 'Cisco Intro to Cybersecurity',
+            link: 'https://www.netacad.com/courses/cybersecurity',
+            description: 'Introduction to cybersecurity fundamentals by Cisco'
+          },
+          { 
+            title: 'TryHackMe Pre-Security & Cyberi01',
+            link: 'https://tryhackme.com/path/outline/presecurity',
+            description: 'Beginner-friendly cybersecurity learning path'
+          },
+          { 
+            title: 'Blockchain Intro (Bitcoin, Ethereum, DeFi)',
+            link: 'https://bitcoin.org/en/getting-started',
+            description: 'Introduction to blockchain technology and cryptocurrencies'
+          },
+          { 
+            title: 'C Programming (GeeksForGeeks)',
+            link: 'https://www.geeksforgeeks.org/c-programming-language/',
+            description: 'Learn C programming fundamentals'
+          },
+          { 
+            title: 'Python Basics (Loops, Functions)',
+            link: 'https://www.python.org/about/gettingstarted/',
+            description: 'Python programming basics and syntax'
+          }
         ]
       },
       {
         id: '2nd',
         title: '2nd Semester',
         items: [
-          'Kali Linux Setup + Tools',
-          'Nmap, Nikto, Metasploit',
-          'Web Exploitation Labs (THM Red Team Path)',
-          'IBM Blockchain Essentials',
-          'Solidity Programming (CryptoZombies)',
-          'OS in Python + Certificate'
+          { 
+            title: 'Kali Linux Setup + Tools',
+            link: 'https://www.kali.org/docs/introduction/',
+            description: 'Setting up Kali Linux and penetration testing tools'
+          },
+          { 
+            title: 'Nmap, Nikto, Metasploit',
+            link: 'https://nmap.org/book/',
+            description: 'Essential penetration testing tools and techniques'
+          },
+          { 
+            title: 'Web Exploitation Labs (THM Red Team Path)',
+            link: 'https://tryhackme.com/path/outline/redteaming',
+            description: 'Hands-on web application security testing'
+          },
+          { 
+            title: 'IBM Blockchain Essentials',
+            link: 'https://www.ibm.com/blockchain/education',
+            description: 'IBM blockchain fundamentals course'
+          },
+          { 
+            title: 'Solidity Programming (CryptoZombies)',
+            link: 'https://cryptozombies.io/',
+            description: 'Learn Solidity through interactive coding lessons'
+          },
+          { 
+            title: 'OS in Python + Certificate',
+            link: 'https://www.coursera.org/learn/python-operating-system',
+            description: 'Operating systems concepts using Python'
+          }
         ]
       },
       {
         id: '3rd',
         title: '3rd Semester',
         items: [
-          'XSS, SQLi, SSRF – Advanced Web Attacks',
-          'HTB Starting Point Labs',
-          'Git & Github Workflow',
-          'Smart Contract Security (Ethernaut)',
-          'dApp Deployment on Mumbai Testnet',
-          'Google IT Support Certificate'
+          { 
+            title: 'XSS, SQLi, SSRF – Advanced Web Attacks',
+            link: 'https://portswigger.net/web-security',
+            description: 'Advanced web application security vulnerabilities'
+          },
+          { 
+            title: 'HTB Starting Point Labs',
+            link: 'https://www.hackthebox.com/hacker/hacking-labs',
+            description: 'Beginner penetration testing labs on HackTheBox'
+          },
+          { 
+            title: 'Git & Github Workflow',
+            link: 'https://git-scm.com/doc',
+            description: 'Version control with Git and GitHub collaboration'
+          },
+          { 
+            title: 'Smart Contract Security (Ethernaut)',
+            link: 'https://ethernaut.openzeppelin.com/',
+            description: 'Smart contract security challenges and vulnerabilities'
+          },
+          { 
+            title: 'dApp Deployment on Mumbai Testnet',
+            link: 'https://docs.polygon.technology/docs/develop/getting-started',
+            description: 'Deploy decentralized applications on Polygon testnet'
+          },
+          { 
+            title: 'Google IT Support Certificate',
+            link: 'https://www.coursera.org/professional-certificates/google-it-support',
+            description: 'Google IT Support Professional Certificate program'
+          }
         ]
       },
       {
         id: '4th',
         title: '4th Semester',
         items: [
-          'Cloud Security (IAM, VPC, S3, EC2)',
-          'Cloud Pentesting Tools',
-          'Smart Contract Auditing (SMC, Mythril)',
-          'Python Recon + Automation Scripts',
-          'Deploy Personal Dashboard (React)',
-          'Blockchain + Cloud Crossover Project'
+          { 
+            title: 'Cloud Security (IAM, VPC, S3, EC2)',
+            link: 'https://aws.amazon.com/security/',
+            description: 'AWS cloud security fundamentals and best practices'
+          },
+          { 
+            title: 'Cloud Pentesting Tools',
+            link: 'https://flaws.cloud/',
+            description: 'Cloud-specific penetration testing methodologies'
+          },
+          { 
+            title: 'Smart Contract Auditing (SMC, Mythril)',
+            link: 'https://mythril-classic.readthedocs.io/',
+            description: 'Automated smart contract security analysis tools'
+          },
+          { 
+            title: 'Python Recon + Automation Scripts',
+            link: 'https://automatetheboringstuff.com/',
+            description: 'Python automation for cybersecurity tasks'
+          },
+          { 
+            title: 'Deploy Personal Dashboard (React)',
+            link: 'https://reactjs.org/tutorial/tutorial.html',
+            description: 'Build and deploy a personal portfolio website'
+          },
+          { 
+            title: 'Blockchain + Cloud Crossover Project',
+            link: 'https://aws.amazon.com/blockchain/',
+            description: 'Integrating blockchain with cloud infrastructure'
+          }
         ]
       },
       {
         id: '5th',
         title: '5th Semester',
         items: [
-          'Full Red Team Lab (TryHackMe/HTB)',
-          'CompTIA Pentest+ (Planned)',
-          'Deploy Production-Ready dApp',
-          'Solidity Optimizations',
-          'Web3 & Cloud Integration',
-          'Launch Portfolio + Blog'
+          { 
+            title: 'Full Red Team Lab (TryHackMe/HTB)',
+            link: 'https://tryhackme.com/path/outline/redteaming',
+            description: 'Complete red team simulation exercises'
+          },
+          { 
+            title: 'CompTIA Pentest+ (Planned)',
+            link: 'https://www.comptia.org/certifications/pentest',
+            description: 'Professional penetration testing certification'
+          },
+          { 
+            title: 'Deploy Production-Ready dApp',
+            link: 'https://docs.ethereum.org/en/developers/tutorials/',
+            description: 'Build and deploy a production blockchain application'
+          },
+          { 
+            title: 'Solidity Optimizations',
+            link: 'https://docs.soliditylang.org/en/latest/optimizations.html',
+            description: 'Gas optimization techniques for smart contracts'
+          },
+          { 
+            title: 'Web3 & Cloud Integration',
+            link: 'https://moralis.io/web3/',
+            description: 'Integrating Web3 applications with cloud services'
+          },
+          { 
+            title: 'Launch Portfolio + Blog',
+            link: 'https://pages.github.com/',
+            description: 'Create professional portfolio and technical blog'
+          }
         ]
       },
       {
         id: '6th',
         title: '6th Semester',
         items: [
-          'Capture the Flag Tournaments',
-          'Bug Bounty (HackerOne, Bugcrowd)',
-          'Web3 / Security Open Source Projects',
-          'Internship / Project Based Learning',
-          'Start OSCP or Advanced Prep',
-          'Build Learning Tracker Tool'
+          { 
+            title: 'Capture the Flag Tournaments',
+            link: 'https://ctftime.org/',
+            description: 'Participate in competitive cybersecurity challenges'
+          },
+          { 
+            title: 'Bug Bounty (HackerOne, Bugcrowd)',
+            link: 'https://www.hackerone.com/',
+            description: 'Ethical hacking and vulnerability disclosure programs'
+          },
+          { 
+            title: 'Web3 / Security Open Source Projects',
+            link: 'https://github.com/topics/web3-security',
+            description: 'Contribute to open source security projects'
+          },
+          { 
+            title: 'Internship / Project Based Learning',
+            link: 'https://www.linkedin.com/jobs/',
+            description: 'Gain practical experience through internships'
+          },
+          { 
+            title: 'Start OSCP or Advanced Prep',
+            link: 'https://www.offensive-security.com/pwk-oscp/',
+            description: 'Prepare for advanced penetration testing certification'
+          },
+          { 
+            title: 'Build Learning Tracker Tool',
+            link: 'https://github.com/',
+            description: 'Develop a personal learning progress tracking application'
+          }
         ]
       }
     ]
@@ -381,12 +574,20 @@ export const Roadmap = () => {
                     {semester.items.map((item, index) => (
                       <div 
                         key={index}
-                        className="p-2 rounded text-sm"
+                        className={`p-2 rounded text-sm transition-all duration-200 ${
+                          item.link ? 'cursor-pointer hover:scale-105' : ''
+                        }`}
                         style={{ backgroundColor: themeColors.background }}
+                        onClick={() => item.link && handleResourceClick(item)}
                       >
-                        <span style={{ color: themeColors.text }}>
-                          ├─ {item}
-                        </span>
+                        <div className="flex items-center justify-between">
+                          <span style={{ color: themeColors.text }}>
+                            ├─ {item.title}
+                          </span>
+                          {item.link && (
+                            <ExternalLink className="h-3 w-3 opacity-60" style={{ color: themeColors.primary }} />
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

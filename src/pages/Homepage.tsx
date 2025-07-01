@@ -147,13 +147,15 @@ export const Homepage = () => {
     { name: 'HackTheBox', icon: Code, color: '#16a34a', url: 'https://hackthebox.com/profile/harshal' }
   ];
 
+  const isEditorMode = userRole === 'editor';
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Message */}
         <div className="text-center mb-12">
           <div className="relative inline-block">
-            {userRole === 'admin' ? (
+            {isEditorMode ? (
               <EditableText
                 value={content?.welcome_message || defaultContent.welcome_message}
                 onSave={(value) => handleTextSave('welcome_message', value)}
@@ -188,7 +190,7 @@ export const Homepage = () => {
               </h1>
             </div>
             
-            {userRole === 'admin' ? (
+            {isEditorMode ? (
               <EditableText
                 value={content?.introduction || defaultContent.introduction}
                 onSave={(value) => handleTextSave('introduction', value)}
@@ -208,7 +210,7 @@ export const Homepage = () => {
             <div className="relative">
               <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-1">
                 <div className="w-full h-full rounded-full overflow-hidden" style={{ backgroundColor: themeColors.surface }}>
-                  {userRole === 'admin' ? (
+                  {isEditorMode ? (
                     <EditableImage
                       src={content?.profile_image_url || defaultContent.profile_image_url}
                       alt="Profile"
@@ -250,7 +252,7 @@ export const Homepage = () => {
                 e.currentTarget.style.border = '';
               }}
             >
-              <CardContent className="p-8 text-center relative pixel-animation">
+              <CardContent className="p-8 text-center relative">
                 {/* Gradient overlay on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${box.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
                 
@@ -279,7 +281,7 @@ export const Homepage = () => {
         {/* Social Links */}
         <div className="text-center">
           <p 
-            className="text-2xl mb-6 font-semibold"
+            className="text-3xl mb-6 font-semibold"
             style={{ color: themeColors.primary }}
           >
             Follow me or find me here
@@ -320,36 +322,14 @@ export const Homepage = () => {
           }
         }
         
-        .pixel-animation {
-          transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        
-        .pixel-animation:hover {
-          animation: pixelGlitch 0.5s ease-in-out;
-        }
-        
         .pixel-box:hover {
-          animation: pixelPop 0.3s ease-out;
+          animation: none;
         }
         
         @keyframes pixelPop {
           0% { transform: scale(1); }
           50% { transform: scale(1.02); }
           100% { transform: scale(1.05); }
-        }
-        
-        @keyframes pixelGlitch {
-          0% { transform: translateX(0); }
-          10% { transform: translateX(-2px); }
-          20% { transform: translateX(2px); }
-          30% { transform: translateX(-1px); }
-          40% { transform: translateX(1px); }
-          50% { transform: translateX(-2px); }
-          60% { transform: translateX(2px); }
-          70% { transform: translateX(-1px); }
-          80% { transform: translateX(1px); }
-          90% { transform: translateX(-1px); }
-          100% { transform: translateX(0); }
         }
       `}</style>
     </div>

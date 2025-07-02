@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +10,7 @@ import { Users, Shield } from 'lucide-react';
 interface UserProfile {
   id: string;
   username: string | null;
-  role: 'viewer' | 'customer' | 'editor' | 'admin';
+  role: 'viewer' | 'customer' | 'admin' | 'editor';
   created_at: string | null;
   updated_at: string | null;
 }
@@ -35,7 +34,7 @@ export const UserRoleManager = () => {
   });
 
   const updateRoleMutation = useMutation({
-    mutationFn: async ({ userId, newRole }: { userId: string; newRole: 'viewer' | 'customer' | 'editor' | 'admin' }) => {
+    mutationFn: async ({ userId, newRole }: { userId: string; newRole: 'viewer' | 'customer' | 'admin' | 'editor' }) => {
       const { data, error } = await supabase
         .from('profiles')
         .update({ role: newRole })
@@ -55,7 +54,7 @@ export const UserRoleManager = () => {
     }
   });
 
-  const handleRoleChange = (userId: string, newRole: 'viewer' | 'customer' | 'editor' | 'admin') => {
+  const handleRoleChange = (userId: string, newRole: 'viewer' | 'customer' | 'admin' | 'editor') => {
     if (confirm(`Are you sure you want to change this user's role to ${newRole}?`)) {
       updateRoleMutation.mutate({ userId, newRole });
     }
@@ -65,10 +64,10 @@ export const UserRoleManager = () => {
     switch (role) {
       case 'admin':
         return '#ef4444';
-      case 'editor':
-        return '#8b5cf6';
       case 'customer':
         return '#3b82f6';
+      case 'editor':
+        return '#8b5cf6';
       case 'viewer':
       default:
         return '#6b7280';
@@ -137,7 +136,7 @@ export const UserRoleManager = () => {
                       <div className="flex gap-2">
                         <select
                           value={user.role}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value as 'viewer' | 'customer' | 'editor' | 'admin')}
+                          onChange={(e) => handleRoleChange(user.id, e.target.value as 'viewer' | 'customer' | 'admin' | 'editor')}
                           className="px-3 py-1 rounded border text-sm"
                           style={{ 
                             backgroundColor: themeColors.background,
@@ -168,8 +167,8 @@ export const UserRoleManager = () => {
             <ul className="space-y-1">
               <li><strong style={{ color: getRoleColor('viewer') }}>Viewer:</strong> Can only view public content</li>
               <li><strong style={{ color: getRoleColor('customer') }}>Customer:</strong> Can access protected content like Journey and Tracker</li>
-              <li><strong style={{ color: getRoleColor('editor') }}>Editor:</strong> Can edit website content with inline editing capabilities</li>
-              <li><strong style={{ color: getRoleColor('admin') }}>Admin:</strong> Full access to manage users and view admin dashboard</li>
+              <li><strong style={{ color: getRoleColor('editor') }}>Editor:</strong> Can edit website content but cannot manage users</li>
+              <li><strong style={{ color: getRoleColor('admin') }}>Admin:</strong> Full access to edit website content and manage users</li>
             </ul>
           </div>
         </CardContent>

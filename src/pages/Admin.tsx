@@ -1,12 +1,18 @@
-
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Users, Database, Activity } from 'lucide-react';
+import { UserRoleManager } from '@/components/admin/UserRoleManager';
+import { SystemLogs } from '@/components/admin/SystemLogs';
+import { DatabaseMonitoring } from '@/components/admin/DatabaseMonitoring';
+import { SecurityDashboard } from '@/components/admin/SecurityDashboard';
 
 export const Admin = () => {
   const { user, userRole } = useAuth();
   const { themeColors } = useTheme();
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   if (!user || userRole !== 'admin') {
     return (
@@ -26,33 +32,6 @@ export const Admin = () => {
     );
   }
 
-  const adminTools = [
-    {
-      title: "User Management",
-      description: "Manage user roles and permissions",
-      icon: Users,
-      color: "#dc2626"
-    },
-    {
-      title: "System Logs",
-      description: "View application logs and activities",
-      icon: Activity,
-      color: "#ea580c"
-    },
-    {
-      title: "Database Monitoring",
-      description: "Monitor database performance and health",
-      icon: Database,
-      color: "#ca8a04"
-    },
-    {
-      title: "Security Dashboard",
-      description: "Monitor security events and alerts",
-      icon: Shield,
-      color: "#dc2626"
-    }
-  ];
-
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
@@ -69,59 +48,113 @@ export const Admin = () => {
           />
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {adminTools.map((tool, index) => (
-            <Card 
-              key={tool.title}
-              className="border-0 cursor-pointer transition-all duration-300 hover:scale-105"
-              style={{ backgroundColor: themeColors.surface }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = `0 0 20px ${tool.color}`;
-                e.currentTarget.style.border = `2px solid ${tool.color}`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '';
-                e.currentTarget.style.border = '';
-              }}
-            >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="users">User Management</TabsTrigger>
+            <TabsTrigger value="logs">System Logs</TabsTrigger>
+            <TabsTrigger value="monitoring">Database Monitoring</TabsTrigger>
+            <TabsTrigger value="security">Security Dashboard</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <Card 
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 
+                style={{ backgroundColor: themeColors.surface }}
+                onClick={() => setActiveTab('users')}
+              >
+                <div className="flex items-center gap-4">
+                  <Users className="h-8 w-8" style={{ color: themeColors.primary }} />
+                  <div>
+                    <h3 className="font-semibold" style={{ color: themeColors.text }}>User Management</h3>
+                    <p className="text-sm" style={{ color: themeColors.accent }}>Manage user roles and permissions</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card 
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 
+                style={{ backgroundColor: themeColors.surface }}
+                onClick={() => setActiveTab('logs')}
+              >
+                <div className="flex items-center gap-4">
+                  <Activity className="h-8 w-8" style={{ color: themeColors.primary }} />
+                  <div>
+                    <h3 className="font-semibold" style={{ color: themeColors.text }}>System Logs</h3>
+                    <p className="text-sm" style={{ color: themeColors.accent }}>View system activity</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card 
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 
+                style={{ backgroundColor: themeColors.surface }}
+                onClick={() => setActiveTab('monitoring')}
+              >
+                <div className="flex items-center gap-4">
+                  <Database className="h-8 w-8" style={{ color: themeColors.primary }} />
+                  <div>
+                    <h3 className="font-semibold" style={{ color: themeColors.text }}>Database Monitoring</h3>
+                    <p className="text-sm" style={{ color: themeColors.accent }}>Monitor database performance</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card 
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 
+                style={{ backgroundColor: themeColors.surface }}
+                onClick={() => setActiveTab('security')}
+              >
+                <div className="flex items-center gap-4">
+                  <Shield className="h-8 w-8" style={{ color: themeColors.primary }} />
+                  <div>
+                    <h3 className="font-semibold" style={{ color: themeColors.text }}>Security Dashboard</h3>
+                    <p className="text-sm" style={{ color: themeColors.accent }}>Security monitoring</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            <Card style={{ backgroundColor: themeColors.surface }}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-white">
-                  <tool.icon className="h-6 w-6" style={{ color: tool.color }} />
-                  {tool.title}
-                </CardTitle>
+                <CardTitle style={{ color: themeColors.text }}>System Information</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-300 text-sm">
-                  {tool.description}
-                </p>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-2" style={{ color: themeColors.text }}>Current User</h3>
+                    <p style={{ color: themeColors.accent }}>{user.email}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2" style={{ color: themeColors.text }}>Role</h3>
+                    <p style={{ color: themeColors.accent }} className="capitalize">{userRole}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2" style={{ color: themeColors.text }}>Status</h3>
+                    <p className="text-green-400">Active</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+          </TabsContent>
 
-        <div className="mt-16">
-          <Card className="border-0" style={{ backgroundColor: themeColors.surface }}>
-            <CardHeader>
-              <CardTitle className="text-white">System Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-3 gap-6 text-white">
-                <div>
-                  <h3 className="font-semibold mb-2">Current User</h3>
-                  <p className="text-gray-300">{user.email}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Role</h3>
-                  <p className="text-gray-300 capitalize">{userRole}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Status</h3>
-                  <p className="text-green-400">Active</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <TabsContent value="users" className="space-y-6">
+            <UserRoleManager />
+          </TabsContent>
+
+          <TabsContent value="logs" className="space-y-6">
+            <SystemLogs />
+          </TabsContent>
+
+          <TabsContent value="monitoring" className="space-y-6">
+            <DatabaseMonitoring />
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-6">
+            <SecurityDashboard />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

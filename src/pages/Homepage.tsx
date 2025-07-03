@@ -5,11 +5,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { EditableText } from '@/components/admin/EditableText';
-import { EditableImage } from '@/components/admin/EditableImage';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Code, User, Linkedin, Github, Twitter } from 'lucide-react';
+import { uploadImageToStorage, getPublicUrl } from '@/utils/storage';
+import { Shield, Code, User, Linkedin, Github, Twitter, Upload, X, Plus } from 'lucide-react';
 
 interface HomepageContent {
   id: string;
@@ -28,6 +33,12 @@ export const Homepage = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  // Editor state
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
 
   const { data: content } = useQuery({
     queryKey: ['homepage-content'],
@@ -88,18 +99,61 @@ export const Homepage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['homepage-content'] });
       toast({ title: 'Content updated successfully!' });
+      setEditingField(null);
+      setEditingValue('');
+      setSelectedFile(null);
+      setPreviewUrl('');
     },
     onError: (error) => {
       toast({ title: 'Error updating content', description: error.message, variant: 'destructive' });
     }
   });
 
-  const handleTextSave = (field: keyof HomepageContent, value: string) => {
-    updateMutation.mutate({ [field]: value });
+  const handleEdit = (field: string, currentValue: string) => {
+    setEditingField(field);
+    setEditingValue(currentValue || '');
   };
 
-  const handleImageSave = async (url: string | null) => {
-    updateMutation.mutate({ profile_image_url: url });
+  const handleSaveText = async () => {
+    if (editingField) {
+      updateMutation.mutate({ [editingField]: editingValue });
+    }
+  };
+
+  const handleSaveImage = async () => {
+    if (selectedFile) {
+      try {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        await uploadImageToStorage(selectedFile, 'profiles', fileName);
+        const publicUrl = getPublicUrl('profiles', fileName);
+        
+        updateMutation.mutate({ profile_image_url: publicUrl });
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast({ title: 'Error uploading image', variant: 'destructive' });
+      }
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewUrl(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingField(null);
+    setEditingValue('');
+    setSelectedFile(null);
+    setPreviewUrl('');
   };
 
   const defaultContent = {
@@ -154,27 +208,22 @@ export const Homepage = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Message */}
         <div className="text-center mb-12">
-          <div className="relative inline-block">
-            {isEditorMode ? (
-              <EditableText
-                value={content?.welcome_message || defaultContent.welcome_message}
-                onSave={(value) => handleTextSave('welcome_message', value)}
-                className="text-4xl md:text-6xl font-bold text-white relative welcome-glow"
-                placeholder="Welcome message"
-              />
-            ) : (
+          <OverlayEditWrapper
+            onEdit={() => handleEdit('welcome_message', content?.welcome_message || defaultContent.welcome_message)}
+          >
+            <div className="relative inline-block">
               <h1 className="text-4xl md:text-6xl font-bold text-white relative welcome-glow">
                 {content?.welcome_message || defaultContent.welcome_message}
               </h1>
-            )}
-            <div 
-              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full h-1 rounded animate-pulse glow-underline"
-              style={{ 
-                backgroundColor: themeColors.primary,
-                boxShadow: `0 0 20px ${themeColors.primary}, 0 0 40px ${themeColors.primary}`
-              }}
-            />
-          </div>
+              <div 
+                className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full h-1 rounded animate-pulse glow-underline"
+                style={{ 
+                  backgroundColor: themeColors.primary,
+                  boxShadow: `0 0 20px ${themeColors.primary}, 0 0 40px ${themeColors.primary}`
+                }}
+              />
+            </div>
+          </OverlayEditWrapper>
         </div>
 
         {/* Main Content Grid */}
@@ -190,41 +239,30 @@ export const Homepage = () => {
               </h1>
             </div>
             
-            {isEditorMode ? (
-              <EditableText
-                value={content?.introduction || defaultContent.introduction}
-                onSave={(value) => handleTextSave('introduction', value)}
-                multiline={true}
-                className="text-lg leading-relaxed opacity-90 text-white"
-                placeholder="Tell us about yourself..."
-              />
-            ) : (
+            <OverlayEditWrapper
+              onEdit={() => handleEdit('introduction', content?.introduction || defaultContent.introduction)}
+            >
               <p className="text-lg leading-relaxed opacity-90 text-white">
                 {content?.introduction || defaultContent.introduction}
               </p>
-            )}
+            </OverlayEditWrapper>
           </div>
 
           {/* Right Side - Profile Image */}
           <div className="flex justify-center lg:justify-end">
             <div className="relative">
               <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-1">
-                <div className="w-full h-full rounded-full overflow-hidden" style={{ backgroundColor: themeColors.surface }}>
-                  {isEditorMode ? (
-                    <EditableImage
-                      src={content?.profile_image_url || defaultContent.profile_image_url}
-                      alt="Profile"
-                      onSave={handleImageSave}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
+                <OverlayEditWrapper
+                  onEdit={() => setEditingField('profile_image')}
+                >
+                  <div className="w-full h-full rounded-full overflow-hidden" style={{ backgroundColor: themeColors.surface }}>
                     <img
                       src={content?.profile_image_url || "/placeholder.svg"}
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
-                  )}
-                </div>
+                  </div>
+                </OverlayEditWrapper>
               </div>
               {/* Glowing ring effect */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 opacity-30 blur-lg animate-pulse"></div>
@@ -303,6 +341,67 @@ export const Homepage = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Text Dialog */}
+      <Dialog open={editingField !== null && editingField !== 'profile_image'} onOpenChange={cancelEdit}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit {editingField?.replace('_', ' ')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {editingField === 'introduction' ? (
+              <Textarea
+                value={editingValue}
+                onChange={(e) => setEditingValue(e.target.value)}
+                rows={4}
+              />
+            ) : (
+              <Input
+                value={editingValue}
+                onChange={(e) => setEditingValue(e.target.value)}
+              />
+            )}
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={cancelEdit}>Cancel</Button>
+              <Button onClick={handleSaveText}>Save</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Image Dialog */}
+      <Dialog open={editingField === 'profile_image'} onOpenChange={cancelEdit}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Profile Picture</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="border-2 border-dashed border-border rounded-lg p-4">
+              {previewUrl ? (
+                <img src={previewUrl} alt="Preview" className="w-full h-32 object-cover rounded" />
+              ) : (
+                <div className="text-center">
+                  <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <Button variant="outline" onClick={() => document.getElementById('fileInput')?.click()}>
+                    Upload Image
+                  </Button>
+                </div>
+              )}
+            </div>
+            <input
+              id="fileInput"
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={cancelEdit}>Cancel</Button>
+              <Button onClick={handleSaveImage} disabled={!selectedFile}>Save</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <style>{`
         .welcome-glow {

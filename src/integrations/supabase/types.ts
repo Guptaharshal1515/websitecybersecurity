@@ -87,6 +87,7 @@ export type Database = {
       certificates: {
         Row: {
           certificate_url: string | null
+          completion_date: string | null
           created_at: string | null
           description: string | null
           display_order: number | null
@@ -98,6 +99,7 @@ export type Database = {
         }
         Insert: {
           certificate_url?: string | null
+          completion_date?: string | null
           created_at?: string | null
           description?: string | null
           display_order?: number | null
@@ -109,6 +111,7 @@ export type Database = {
         }
         Update: {
           certificate_url?: string | null
+          completion_date?: string | null
           created_at?: string | null
           description?: string | null
           display_order?: number | null
@@ -193,6 +196,7 @@ export type Database = {
           display_order: number | null
           entry_date: string
           id: string
+          resource_link: string | null
           title: string
           updated_at: string | null
         }
@@ -202,6 +206,7 @@ export type Database = {
           display_order?: number | null
           entry_date: string
           id?: string
+          resource_link?: string | null
           title: string
           updated_at?: string | null
         }
@@ -211,6 +216,7 @@ export type Database = {
           display_order?: number | null
           entry_date?: string
           id?: string
+          resource_link?: string | null
           title?: string
           updated_at?: string | null
         }
@@ -263,6 +269,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          completion_date: string | null
           created_at: string | null
           description: string | null
           display_order: number | null
@@ -275,6 +282,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          completion_date?: string | null
           created_at?: string | null
           description?: string | null
           display_order?: number | null
@@ -287,6 +295,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          completion_date?: string | null
           created_at?: string | null
           description?: string | null
           display_order?: number | null
@@ -400,8 +409,66 @@ export type Database = {
         }
         Relationships: []
       }
+      social_links: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          icon_url: string | null
+          id: string
+          name: string
+          updated_at: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          icon_url?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          icon_url?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
+      tracker_categories: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          emoji: string | null
+          id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          emoji?: string | null
+          id?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          emoji?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       tracker_entries: {
         Row: {
+          category_id: string | null
           completed_by: string | null
           completion_date: string | null
           created_at: string | null
@@ -413,6 +480,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          category_id?: string | null
           completed_by?: string | null
           completion_date?: string | null
           created_at?: string | null
@@ -424,6 +492,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          category_id?: string | null
           completed_by?: string | null
           completion_date?: string | null
           created_at?: string | null
@@ -434,7 +503,15 @@ export type Database = {
           type?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tracker_entries_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "tracker_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

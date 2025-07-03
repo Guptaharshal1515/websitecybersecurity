@@ -25,42 +25,15 @@ export const useTheme = () => {
 };
 
 const getThemeColors = (role: UserRole) => {
-  const baseTheme = {
+  // Use design system semantic tokens consistently
+  return {
+    primary: 'hsl(var(--primary))',
+    secondary: 'hsl(var(--secondary))',
+    accent: 'hsl(var(--accent))',
     background: 'hsl(var(--background))',
     surface: 'hsl(var(--card))',
     text: 'hsl(var(--foreground))',
   };
-
-  switch (role) {
-    case 'admin':
-      return {
-        ...baseTheme,
-        primary: '0 84% 60%', // Red in HSL
-        secondary: '0 63% 31%',
-        accent: '0 93% 94%',
-      };
-    case 'editor':
-      return {
-        ...baseTheme,
-        primary: '262 83% 58%', // Violet in HSL
-        secondary: '263 70% 50%',
-        accent: '262 69% 84%',
-      };
-    case 'customer':
-      return {
-        ...baseTheme,
-        primary: '142 76% 36%', // Green in HSL
-        secondary: '142 64% 28%',
-        accent: '142 69% 84%',
-      };
-    default: // viewer
-      return {
-        ...baseTheme,
-        primary: '213 94% 68%', // Blue in HSL
-        secondary: '213 93% 30%',
-        accent: '213 89% 84%',
-      };
-  }
 };
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {

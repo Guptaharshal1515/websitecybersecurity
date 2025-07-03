@@ -23,21 +23,13 @@ export const EditorToolbar = ({
   const { themeColors } = useTheme();
 
   return (
-    <Card 
-      className="fixed bottom-4 right-4 z-50 border-2 shadow-lg"
-      style={{ 
-        backgroundColor: themeColors.surface,
-        borderColor: themeColors.primary,
-        boxShadow: `0 0 20px ${themeColors.primary}40`
-      }}
-    >
+    <Card className="fixed bottom-4 right-4 z-50 border-2 border-primary shadow-lg bg-card">
       <CardContent className="p-4">
         <div className="flex gap-2">
           <Button
             onClick={onSave}
             size="sm"
             className="hover:scale-105 transition-transform"
-            style={{ backgroundColor: themeColors.primary }}
           >
             <Save className="h-4 w-4" />
           </Button>
@@ -47,10 +39,6 @@ export const EditorToolbar = ({
             size="sm"
             variant="outline"
             className="hover:scale-105 transition-transform"
-            style={{ 
-              borderColor: themeColors.primary,
-              color: themeColors.primary 
-            }}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -60,10 +48,6 @@ export const EditorToolbar = ({
             size="sm"
             variant="outline"
             className="hover:scale-105 transition-transform"
-            style={{ 
-              borderColor: themeColors.primary,
-              color: themeColors.primary 
-            }}
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -73,10 +57,6 @@ export const EditorToolbar = ({
             size="sm"
             variant="outline"
             className="hover:scale-105 transition-transform"
-            style={{ 
-              borderColor: themeColors.primary,
-              color: themeColors.primary 
-            }}
           >
             <Upload className="h-4 w-4" />
           </Button>
@@ -86,10 +66,6 @@ export const EditorToolbar = ({
             size="sm"
             variant="outline"
             className="hover:scale-105 transition-transform"
-            style={{ 
-              borderColor: themeColors.primary,
-              color: themeColors.primary 
-            }}
           >
             <Eye className="h-4 w-4" />
           </Button>

@@ -6,10 +6,10 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Plus } from 'lucide-react';
-import { EditableText } from '@/components/admin/EditableText';
-import { EditableImage } from '@/components/admin/EditableImage';
-import { LiveEditWrapper } from '@/components/admin/LiveEditWrapper';
+import { ExternalLink } from 'lucide-react';
+import { AddContentButton } from '@/components/editor/AddContentButton';
+import { CertificateForm } from '@/components/editor/forms/CertificateForm';
+import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
 import { useToast } from '@/hooks/use-toast';
 
 interface Certificate {
@@ -74,7 +74,7 @@ export const CybersecurityCertificates = () => {
   ] : certificates;
 
   const addCertificateMutation = useMutation({
-    mutationFn: async (newCert: { title: string; description: string; completion_date: string }) => {
+    mutationFn: async (newCert: any) => {
       const { data, error } = await supabase
         .from('certificates')
         .insert([{ ...newCert, type: 'cybersecurity' }])
@@ -90,28 +90,6 @@ export const CybersecurityCertificates = () => {
       setShowAddForm(false);
     }
   });
-
-  const updateCertificateMutation = useMutation({
-    mutationFn: async ({ id, field, value }: { id: string; field: string; value: string }) => {
-      const { data, error } = await supabase
-        .from('certificates')
-        .update({ [field]: value })
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['certificates', 'cybersecurity'] });
-      toast({ title: 'Certificate updated successfully!' });
-    }
-  });
-
-  const handleImageSave = async (id: string, url: string | null) => {
-    updateCertificateMutation.mutate({ id, field: 'image_url', value: url || '' });
-  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
@@ -132,15 +110,9 @@ export const CybersecurityCertificates = () => {
             />
           </div>
           
-          {userRole === 'admin' && (
-            <Button
-              onClick={() => setShowAddForm(true)}
-              style={{ backgroundColor: themeColors.primary }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Certificate
-            </Button>
-          )}
+          <AddContentButton onClick={() => setShowAddForm(true)}>
+            Add Certificate
+          </AddContentButton>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -160,49 +132,27 @@ export const CybersecurityCertificates = () => {
               }}
             >
               <CardContent className="p-6">
-                <div className="aspect-video mb-4 rounded-lg overflow-hidden">
-                  {userRole === 'admin' ? (
-                    <EditableImage
-                      src={cert.image_url}
-                      alt={cert.title}
-                      onSave={(url) => handleImageSave(cert.id, url)}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
+                <OverlayEditWrapper onEdit={() => {}}>
+                  <div className="aspect-video mb-4 rounded-lg overflow-hidden">
                     <img
                       src={cert.image_url || '/placeholder.svg'}
                       alt={cert.title}
                       className="w-full h-full object-cover"
                     />
-                  )}
-                </div>
+                  </div>
+                </OverlayEditWrapper>
                 
-                {userRole === 'admin' ? (
-                  <EditableText
-                    value={cert.title}
-                    onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'title', value })}
-                    className="text-xl font-semibold mb-2 text-white"
-                    placeholder="Certificate title"
-                  />
-                ) : (
+                <OverlayEditWrapper onEdit={() => {}}>
                   <h3 className="text-xl font-semibold mb-2 text-white">
                     {cert.title}
                   </h3>
-                )}
+                </OverlayEditWrapper>
                 
-                {userRole === 'admin' ? (
-                  <EditableText
-                    value={cert.description || ''}
-                    onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'description', value })}
-                    multiline={true}
-                    className="text-sm mb-4 leading-relaxed text-white"
-                    placeholder="Certificate description"
-                  />
-                ) : (
+                <OverlayEditWrapper onEdit={() => {}}>
                   <p className="text-sm mb-4 leading-relaxed text-white">
                     {cert.description}
                   </p>
-                )}
+                </OverlayEditWrapper>
                 
                 {cert.certificate_url && (
                   <a
@@ -220,6 +170,13 @@ export const CybersecurityCertificates = () => {
             </Card>
           ))}
         </div>
+
+        <CertificateForm
+          isOpen={showAddForm}
+          onClose={() => setShowAddForm(false)}
+          onSubmit={addCertificateMutation.mutate}
+          type="cybersecurity"
+        />
       </div>
     </div>
   );

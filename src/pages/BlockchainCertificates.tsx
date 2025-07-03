@@ -1,10 +1,13 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ExternalLink, Calendar, X } from 'lucide-react';
+import { AddContentButton } from '@/components/editor/AddContentButton';
+import { CertificateForm } from '@/components/editor/forms/CertificateForm';
+import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
 interface Certificate {
@@ -19,8 +22,11 @@ interface Certificate {
 
 export const BlockchainCertificates = () => {
   const { themeColors } = useTheme();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const { data: certificates = [] } = useQuery({
     queryKey: ['blockchain-certificates'],
@@ -75,6 +81,24 @@ export const BlockchainCertificates = () => {
     }
   ] : certificates;
 
+  const addCertificateMutation = useMutation({
+    mutationFn: async (newCert: any) => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .insert([{ ...newCert, type: 'blockchain' }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blockchain-certificates'] });
+      toast({ title: 'Certificate added successfully!' });
+      setShowAddForm(false);
+    }
+  });
+
   const nextCertificate = () => {
     setCurrentIndex((prev) => (prev + 1) % dummyCertificates.length);
   };
@@ -118,19 +142,25 @@ export const BlockchainCertificates = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
-        <div className="relative mb-16">
-          <h1 
-            className="text-4xl font-bold text-center text-white"
-          >
-            Blockchain Certificates
-          </h1>
-          <div 
-            className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-1 rounded mt-2"
-            style={{ 
-              backgroundColor: themeColors.primary,
-              boxShadow: `0 0 10px ${themeColors.primary}`
-            }}
-          />
+        <div className="flex justify-between items-center mb-16">
+          <div className="relative">
+            <h1 
+              className="text-4xl font-bold text-center text-white"
+            >
+              Blockchain Certificates
+            </h1>
+            <div 
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-1 rounded mt-2"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                boxShadow: `0 0 10px ${themeColors.primary}`
+              }}
+            />
+          </div>
+          
+          <AddContentButton onClick={() => setShowAddForm(true)}>
+            Add Certificate
+          </AddContentButton>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12 items-center">
@@ -308,6 +338,13 @@ export const BlockchainCertificates = () => {
           </div>
         </div>
       )}
+
+      <CertificateForm
+        isOpen={showAddForm}
+        onClose={() => setShowAddForm(false)}
+        onSubmit={addCertificateMutation.mutate}
+        type="blockchain"
+      />
     </div>
   );
 };

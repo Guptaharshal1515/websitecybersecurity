@@ -7,6 +7,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Header } from "@/components/layout/Header";
+import { AdaptiveNavigation } from "@/components/layout/AdaptiveNavigation";
+import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+import { useSessionManagement } from "@/hooks/useSessionManagement";
 import { Homepage } from "@/pages/Homepage";
 import { Login } from "@/pages/Login";
 import { CybersecurityCertificates } from "@/pages/CybersecurityCertificates";
@@ -20,34 +24,52 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <ThemeProvider>
-            <div className="min-h-screen">
-              <Header />
-              <Routes>
-                <Route path="/" element={<Homepage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/cybersecurity-certificates" element={<CybersecurityCertificates />} />
-                <Route path="/blockchain-certificates" element={<BlockchainCertificates />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/journey" element={<Journey />} />
-                <Route path="/tracker" element={<Tracker />} />
-                <Route path="/roadmap" element={<Roadmap />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </ThemeProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <ThemeProvider>
+              <AppContent />
+            </ThemeProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
+
+const AppContent = () => {
+  const { isEnabled } = useFeatureFlags();
+  useSessionManagement(); // Initialize session management
+
+  return (
+    <div className="min-h-screen">
+      {isEnabled('adaptive_navigation') ? <AdaptiveNavigation /> : <Header />}
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/cybersecurity-certificates" element={<CybersecurityCertificates />} />
+        <Route path="/blockchain-certificates" element={<BlockchainCertificates />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/journey" element={<Journey />} />
+        <Route path="/tracker" element={<Tracker />} />
+        <Route path="/roadmap" element={<Roadmap />} />
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Admin />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
+  );
+};
 
 export default App;

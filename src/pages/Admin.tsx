@@ -8,6 +8,8 @@ import { UserRoleManager } from '@/components/admin/UserRoleManager';
 import { SystemLogs } from '@/components/admin/SystemLogs';
 import { DatabaseMonitoring } from '@/components/admin/DatabaseMonitoring';
 import { SecurityDashboard } from '@/components/admin/SecurityDashboard';
+import { SystemAnalytics } from '@/components/admin/SystemAnalytics';
+import { AuditLogger } from '@/components/admin/AuditLogger';
 
 export const Admin = () => {
   const { user, userRole } = useAuth();
@@ -49,8 +51,10 @@ export const Admin = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-7 mb-8">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="audit">Audit Logs</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
             <TabsTrigger value="logs">System Logs</TabsTrigger>
             <TabsTrigger value="monitoring">Database Monitoring</TabsTrigger>
@@ -149,6 +153,14 @@ export const Admin = () => {
 
           <TabsContent value="monitoring" className="space-y-6">
             <DatabaseMonitoring />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <SystemAnalytics />
+          </TabsContent>
+
+          <TabsContent value="audit" className="space-y-6">
+            <AuditLogger />
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">

@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ExternalLink, Calendar, X } from 'lucide-react';
 import { AddContentButton } from '@/components/editor/AddContentButton';
 import { CertificateForm } from '@/components/editor/forms/CertificateForm';
+import { InlineEditText } from '@/components/editor/InlineEditText';
+import { InlineEditImage } from '@/components/editor/InlineEditImage';
+import { DeleteButton } from '@/components/editor/DeleteButton';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -25,7 +28,7 @@ interface Certificate {
 export const BlockchainCertificates = () => {
   const { themeColors } = useTheme();
   const { toast } = useToast();
-  const { canEdit } = useEditMode();
+  const { canEdit, isEditMode } = useEditMode();
   const queryClient = useQueryClient();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
@@ -106,20 +109,50 @@ export const BlockchainCertificates = () => {
     }
   });
 
+  const updateCertificateMutation = useMutation({
+    mutationFn: async ({ id, field, value }: { id: string; field: string; value: string }) => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .update({ [field]: value })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blockchain-certificates'] });
+      toast({ title: 'Certificate updated successfully!' });
+    }
+  });
+
+  const deleteCertificateMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('certificates')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blockchain-certificates'] });
+      toast({ title: 'Certificate deleted successfully!' });
+    }
+  });
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+  };
+
   const nextCertificate = () => {
     setCurrentIndex((prev) => (prev + 1) % dummyCertificates.length);
   };
 
   const prevCertificate = () => {
     setCurrentIndex((prev) => (prev - 1 + dummyCertificates.length) % dummyCertificates.length);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
   };
 
   const getPositionStyle = (index: number) => {
@@ -180,24 +213,24 @@ export const BlockchainCertificates = () => {
               style={{ backgroundColor: themeColors.surface }}
             >
               <CardContent className="p-6">
-                <h2 
-                  className="text-2xl font-bold mb-4 text-white"
+                <InlineEditText
+                  value={dummyCertificates[currentIndex]?.title || ''}
+                  onSave={(value) => updateCertificateMutation.mutate({ id: dummyCertificates[currentIndex].id, field: 'title', value })}
                 >
-                  {dummyCertificates[currentIndex]?.title}
-                </h2>
+                  <h2 className="text-2xl font-bold mb-4 text-white">
+                    {dummyCertificates[currentIndex]?.title}
+                  </h2>
+                </InlineEditText>
                 
-                <p 
-                  className="text-base mb-4 text-white"
+                <InlineEditText
+                  value={dummyCertificates[currentIndex]?.description || ''}
+                  onSave={(value) => updateCertificateMutation.mutate({ id: dummyCertificates[currentIndex].id, field: 'description', value })}
+                  multiline
                 >
-                  {dummyCertificates[currentIndex]?.description}
-                </p>
-                
-                <div className="flex items-center gap-2 mb-4">
-                  <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
-                  <span className="text-white">
-                    Created: {formatDate(dummyCertificates[currentIndex]?.created_at)}
-                  </span>
-                </div>
+                  <p className="text-base mb-4 text-white">
+                    {dummyCertificates[currentIndex]?.description}
+                  </p>
+                </InlineEditText>
                 
                 {dummyCertificates[currentIndex]?.completion_date && (
                   <div className="flex items-center gap-2 mb-4">
@@ -264,11 +297,21 @@ export const BlockchainCertificates = () => {
                     }}
                   >
                     <CardContent className="p-6 h-full flex flex-col justify-center items-center text-center">
-                      <img
-                        src={cert.image_url}
-                        alt={cert.title}
-                        className="w-16 h-16 mb-3 rounded" // Increased image size
-                      />
+                  <InlineEditImage
+                    value={cert.image_url}
+                    onSave={(url) => updateCertificateMutation.mutate({ id: cert.id, field: 'image_url', value: url })}
+                    bucket="certificates"
+                  >
+                    <img
+                      src={cert.image_url}
+                      alt={cert.title}
+                      className="w-16 h-16 mb-3 rounded"
+                    />
+                  </InlineEditImage>
+                  <DeleteButton
+                    onDelete={() => deleteCertificateMutation.mutate(cert.id)}
+                    isVisible={isEditMode && canEdit}
+                  />
                       <h3 
                         className="text-sm font-semibold truncate w-full text-white"
                       >

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -54,7 +54,7 @@ export const JourneyForm = ({ isOpen, onClose, onSubmit }: JourneyFormProps) => 
               value={formData.entry_date}
               onChange={(e) => setFormData(prev => ({ ...prev, entry_date: e.target.value }))}
               required
-              className="bg-background text-white border-muted"
+              className="text-black"
             />
           </div>
           
@@ -66,7 +66,7 @@ export const JourneyForm = ({ isOpen, onClose, onSubmit }: JourneyFormProps) => 
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               placeholder="Event title"
               required
-              className="bg-background text-white border-muted"
+              className="text-black"
             />
           </div>
           
@@ -78,7 +78,7 @@ export const JourneyForm = ({ isOpen, onClose, onSubmit }: JourneyFormProps) => 
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               placeholder="Event description"
               required
-              className="bg-background text-white border-muted"
+              className="text-black"
             />
           </div>
           
@@ -90,7 +90,7 @@ export const JourneyForm = ({ isOpen, onClose, onSubmit }: JourneyFormProps) => 
               value={formData.resource_link}
               onChange={(e) => setFormData(prev => ({ ...prev, resource_link: e.target.value }))}
               placeholder="https://example.com"
-              className="bg-background text-white border-muted"
+              className="text-black"
             />
           </div>
           

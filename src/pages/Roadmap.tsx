@@ -543,12 +543,17 @@ export const Roadmap = () => {
                     className="w-full text-left"
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <h3 
-                        className="text-lg font-semibold"
-                        style={{ color: themeColors.primary }}
-                      >
-                        {category.title}
-                      </h3>
+                   <InlineEditText
+                     value={category.title}
+                     onSave={(value) => {/* TODO: Add update mutation */}}
+                   >
+                     <h3 
+                       className="text-lg font-semibold"
+                       style={{ color: themeColors.primary }}
+                     >
+                       {category.title}
+                     </h3>
+                   </InlineEditText>
                       {expandedCategories.includes(category.id) ? (
                         <ChevronDown className="h-5 w-5" style={{ color: themeColors.primary }} />
                       ) : (

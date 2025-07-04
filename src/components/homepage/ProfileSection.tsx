@@ -44,21 +44,21 @@ export const ProfileSection = ({
       {/* Right Side - Profile Image */}
       <div className="flex justify-center lg:justify-end">
         <div className="relative">
-          <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-1">
-            <InlineEditImage
-              value={profileImageUrl}
-              onSave={onUpdateProfileImage}
-              bucket="profiles"
-            >
-              <div className="w-full h-full rounded-full overflow-hidden" style={{ backgroundColor: themeColors.surface }}>
-                <img
-                  src={profileImageUrl || "/placeholder.svg"}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </InlineEditImage>
-          </div>
+        <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-1">
+          <InlineEditImage
+            value={profileImageUrl}
+            onSave={onUpdateProfileImage}
+            bucket="profiles"
+          >
+            <div className="w-full h-full rounded-full overflow-hidden" style={{ backgroundColor: themeColors.surface }}>
+              <img
+                src={profileImageUrl || "/placeholder.svg"}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </InlineEditImage>
+        </div>
           {/* Glowing ring effect */}
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 opacity-30 blur-lg animate-pulse"></div>
         </div>

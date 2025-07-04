@@ -81,7 +81,7 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete }: Certificate
         
         {certificate.completion_date && (
           <p className="text-xs mb-3 opacity-80 text-white">
-            Completed: {new Date(certificate.completion_date).toLocaleDateString()}
+            Completed: {new Date(certificate.completion_date).toLocaleDateString('en-GB')}
           </p>
         )}
         

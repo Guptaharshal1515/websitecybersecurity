@@ -45,7 +45,7 @@ export const TrackerCompletionForm = ({ isOpen, onClose, onSubmit, categories }:
           <div>
             <Label htmlFor="type" className="text-white">Category</Label>
             <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}>
-              <SelectTrigger className="bg-background text-white border-muted">
+              <SelectTrigger className="bg-background text-black border-muted">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
@@ -66,7 +66,7 @@ export const TrackerCompletionForm = ({ isOpen, onClose, onSubmit, categories }:
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               placeholder="Task that was completed"
               required
-              className="bg-background text-white border-muted"
+              className="bg-background text-black border-muted"
             />
           </div>
           
@@ -78,7 +78,7 @@ export const TrackerCompletionForm = ({ isOpen, onClose, onSubmit, categories }:
               value={formData.completion_date}
               onChange={(e) => setFormData(prev => ({ ...prev, completion_date: e.target.value }))}
               required
-              className="bg-background text-white border-muted"
+              className="bg-background text-black border-muted"
             />
           </div>
           

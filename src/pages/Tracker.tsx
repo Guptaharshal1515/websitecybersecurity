@@ -7,8 +7,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { EditableText } from '@/components/admin/EditableText';
-import { LiveEditWrapper } from '@/components/admin/LiveEditWrapper';
+import { AddContentButton } from '@/components/editor/AddContentButton';
+import { TrackerCompletionForm } from '@/components/editor/forms/TrackerCompletionForm';
+import { TrackerCategoryForm } from '@/components/editor/forms/TrackerCategoryForm';
+import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
+import { EditorToolbar } from '@/components/editor/EditorToolbar';
+import { DeleteButton } from '@/components/editor/DeleteButton';
 import { useToast } from '@/hooks/use-toast';
 
 interface TrackerEntry {
@@ -34,6 +38,8 @@ export const Tracker = () => {
   const queryClient = useQueryClient();
   const [showAddEntry, setShowAddEntry] = useState(false);
   const [showAddCategory, setShowAddCategory] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const { data: entries = [] } = useQuery({
     queryKey: ['tracker-entries'],
@@ -44,6 +50,18 @@ export const Tracker = () => {
         .order('completion_date', { ascending: false });
       if (error) throw error;
       return data as TrackerEntry[];
+    },
+  });
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ['tracker-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tracker_categories')
+        .select('*')
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      return data;
     },
   });
 
@@ -104,18 +122,22 @@ export const Tracker = () => {
     );
   });
 
-  // Default categories with icons
-  const defaultCategories = [
+  // Use database categories or default ones
+  const dbCategories = categories.length > 0 ? categories.map(cat => ({
+    name: cat.title,
+    icon: cat.emoji || '📝',
+    entries: categorizedEntries[cat.title] || []
+  })) : [
     { name: 'Certificates', icon: '📜' },
     { name: 'Courses', icon: '📚' },
     { name: 'Languages', icon: '💬' },
     { name: 'Projects', icon: '🚀' }
-  ];
-
-  const categories: TrackerCategory[] = defaultCategories.map(cat => ({
+  ].map(cat => ({
     ...cat,
     entries: categorizedEntries[cat.name] || []
   }));
+
+  const categoryNames = dbCategories.map(cat => cat.name);
 
   const addEntryMutation = useMutation({
     mutationFn: async (newEntry: { title: string; type: string; completion_date: string }) => {
@@ -132,6 +154,54 @@ export const Tracker = () => {
       queryClient.invalidateQueries({ queryKey: ['tracker-entries'] });
       toast({ title: 'Entry added successfully!' });
       setShowAddEntry(false);
+    }
+  });
+
+  const addCategoryMutation = useMutation({
+    mutationFn: async (newCategory: { title: string; emoji: string }) => {
+      const { data, error } = await supabase
+        .from('tracker_categories')
+        .insert([newCategory])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracker-categories'] });
+      toast({ title: 'Category added successfully!' });
+      setShowAddCategory(false);
+    }
+  });
+
+  const deleteEntryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('tracker_entries')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracker-entries'] });
+      toast({ title: 'Entry deleted successfully!' });
+    }
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('tracker_categories')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracker-categories'] });
+      toast({ title: 'Category deleted successfully!' });
     }
   });
 
@@ -162,60 +232,68 @@ export const Tracker = () => {
             />
           </div>
           
-          {userRole === 'admin' && (
-            <div className="flex gap-2">
-              <Button
-                onClick={() => setShowAddEntry(true)}
-                style={{ backgroundColor: themeColors.primary }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Completion
-              </Button>
-              <Button
-                onClick={() => setShowAddCategory(true)}
-                variant="outline"
-                style={{ borderColor: themeColors.primary, color: themeColors.primary }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Category
-              </Button>
-            </div>
-          )}
+          <div className="flex gap-2">
+            <AddContentButton onClick={() => setShowAddEntry(true)}>
+              Add Completion
+            </AddContentButton>
+            <AddContentButton onClick={() => setShowAddCategory(true)}>
+              Add Category
+            </AddContentButton>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {categories.map((category) => (
+          {dbCategories.map((category, categoryIndex) => (
             <Card 
               key={category.name}
-              className="border-0"
+              className="border-0 relative"
               style={{ backgroundColor: themeColors.surface }}
             >
+              <DeleteButton
+                onDelete={() => {
+                  const dbCategory = categories.find(cat => cat.title === category.name);
+                  if (dbCategory) deleteCategoryMutation.mutate(dbCategory.id);
+                }}
+                isVisible={isEditMode && categories.some(cat => cat.title === category.name)}
+              />
               <CardHeader>
-                <CardTitle 
-                  className="flex items-center gap-2 text-white"
-                >
-                  <span className="text-2xl">{category.icon}</span>
-                  {category.name}
-                </CardTitle>
+                <OverlayEditWrapper onEdit={() => {}}>
+                  <CardTitle 
+                    className="flex items-center gap-2 text-white"
+                  >
+                    <span className="text-2xl">{category.icon}</span>
+                    {category.name}
+                  </CardTitle>
+                </OverlayEditWrapper>
               </CardHeader>
               <CardContent className="space-y-3">
                 {category.entries.map((entry) => (
                   <div 
                     key={entry.id}
-                    className="p-3 rounded-lg"
+                    className="p-3 rounded-lg cursor-pointer hover:scale-105 transition-transform relative"
                     style={{ backgroundColor: themeColors.background }}
+                    onClick={() => setSelectedTaskId(selectedTaskId === entry.id ? null : entry.id)}
                   >
-                    <h4 
-                      className="font-semibold text-sm mb-1 text-white"
-                    >
-                      {entry.title}
-                    </h4>
-                    <p 
-                      className="text-xs"
-                      style={{ color: themeColors.accent }}
-                    >
-                      {entry.completion_date ? formatDate(entry.completion_date) : 'In Progress'}
-                    </p>
+                    <DeleteButton
+                      onDelete={() => deleteEntryMutation.mutate(entry.id)}
+                      isVisible={isEditMode}
+                      className="top-1 right-1"
+                    />
+                    <OverlayEditWrapper onEdit={() => {}}>
+                      <h4 
+                        className="font-semibold text-sm mb-1 text-white"
+                      >
+                        {entry.title}
+                      </h4>
+                    </OverlayEditWrapper>
+                    {selectedTaskId === entry.id && entry.completion_date && (
+                      <p 
+                        className="text-xs mt-2"
+                        style={{ color: themeColors.accent }}
+                      >
+                        Completed: {formatDate(entry.completion_date)}
+                      </p>
+                    )}
                   </div>
                 ))}
                 
@@ -232,6 +310,24 @@ export const Tracker = () => {
           ))}
         </div>
       </div>
+
+      <TrackerCompletionForm
+        isOpen={showAddEntry}
+        onClose={() => setShowAddEntry(false)}
+        onSubmit={addEntryMutation.mutate}
+        categories={categoryNames}
+      />
+
+      <TrackerCategoryForm
+        isOpen={showAddCategory}
+        onClose={() => setShowAddCategory(false)}
+        onSubmit={addCategoryMutation.mutate}
+      />
+
+      <EditorToolbar
+        isEditMode={isEditMode}
+        onToggleEditMode={() => setIsEditMode(!isEditMode)}
+      />
     </div>
   );
 };

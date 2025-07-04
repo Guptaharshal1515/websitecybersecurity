@@ -7,8 +7,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Github, Plus } from 'lucide-react';
-import { EditableText } from '@/components/admin/EditableText';
-import { EditableImage } from '@/components/admin/EditableImage';
+import { AddContentButton } from '@/components/editor/AddContentButton';
+import { ProjectForm } from '@/components/editor/forms/ProjectForm';
+import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
+import { EditorToolbar } from '@/components/editor/EditorToolbar';
+import { DeleteButton } from '@/components/editor/DeleteButton';
 import { useToast } from '@/hooks/use-toast';
 
 interface Project {
@@ -20,6 +23,7 @@ interface Project {
   github_url: string | null;
   technologies: string[] | null;
   display_order: number | null;
+  completion_date: string | null;
 }
 
 export const Projects = () => {
@@ -29,6 +33,7 @@ export const Projects = () => {
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -52,7 +57,8 @@ export const Projects = () => {
       project_url: 'https://example.com/cybersec-dashboard',
       github_url: 'https://github.com/guptaharshal/cybersec-dashboard',
       technologies: ['React', 'Node.js', 'Python', 'MongoDB', 'Socket.io'],
-      display_order: 1
+      display_order: 1,
+      completion_date: '2024-01-15'
     },
     {
       id: 'dummy-2',
@@ -62,7 +68,8 @@ export const Projects = () => {
       project_url: 'https://example.com/blockchain-voting',
       github_url: 'https://github.com/guptaharshal/blockchain-voting',
       technologies: ['Solidity', 'Web3.js', 'React', 'Ethereum', 'MetaMask'],
-      display_order: 2
+      display_order: 2,
+      completion_date: '2024-02-20'
     },
     {
       id: 'dummy-3',
@@ -72,7 +79,8 @@ export const Projects = () => {
       project_url: null,
       github_url: 'https://github.com/guptaharshal/pentest-toolkit',
       technologies: ['Python', 'Bash', 'Nmap', 'SQLMap', 'Burp Suite'],
-      display_order: 3
+      display_order: 3,
+      completion_date: '2024-03-10'
     },
     {
       id: 'dummy-4',
@@ -82,7 +90,8 @@ export const Projects = () => {
       project_url: 'https://example.com/cloud-monitor',
       github_url: 'https://github.com/guptaharshal/cloud-monitor',
       technologies: ['AWS', 'Azure', 'GCP', 'Terraform', 'Docker'],
-      display_order: 4
+      display_order: 4,
+      completion_date: '2024-03-25'
     },
     {
       id: 'dummy-5',
@@ -92,7 +101,8 @@ export const Projects = () => {
       project_url: 'https://example.com/defi-tracker',
       github_url: 'https://github.com/guptaharshal/defi-tracker',
       technologies: ['React', 'Web3', 'GraphQL', 'The Graph', 'Uniswap API'],
-      display_order: 5
+      display_order: 5,
+      completion_date: '2024-04-05'
     }
   ] : projects;
 
@@ -114,8 +124,46 @@ export const Projects = () => {
     }
   });
 
-  const handleImageSave = async (id: string, url: string | null) => {
-    updateProjectMutation.mutate({ id, field: 'image_url', value: url || '' });
+  const addProjectMutation = useMutation({
+    mutationFn: async (newProject: any) => {
+      const { data, error } = await supabase
+        .from('projects')
+        .insert([newProject])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast({ title: 'Project added successfully!' });
+      setShowAddForm(false);
+    }
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast({ title: 'Project deleted successfully!' });
+      setSelectedProject(null);
+    }
+  });
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -137,15 +185,9 @@ export const Projects = () => {
             />
           </div>
           
-          {userRole === 'admin' && (
-            <Button
-              onClick={() => setShowAddForm(true)}
-              style={{ backgroundColor: themeColors.primary }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Project
-            </Button>
-          )}
+          <AddContentButton onClick={() => setShowAddForm(true)}>
+            Add Project
+          </AddContentButton>
         </div>
 
         {/* Preview Pane Based Project Showcase */}
@@ -155,7 +197,7 @@ export const Projects = () => {
             {dummyProjects.map((project, index) => (
               <Card
                 key={project.id}
-                className={`border-0 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                className={`border-0 cursor-pointer transition-all duration-300 hover:scale-105 relative ${
                   selectedProject?.id === project.id ? 'ring-2' : ''
                 }`}
                 style={{ 
@@ -167,6 +209,10 @@ export const Projects = () => {
                 }}
                 onClick={() => setSelectedProject(project)}
               >
+                <DeleteButton
+                  onDelete={() => deleteProjectMutation.mutate(project.id)}
+                  isVisible={isEditMode}
+                />
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-4">
                     <img
@@ -181,6 +227,11 @@ export const Projects = () => {
                       <p className="text-sm text-gray-300 line-clamp-2">
                         {project.description}
                       </p>
+                      {project.completion_date && (
+                        <p className="text-xs mt-1" style={{ color: themeColors.accent }}>
+                          Completed: {formatDate(project.completion_date)}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -196,48 +247,35 @@ export const Projects = () => {
                 style={{ backgroundColor: themeColors.surface }}
               >
                 <CardContent className="p-6">
-                  <div className="aspect-video mb-4 rounded-lg overflow-hidden">
-                    {userRole === 'admin' ? (
-                      <EditableImage
-                        src={selectedProject.image_url}
-                        alt={selectedProject.title}
-                        onSave={(url) => handleImageSave(selectedProject.id, url)}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <img
-                        src={selectedProject.image_url || '/placeholder.svg'}
-                        alt={selectedProject.title}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                  
-                  {userRole === 'admin' ? (
-                    <EditableText
-                      value={selectedProject.title}
-                      onSave={(value) => updateProjectMutation.mutate({ id: selectedProject.id, field: 'title', value })}
-                      className="text-2xl font-bold mb-4 text-white"
-                      placeholder="Project title"
+                  <OverlayEditWrapper
+                    onEdit={() => {}}
+                    className="aspect-video mb-4 rounded-lg overflow-hidden"
+                  >
+                    <img
+                      src={selectedProject.image_url || '/placeholder.svg'}
+                      alt={selectedProject.title}
+                      className="w-full h-full object-cover"
                     />
-                  ) : (
+                  </OverlayEditWrapper>
+                  
+                  <OverlayEditWrapper onEdit={() => {}}>
                     <h2 className="text-2xl font-bold mb-4 text-white">
                       {selectedProject.title}
                     </h2>
-                  )}
+                  </OverlayEditWrapper>
                   
-                  {userRole === 'admin' ? (
-                    <EditableText
-                      value={selectedProject.description || ''}
-                      onSave={(value) => updateProjectMutation.mutate({ id: selectedProject.id, field: 'description', value })}
-                      multiline={true}
-                      className="text-base mb-6 leading-relaxed text-white"
-                      placeholder="Project description"
-                    />
-                  ) : (
+                  <OverlayEditWrapper onEdit={() => {}}>
                     <p className="text-base mb-6 leading-relaxed text-white">
                       {selectedProject.description}
                     </p>
+                  </OverlayEditWrapper>
+
+                  {selectedProject.completion_date && (
+                    <OverlayEditWrapper onEdit={() => {}}>
+                      <p className="text-sm mb-4" style={{ color: themeColors.accent }}>
+                        Completed: {formatDate(selectedProject.completion_date)}
+                      </p>
+                    </OverlayEditWrapper>
                   )}
                   
                   {selectedProject.technologies && (
@@ -310,6 +348,17 @@ export const Projects = () => {
           </div>
         </div>
       </div>
+
+      <ProjectForm
+        isOpen={showAddForm}
+        onClose={() => setShowAddForm(false)}
+        onSubmit={addProjectMutation.mutate}
+      />
+
+      <EditorToolbar
+        isEditMode={isEditMode}
+        onToggleEditMode={() => setIsEditMode(!isEditMode)}
+      />
     </div>
   );
 };

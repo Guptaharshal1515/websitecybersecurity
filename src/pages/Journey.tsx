@@ -5,8 +5,12 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Plus, X } from 'lucide-react';
-import { EditableText } from '@/components/admin/EditableText';
+import { Calendar, Plus, X, ExternalLink } from 'lucide-react';
+import { AddContentButton } from '@/components/editor/AddContentButton';
+import { JourneyForm } from '@/components/editor/forms/JourneyForm';
+import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
+import { EditorToolbar } from '@/components/editor/EditorToolbar';
+import { DeleteButton } from '@/components/editor/DeleteButton';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,6 +21,7 @@ interface JourneyEntry {
   entry_date: string;
   display_order: number | null;
   created_at: string | null;
+  resource_link: string | null;
 }
 
 export const Journey = () => {
@@ -26,6 +31,7 @@ export const Journey = () => {
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<JourneyEntry | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   if (!user) {
     return (
@@ -81,7 +87,8 @@ export const Journey = () => {
       description: 'Beginning my journey into the world of cybersecurity and technology.',
       entry_date: '2024-01-15',
       display_order: 1,
-      created_at: '2024-01-15'
+      created_at: '2024-01-15',
+      resource_link: 'https://university.edu/cs-program'
     },
     {
       id: 'dummy-2',
@@ -89,7 +96,8 @@ export const Journey = () => {
       description: 'Completed my first ethical hacking certification, marking a major milestone.',
       entry_date: '2024-02-20',
       display_order: 2,
-      created_at: '2024-02-20'
+      created_at: '2024-02-20',
+      resource_link: null
     },
     {
       id: 'dummy-3',
@@ -97,7 +105,8 @@ export const Journey = () => {
       description: 'Started learning Solidity and smart contract development.',
       entry_date: '2024-03-10',
       display_order: 3,
-      created_at: '2024-03-10'
+      created_at: '2024-03-10',
+      resource_link: 'https://cryptozombies.io/'
     },
     {
       id: 'dummy-4',
@@ -105,12 +114,13 @@ export const Journey = () => {
       description: 'Participated in my first cybersecurity hackathon, learned a lot about real-world applications.',
       entry_date: '2024-03-25',
       display_order: 4,
-      created_at: '2024-03-25'
+      created_at: '2024-03-25',
+      resource_link: null
     }
   ] : journeyEntries;
 
   const addEntryMutation = useMutation({
-    mutationFn: async (newEntry: { title: string; description: string; entry_date: string }) => {
+    mutationFn: async (newEntry: { title: string; description: string; entry_date: string; resource_link?: string }) => {
       const { data, error } = await supabase
         .from('journey_entries')
         .insert([newEntry])
@@ -124,6 +134,22 @@ export const Journey = () => {
       queryClient.invalidateQueries({ queryKey: ['journey-entries'] });
       toast({ title: 'Journey entry added successfully!' });
       setShowAddForm(false);
+    }
+  });
+
+  const deleteEntryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('journey_entries')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['journey-entries'] });
+      toast({ title: 'Journey entry deleted successfully!' });
+      setSelectedEntry(null);
     }
   });
 
@@ -177,15 +203,9 @@ export const Journey = () => {
             />
           </div>
           
-          {userRole === 'admin' && (
-            <Button
-              onClick={() => setShowAddForm(true)}
-              style={{ backgroundColor: themeColors.primary }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Event
-            </Button>
-          )}
+          <AddContentButton onClick={() => setShowAddForm(true)}>
+            Add Progress
+          </AddContentButton>
         </div>
 
         <div className="max-w-4xl mx-auto">
@@ -223,31 +243,44 @@ export const Journey = () => {
                   {/* Content */}
                   <div className="flex-1">
                     <Card 
-                      className="border-0 cursor-pointer hover:scale-105 transition-transform duration-200"
+                      className="border-0 cursor-pointer hover:scale-105 transition-transform duration-200 relative"
                       style={{ backgroundColor: themeColors.surface }}
                       onClick={() => setSelectedEntry(entry)}
                     >
+                      <DeleteButton
+                        onDelete={() => deleteEntryMutation.mutate(entry.id)}
+                        isVisible={isEditMode}
+                      />
                       <CardContent className="p-6">
-                        {userRole === 'admin' ? (
-                          <EditableText
-                            value={entry.title}
-                            onSave={(value) => updateEntryMutation.mutate({ id: entry.id, field: 'title', value })}
-                            className="text-lg font-semibold mb-2 text-white"
-                            placeholder="Event title"
-                          />
-                        ) : (
+                        <OverlayEditWrapper onEdit={() => {}}>
                           <h3 className="text-lg font-semibold mb-2 text-white">
                             {entry.title}
                           </h3>
-                        )}
+                        </OverlayEditWrapper>
                         
                         {entry.description && (
-                          <p className="text-sm leading-relaxed text-gray-300">
-                            {entry.description.length > 100 
-                              ? `${entry.description.substring(0, 100)}...` 
-                              : entry.description
-                            }
-                          </p>
+                          <OverlayEditWrapper onEdit={() => {}}>
+                            <p className="text-sm leading-relaxed text-gray-300 mb-2">
+                              {entry.description.length > 100 
+                                ? `${entry.description.substring(0, 100)}...` 
+                                : entry.description
+                              }
+                            </p>
+                          </OverlayEditWrapper>
+                        )}
+
+                        {entry.resource_link && (
+                          <a
+                            href={entry.resource_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-sm hover:underline"
+                            style={{ color: themeColors.primary }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            View
+                          </a>
                         )}
                       </CardContent>
                     </Card>
@@ -291,14 +324,38 @@ export const Journey = () => {
               </h2>
               
               {selectedEntry.description && (
-                <p className="text-base leading-relaxed text-gray-300">
+                <p className="text-base leading-relaxed text-gray-300 mb-4">
                   {selectedEntry.description}
                 </p>
+              )}
+
+              {selectedEntry.resource_link && (
+                <a
+                  href={selectedEntry.resource_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-80 transition-opacity"
+                  style={{ backgroundColor: themeColors.primary, color: 'white' }}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  View Resource
+                </a>
               )}
             </CardContent>
           </Card>
         </div>
       )}
+
+      <JourneyForm
+        isOpen={showAddForm}
+        onClose={() => setShowAddForm(false)}
+        onSubmit={addEntryMutation.mutate}
+      />
+
+      <EditorToolbar
+        isEditMode={isEditMode}
+        onToggleEditMode={() => setIsEditMode(!isEditMode)}
+      />
     </div>
   );
 };

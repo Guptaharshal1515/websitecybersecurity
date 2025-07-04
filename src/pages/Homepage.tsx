@@ -10,11 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { InlineEditText } from '@/components/editor/InlineEditText';
-import { InlineEditImage } from '@/components/editor/InlineEditImage';
-import { AddContentButton } from '@/components/editor/AddContentButton';
+import { WelcomeSection } from '@/components/homepage/WelcomeSection';
+import { ProfileSection } from '@/components/homepage/ProfileSection';
+import { NavigationBoxes } from '@/components/homepage/NavigationBoxes';
+import { SocialLinksSection } from '@/components/homepage/SocialLinksSection';
 import { SocialLinkForm } from '@/components/editor/forms/SocialLinkForm';
-import { useEditMode } from '@/contexts/EditModeContext';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { uploadImageToStorage, getPublicUrl } from '@/utils/storage';
@@ -32,12 +32,10 @@ interface HomepageContent {
 }
 
 export const Homepage = () => {
-  const { themeColors, userRole } = useTheme();
+  const { themeColors } = useTheme();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { isEditMode, canEdit } = useEditMode();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   // Editor state
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -169,203 +167,29 @@ export const Homepage = () => {
     profile_image_url: null
   };
 
-  const navigationBoxes = [
-    {
-      title: "Cybersecurity",
-      subtitle: "Certificates",
-      count: `${certificatesCount?.cybersecurity || 3} Earned`,
-      icon: Shield,
-      route: "/cybersecurity-certificates",
-      gradient: "from-red-500 to-pink-500",
-      glowColor: "#dc2626"
-    },
-    {
-      title: "Blockchain",
-      subtitle: "Certificates", 
-      count: `${certificatesCount?.blockchain || 2} Earned`,
-      icon: Code,
-      route: "/blockchain-certificates",
-      gradient: "from-blue-500 to-cyan-500",
-      glowColor: "#2563eb"
-    },
-    {
-      title: "Projects",
-      subtitle: "Done",
-      count: `${projectsCount || 5} Completed`,
-      icon: User,
-      route: "/projects",
-      gradient: "from-green-500 to-emerald-500",
-      glowColor: "#16a34a"
-    }
-  ];
-
-  const socialLinks = [
-    { name: 'LinkedIn', icon: Linkedin, color: '#0077b5', url: 'https://linkedin.com/in/harshal-gupta' },
-    { name: 'GitHub', icon: Github, color: '#333', url: 'https://github.com/guptaharshal' },
-    { name: 'X', icon: Twitter, color: '#000', url: 'https://x.com/harshal_gupta' },
-    { name: 'TryHackMe', icon: Shield, color: '#dc2626', url: 'https://tryhackme.com/p/harshal' },
-    { name: 'HackTheBox', icon: Code, color: '#16a34a', url: 'https://hackthebox.com/profile/harshal' }
-  ];
-
-  const isEditorMode = userRole === 'editor';
-
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-8">
-        {/* Welcome Message */}
-        <div className="text-center mb-12">
-          <InlineEditText
-            value={content?.welcome_message || defaultContent.welcome_message}
-            onSave={(value) => updateMutation.mutate({ welcome_message: value })}
-          >
-            <div className="relative inline-block">
-              <h1 className="text-4xl md:text-6xl font-bold text-white relative welcome-glow">
-                {content?.welcome_message || defaultContent.welcome_message}
-              </h1>
-              <div 
-                className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full h-1 rounded animate-pulse glow-underline"
-                style={{ 
-                  backgroundColor: themeColors.primary,
-                  boxShadow: `0 0 20px ${themeColors.primary}, 0 0 40px ${themeColors.primary}`
-                }}
-              />
-            </div>
-          </InlineEditText>
-        </div>
+        <WelcomeSection 
+          welcomeMessage={content?.welcome_message || defaultContent.welcome_message}
+          onUpdateWelcome={(value) => updateMutation.mutate({ welcome_message: value })}
+        />
 
-        {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
-          {/* Left Side - Profile Section */}
-          <div className="text-left space-y-6">
-            <div className="space-y-2">
-              <p className="text-lg opacity-80" style={{ color: themeColors.accent }}>
-                Hello, It's Me
-              </p>
-              <h1 className="text-4xl md:text-5xl font-bold" style={{ color: themeColors.text }}>
-                Harshal Gupta
-              </h1>
-            </div>
-            
-            <InlineEditText
-              value={content?.introduction || defaultContent.introduction}
-              onSave={(value) => updateMutation.mutate({ introduction: value })}
-              multiline
-            >
-              <p className="text-lg leading-relaxed opacity-90 text-white">
-                {content?.introduction || defaultContent.introduction}
-              </p>
-            </InlineEditText>
-          </div>
+        <ProfileSection 
+          introduction={content?.introduction || defaultContent.introduction}
+          profileImageUrl={content?.profile_image_url}
+          onUpdateIntroduction={(value) => updateMutation.mutate({ introduction: value })}
+          onUpdateProfileImage={(url) => updateMutation.mutate({ profile_image_url: url })}
+        />
 
-          {/* Right Side - Profile Image */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="relative">
-              <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-1">
-                <InlineEditImage
-                  value={content?.profile_image_url}
-                  onSave={(url) => updateMutation.mutate({ profile_image_url: url })}
-                  bucket="profiles"
-                >
-                  <div className="w-full h-full rounded-full overflow-hidden" style={{ backgroundColor: themeColors.surface }}>
-                    <img
-                      src={content?.profile_image_url || "/placeholder.svg"}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </InlineEditImage>
-              </div>
-              {/* Glowing ring effect */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 opacity-30 blur-lg animate-pulse"></div>
-            </div>
-          </div>
-        </div>
+        <NavigationBoxes 
+          certificatesCount={certificatesCount}
+          projectsCount={projectsCount}
+        />
 
-        {/* Navigation Boxes */}
-        <div className="grid md:grid-cols-3 gap-6 mb-16">
-          {navigationBoxes.map((box, index) => (
-            <Card
-              key={box.title}
-              className={`group cursor-pointer border-0 overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in relative pixel-box`}
-              style={{ 
-                backgroundColor: themeColors.surface,
-                animationDelay: `${index * 200}ms`
-              }}
-              onClick={() => navigate(box.route)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = `0 0 30px ${box.glowColor}`;
-                e.currentTarget.style.border = `2px solid ${box.glowColor}`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '';
-                e.currentTarget.style.border = '';
-              }}
-            >
-              <CardContent className="p-8 text-center relative">
-                {/* Gradient overlay on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${box.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-                
-                {/* Icon */}
-                <div className="mb-4 flex justify-center">
-                  <div className={`p-4 rounded-full bg-gradient-to-br ${box.gradient} group-hover:scale-110 transition-transform duration-300`}>
-                    <box.icon className="h-8 w-8 text-white" />
-                  </div>
-                </div>
-                
-                {/* Content */}
-                <h3 className="text-xl font-bold mb-2" style={{ color: themeColors.text }}>
-                  {box.title}
-                </h3>
-                <p className="text-sm mb-3" style={{ color: themeColors.accent }}>
-                  {box.subtitle}
-                </p>
-                <p className="text-lg font-semibold" style={{ color: themeColors.primary }}>
-                  {box.count}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Social Links */}
-        <div className="text-center">
-          <div className="relative inline-block mb-6">
-            <p 
-              className="text-3xl font-semibold text-white"
-              style={{ color: themeColors.primary }}
-            >
-              Follow me or find me here
-            </p>
-            <div 
-              className="absolute bottom-0 left-0 w-full h-1 rounded animate-pulse"
-              style={{ 
-                backgroundColor: themeColors.primary,
-                boxShadow: `0 0 10px ${themeColors.primary}, 0 0 20px ${themeColors.primary}`
-              }}
-            />
-          </div>
-          
-          <div className="flex justify-center gap-4 mb-4">
-            {socialLinks.map((social) => (
-              <a
-                key={social.name}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-200 cursor-pointer"
-                style={{ backgroundColor: social.color }}
-              >
-                <social.icon className="h-6 w-6 text-white" />
-              </a>
-            ))}
-          </div>
-          
-          {canEdit && (
-            <AddContentButton onClick={() => setShowAddForm(true)}>
-              Manage Social Links
-            </AddContentButton>
-          )}
-        </div>
+        <SocialLinksSection 
+          onManageSocialLinks={() => setShowAddForm(true)}
+        />
       </div>
 
       {/* Edit Text Dialog */}

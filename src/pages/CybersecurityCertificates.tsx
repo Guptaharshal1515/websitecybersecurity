@@ -3,16 +3,9 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ExternalLink } from 'lucide-react';
-import { AddContentButton } from '@/components/editor/AddContentButton';
+import { CertificateHeader } from '@/components/certificates/CertificateHeader';
+import { CertificateCard } from '@/components/certificates/CertificateCard';
 import { CertificateForm } from '@/components/editor/forms/CertificateForm';
-import { InlineEditText } from '@/components/editor/InlineEditText';
-import { InlineEditImage } from '@/components/editor/InlineEditImage';
-import { DeleteButton } from '@/components/editor/DeleteButton';
-import { useEditMode } from '@/contexts/EditModeContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface Certificate {
@@ -26,10 +19,8 @@ interface Certificate {
 }
 
 export const CybersecurityCertificates = () => {
-  const { themeColors, userRole } = useTheme();
-  const { user } = useAuth();
+  const { themeColors } = useTheme();
   const { toast } = useToast();
-  const { isEditMode, canEdit } = useEditMode();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -134,103 +125,19 @@ export const CybersecurityCertificates = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
-        <div className="flex justify-between items-center mb-16">
-          <div className="relative">
-            <h1 
-              className="text-4xl font-bold text-white"
-            >
-              Cybersecurity Certificates
-            </h1>
-            <div 
-              className="absolute bottom-0 left-0 w-full h-1 rounded mt-2"
-              style={{ 
-                backgroundColor: themeColors.primary,
-                boxShadow: `0 0 10px ${themeColors.primary}`
-              }}
-            />
-          </div>
-          
-          {canEdit && (
-            <AddContentButton onClick={() => setShowAddForm(true)}>
-              Add Certificate
-            </AddContentButton>
-          )}
-        </div>
+        <CertificateHeader 
+          title="Cybersecurity Certificates"
+          onAddCertificate={() => setShowAddForm(true)}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {dummyCertificates.map((cert) => (
-            <Card 
+            <CertificateCard
               key={cert.id}
-              className="border-0 hover:shadow-lg transition-shadow duration-300 group relative"
-              style={{ 
-                backgroundColor: themeColors.surface,
-                boxShadow: `0 0 20px ${themeColors.primary}50`
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = `0 0 30px ${themeColors.primary}`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = `0 0 20px ${themeColors.primary}50`;
-              }}
-            >
-              <DeleteButton
-                onDelete={() => deleteCertificateMutation.mutate(cert.id)}
-                isVisible={isEditMode && canEdit}
-              />
-              <CardContent className="p-6">
-                <InlineEditImage
-                  value={cert.image_url}
-                  onSave={(url) => updateCertificateMutation.mutate({ id: cert.id, field: 'image_url', value: url })}
-                  bucket="certificates"
-                >
-                  <div className="aspect-video mb-4 rounded-lg overflow-hidden">
-                    <img
-                      src={cert.image_url || '/placeholder.svg'}
-                      alt={cert.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </InlineEditImage>
-                
-                <InlineEditText
-                  value={cert.title}
-                  onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'title', value })}
-                >
-                  <h3 className="text-xl font-semibold mb-2 text-white">
-                    {cert.title}
-                  </h3>
-                </InlineEditText>
-                
-                <InlineEditText
-                  value={cert.description || ''}
-                  onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'description', value })}
-                  multiline
-                >
-                  <p className="text-sm mb-4 leading-relaxed text-white">
-                    {cert.description}
-                  </p>
-                </InlineEditText>
-                
-                {cert.completion_date && (
-                  <p className="text-xs mb-3 opacity-80 text-white">
-                    Completed: {new Date(cert.completion_date).toLocaleDateString()}
-                  </p>
-                )}
-                
-                {cert.certificate_url && (
-                  <a
-                    href={cert.certificate_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-80 transition-opacity"
-                    style={{ backgroundColor: themeColors.primary, color: 'white' }}
-                  >
-                    View Certificate
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                )}
-              </CardContent>
-            </Card>
+              certificate={cert}
+              onUpdate={(id, field, value) => updateCertificateMutation.mutate({ id, field, value })}
+              onDelete={(id) => deleteCertificateMutation.mutate(id)}
+            />
           ))}
         </div>
 

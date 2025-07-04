@@ -79,6 +79,19 @@ export const Homepage = () => {
     },
   });
 
+  const { data: socialLinks } = useQuery({
+    queryKey: ['social-links'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('social_links')
+        .select('*')
+        .order('display_order');
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   const updateMutation = useMutation({
     mutationFn: async (updates: Partial<HomepageContent>) => {
       if (content?.id) {
@@ -110,6 +123,48 @@ export const Homepage = () => {
     },
     onError: (error) => {
       toast({ title: 'Error updating content', description: error.message, variant: 'destructive' });
+    }
+  });
+
+  const addSocialLinkMutation = useMutation({
+    mutationFn: async (linkData: { name: string; url: string; icon_url?: string }) => {
+      const { data, error } = await supabase
+        .from('social_links')
+        .insert([{
+          ...linkData,
+          display_order: (socialLinks?.length || 0) + 1
+        }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['social-links'] });
+      toast({ title: 'Social link added successfully!' });
+      setShowAddForm(false);
+    },
+    onError: (error) => {
+      toast({ title: 'Error adding social link', description: error.message, variant: 'destructive' });
+    }
+  });
+
+  const deleteSocialLinkMutation = useMutation({
+    mutationFn: async (linkId: string) => {
+      const { error } = await supabase
+        .from('social_links')
+        .delete()
+        .eq('id', linkId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['social-links'] });
+      toast({ title: 'Social link deleted successfully!' });
+    },
+    onError: (error) => {
+      toast({ title: 'Error deleting social link', description: error.message, variant: 'destructive' });
     }
   });
 
@@ -188,7 +243,9 @@ export const Homepage = () => {
         />
 
         <SocialLinksSection 
+          socialLinks={socialLinks || []}
           onManageSocialLinks={() => setShowAddForm(true)}
+          onDeleteSocialLink={(id) => deleteSocialLinkMutation.mutate(id)}
         />
       </div>
 
@@ -256,11 +313,7 @@ export const Homepage = () => {
       <SocialLinkForm
         isOpen={showAddForm}
         onClose={() => setShowAddForm(false)}
-        onSubmit={(data) => {
-          // Handle social link submission
-          toast({ title: 'Social link functionality coming soon!' });
-          setShowAddForm(false);
-        }}
+        onSubmit={(data) => addSocialLinkMutation.mutate(data)}
       />
 
       <style>{`

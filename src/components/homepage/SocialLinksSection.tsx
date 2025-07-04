@@ -1,23 +1,50 @@
 import { AddContentButton } from '@/components/editor/AddContentButton';
+import { DeleteButton } from '@/components/editor/DeleteButton';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Shield, Code, Linkedin, Github, Twitter } from 'lucide-react';
+import { Shield, Code, Linkedin, Github, Twitter, X } from 'lucide-react';
 
-interface SocialLinksSectionProps {
-  onManageSocialLinks: () => void;
+interface SocialLink {
+  id: string;
+  name: string;
+  url: string;
+  icon_url?: string | null;
+  display_order?: number;
 }
 
-export const SocialLinksSection = ({ onManageSocialLinks }: SocialLinksSectionProps) => {
+interface SocialLinksSectionProps {
+  socialLinks: SocialLink[];
+  onManageSocialLinks: () => void;
+  onDeleteSocialLink: (id: string) => void;
+}
+
+const getIconComponent = (name: string) => {
+  const iconMap: { [key: string]: any } = {
+    'LinkedIn': Linkedin,
+    'GitHub': Github,
+    'X': X,
+    'Twitter': Twitter,
+    'TryHackMe': Shield,
+    'HackTheBox': Code
+  };
+  return iconMap[name] || Code;
+};
+
+const getIconColor = (name: string) => {
+  const colorMap: { [key: string]: string } = {
+    'LinkedIn': '#0077b5',
+    'GitHub': '#333',
+    'X': '#000',
+    'Twitter': '#1da1f2',
+    'TryHackMe': '#dc2626',
+    'HackTheBox': '#16a34a'
+  };
+  return colorMap[name] || '#666';
+};
+
+export const SocialLinksSection = ({ socialLinks, onManageSocialLinks, onDeleteSocialLink }: SocialLinksSectionProps) => {
   const { themeColors } = useTheme();
   const { canEdit } = useEditMode();
-
-  const socialLinks = [
-    { name: 'LinkedIn', icon: Linkedin, color: '#0077b5', url: 'https://linkedin.com/in/harshal-gupta' },
-    { name: 'GitHub', icon: Github, color: '#333', url: 'https://github.com/guptaharshal' },
-    { name: 'X', icon: Twitter, color: '#000', url: 'https://x.com/harshal_gupta' },
-    { name: 'TryHackMe', icon: Shield, color: '#dc2626', url: 'https://tryhackme.com/p/harshal' },
-    { name: 'HackTheBox', icon: Code, color: '#16a34a', url: 'https://hackthebox.com/profile/harshal' }
-  ];
 
   return (
     <div className="text-center">
@@ -38,18 +65,36 @@ export const SocialLinksSection = ({ onManageSocialLinks }: SocialLinksSectionPr
       </div>
       
       <div className="flex justify-center gap-4 mb-4">
-        {socialLinks.map((social) => (
-          <a
-            key={social.name}
-            href={social.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-200 cursor-pointer"
-            style={{ backgroundColor: social.color }}
-          >
-            <social.icon className="h-6 w-6 text-white" />
-          </a>
-        ))}
+        {socialLinks.map((social) => {
+          const IconComponent = getIconComponent(social.name);
+          const iconColor = getIconColor(social.name);
+          
+          return (
+            <div key={social.id} className="relative group">
+              <a
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-200 cursor-pointer"
+                style={{ backgroundColor: iconColor }}
+              >
+                {social.icon_url ? (
+                  <img src={social.icon_url} alt={social.name} className="h-6 w-6" />
+                ) : (
+                  <IconComponent className="h-6 w-6 text-white" />
+                )}
+              </a>
+              
+              {canEdit && (
+                <DeleteButton
+                  onDelete={() => onDeleteSocialLink(social.id)}
+                  isVisible={true}
+                  className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
       
       {canEdit && (

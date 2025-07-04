@@ -27,9 +27,17 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete }: Certificate
   const { themeColors } = useTheme();
   const { isEditMode, canEdit } = useEditMode();
 
+  const handleCardClick = () => {
+    if (certificate.certificate_url && !isEditMode) {
+      window.open(certificate.certificate_url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <Card 
-      className="border-0 hover:shadow-lg transition-shadow duration-300 group relative"
+      className={`border-0 hover:shadow-lg transition-all duration-300 group relative ${
+        certificate.certificate_url && !isEditMode ? 'cursor-pointer hover:scale-[1.02]' : ''
+      }`}
       style={{ 
         backgroundColor: themeColors.surface,
         boxShadow: `0 0 20px ${themeColors.primary}50`
@@ -40,6 +48,7 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete }: Certificate
       onMouseLeave={(e) => {
         e.currentTarget.style.boxShadow = `0 0 20px ${themeColors.primary}50`;
       }}
+      onClick={handleCardClick}
     >
       <DeleteButton
         onDelete={() => onDelete(certificate.id)}
@@ -86,16 +95,24 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete }: Certificate
         )}
         
         {certificate.certificate_url && (
-          <a
-            href={certificate.certificate_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-80 transition-opacity"
-            style={{ backgroundColor: themeColors.primary, color: 'white' }}
-          >
-            View Certificate
-            <ExternalLink className="h-4 w-4" />
-          </a>
+          <div className="flex items-center justify-between">
+            <a
+              href={certificate.certificate_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-80 transition-opacity"
+              style={{ backgroundColor: themeColors.primary, color: 'white' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              View Certificate
+              <ExternalLink className="h-4 w-4" />
+            </a>
+            {!isEditMode && (
+              <span className="text-xs text-gray-400">
+                Click card to open
+              </span>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>

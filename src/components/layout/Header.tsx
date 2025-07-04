@@ -4,11 +4,36 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { LogOut, Settings, Home, FileText, Award, Briefcase, Map, Target, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export const Header = () => {
   const { user, userRole, signOut } = useAuth();
   const { themeColors } = useTheme();
   const location = useLocation();
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const controlNavbar = () => {
+      if (typeof window !== 'undefined') {
+        if (window.scrollY > lastScrollY && window.scrollY > 100) {
+          // Scrolling down & past 100px
+          setIsVisible(false);
+        } else {
+          // Scrolling up
+          setIsVisible(true);
+        }
+        setLastScrollY(window.scrollY);
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', controlNavbar);
+      return () => {
+        window.removeEventListener('scroll', controlNavbar);
+      };
+    }
+  }, [lastScrollY]);
 
   const navigationItems = [
     { path: '/', label: 'Home', icon: Home },
@@ -22,7 +47,9 @@ export const Header = () => {
 
   return (
     <header 
-      className="sticky top-0 z-50 border-b"
+      className={`sticky top-0 z-50 border-b transition-transform duration-300 ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}
       style={{ 
         backgroundColor: themeColors.background,
         borderColor: themeColors.primary + '20'
@@ -30,11 +57,11 @@ export const Header = () => {
     >
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold" style={{ color: themeColors.primary }}>
-            WebsiteCyberSec
-          </Link>
+          <div className="flex items-center">
+            {/* Removed WebsiteCyberSec title */}
+          </div>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="flex items-center gap-6">
             {navigationItems.map(({ path, label, icon: Icon }) => (
               <Link
                 key={path}

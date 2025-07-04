@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
+import { InlineEditText } from '@/components/editor/InlineEditText';
+import { InlineEditImage } from '@/components/editor/InlineEditImage';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { uploadImageToStorage, getPublicUrl } from '@/utils/storage';
@@ -208,8 +209,9 @@ export const Homepage = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Message */}
         <div className="text-center mb-12">
-          <OverlayEditWrapper
-            onEdit={() => handleEdit('welcome_message', content?.welcome_message || defaultContent.welcome_message)}
+          <InlineEditText
+            value={content?.welcome_message || defaultContent.welcome_message}
+            onSave={(value) => updateMutation.mutate({ welcome_message: value })}
           >
             <div className="relative inline-block">
               <h1 className="text-4xl md:text-6xl font-bold text-white relative welcome-glow">
@@ -223,7 +225,7 @@ export const Homepage = () => {
                 }}
               />
             </div>
-          </OverlayEditWrapper>
+          </InlineEditText>
         </div>
 
         {/* Main Content Grid */}
@@ -239,21 +241,25 @@ export const Homepage = () => {
               </h1>
             </div>
             
-            <OverlayEditWrapper
-              onEdit={() => handleEdit('introduction', content?.introduction || defaultContent.introduction)}
+            <InlineEditText
+              value={content?.introduction || defaultContent.introduction}
+              onSave={(value) => updateMutation.mutate({ introduction: value })}
+              multiline
             >
               <p className="text-lg leading-relaxed opacity-90 text-white">
                 {content?.introduction || defaultContent.introduction}
               </p>
-            </OverlayEditWrapper>
+            </InlineEditText>
           </div>
 
           {/* Right Side - Profile Image */}
           <div className="flex justify-center lg:justify-end">
             <div className="relative">
               <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-1">
-                <OverlayEditWrapper
-                  onEdit={() => setEditingField('profile_image')}
+                <InlineEditImage
+                  value={content?.profile_image_url}
+                  onSave={(url) => updateMutation.mutate({ profile_image_url: url })}
+                  bucket="profiles"
                 >
                   <div className="w-full h-full rounded-full overflow-hidden" style={{ backgroundColor: themeColors.surface }}>
                     <img
@@ -262,7 +268,7 @@ export const Homepage = () => {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                </OverlayEditWrapper>
+                </InlineEditImage>
               </div>
               {/* Glowing ring effect */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 opacity-30 blur-lg animate-pulse"></div>

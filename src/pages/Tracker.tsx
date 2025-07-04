@@ -10,9 +10,9 @@ import { Plus } from 'lucide-react';
 import { AddContentButton } from '@/components/editor/AddContentButton';
 import { TrackerCompletionForm } from '@/components/editor/forms/TrackerCompletionForm';
 import { TrackerCategoryForm } from '@/components/editor/forms/TrackerCategoryForm';
-import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
-import { EditorToolbar } from '@/components/editor/EditorToolbar';
+import { InlineEditText } from '@/components/editor/InlineEditText';
 import { DeleteButton } from '@/components/editor/DeleteButton';
+import { useEditMode } from '@/contexts/EditModeContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface TrackerEntry {
@@ -35,10 +35,10 @@ export const Tracker = () => {
   const { themeColors, userRole } = useTheme();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isEditMode, canEdit } = useEditMode();
   const queryClient = useQueryClient();
   const [showAddEntry, setShowAddEntry] = useState(false);
   const [showAddCategory, setShowAddCategory] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const { data: entries = [] } = useQuery({
@@ -232,14 +232,16 @@ export const Tracker = () => {
             />
           </div>
           
-          <div className="flex gap-2">
-            <AddContentButton onClick={() => setShowAddEntry(true)}>
-              Add Completion
-            </AddContentButton>
-            <AddContentButton onClick={() => setShowAddCategory(true)}>
-              Add Category
-            </AddContentButton>
-          </div>
+          {canEdit && (
+            <div className="flex gap-2">
+              <AddContentButton onClick={() => setShowAddEntry(true)}>
+                Add Completion
+              </AddContentButton>
+              <AddContentButton onClick={() => setShowAddCategory(true)}>
+                Add Category
+              </AddContentButton>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -254,17 +256,15 @@ export const Tracker = () => {
                   const dbCategory = categories.find(cat => cat.title === category.name);
                   if (dbCategory) deleteCategoryMutation.mutate(dbCategory.id);
                 }}
-                isVisible={isEditMode && categories.some(cat => cat.title === category.name)}
+                isVisible={isEditMode && canEdit && categories.some(cat => cat.title === category.name)}
               />
               <CardHeader>
-                <OverlayEditWrapper onEdit={() => {}}>
-                  <CardTitle 
-                    className="flex items-center gap-2 text-white"
-                  >
-                    <span className="text-2xl">{category.icon}</span>
-                    {category.name}
-                  </CardTitle>
-                </OverlayEditWrapper>
+                <CardTitle 
+                  className="flex items-center gap-2 text-white"
+                >
+                  <span className="text-2xl">{category.icon}</span>
+                  {category.name}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {category.entries.map((entry) => (
@@ -276,16 +276,19 @@ export const Tracker = () => {
                   >
                     <DeleteButton
                       onDelete={() => deleteEntryMutation.mutate(entry.id)}
-                      isVisible={isEditMode}
+                      isVisible={isEditMode && canEdit}
                       className="top-1 right-1"
                     />
-                    <OverlayEditWrapper onEdit={() => {}}>
+                    <InlineEditText
+                      value={entry.title}
+                      onSave={(value) => {/* TODO: Add update mutation */}}
+                    >
                       <h4 
                         className="font-semibold text-sm mb-1 text-white"
                       >
                         {entry.title}
                       </h4>
-                    </OverlayEditWrapper>
+                    </InlineEditText>
                     {selectedTaskId === entry.id && entry.completion_date && (
                       <p 
                         className="text-xs mt-2"
@@ -324,10 +327,6 @@ export const Tracker = () => {
         onSubmit={addCategoryMutation.mutate}
       />
 
-      <EditorToolbar
-        isEditMode={isEditMode}
-        onToggleEditMode={() => setIsEditMode(!isEditMode)}
-      />
     </div>
   );
 };

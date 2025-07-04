@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ExternalLink, Calendar, X } from 'lucide-react';
 import { AddContentButton } from '@/components/editor/AddContentButton';
 import { CertificateForm } from '@/components/editor/forms/CertificateForm';
+import { useEditMode } from '@/contexts/EditModeContext';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
@@ -23,6 +24,7 @@ interface Certificate {
 export const BlockchainCertificates = () => {
   const { themeColors } = useTheme();
   const { toast } = useToast();
+  const { canEdit } = useEditMode();
   const queryClient = useQueryClient();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
@@ -158,9 +160,11 @@ export const BlockchainCertificates = () => {
             />
           </div>
           
-          <AddContentButton onClick={() => setShowAddForm(true)}>
-            Add Certificate
-          </AddContentButton>
+          {canEdit && (
+            <AddContentButton onClick={() => setShowAddForm(true)}>
+              Add Certificate
+            </AddContentButton>
+          )}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12 items-center">

@@ -63,19 +63,19 @@ export const Admin = () => {
 
           <TabsContent value="dashboard" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card 
-                className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 
-                style={{ backgroundColor: themeColors.surface }}
-                onClick={() => setActiveTab('users')}
-              >
-                <div className="flex items-center gap-4">
-                  <Users className="h-8 w-8" style={{ color: themeColors.primary }} />
-                  <div>
-                    <h3 className="font-semibold" style={{ color: themeColors.text }}>User Management</h3>
-                    <p className="text-sm" style={{ color: themeColors.accent }}>Manage user roles and permissions</p>
-                  </div>
+            <Card 
+              className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 
+              style={{ backgroundColor: themeColors.surface }}
+              onClick={() => setActiveTab('users')}
+            >
+              <div className="flex items-center gap-4">
+                <Users className="h-8 w-8" style={{ color: themeColors.primary }} />
+                <div>
+                  <h3 className="font-semibold" style={{ color: themeColors.text }}>User Management</h3>
+                  <p className="text-sm" style={{ color: themeColors.accent }}>Manage user roles and permissions (Admin only)</p>
                 </div>
-              </Card>
+              </div>
+            </Card>
 
               <Card 
                 className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 

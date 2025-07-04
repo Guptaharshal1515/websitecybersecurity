@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink, Github, Plus } from 'lucide-react';
 import { AddContentButton } from '@/components/editor/AddContentButton';
 import { ProjectForm } from '@/components/editor/forms/ProjectForm';
-import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
-import { EditorToolbar } from '@/components/editor/EditorToolbar';
+import { InlineEditText } from '@/components/editor/InlineEditText';
+import { InlineEditImage } from '@/components/editor/InlineEditImage';
 import { DeleteButton } from '@/components/editor/DeleteButton';
+import { useEditMode } from '@/contexts/EditModeContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface Project {
@@ -30,10 +31,10 @@ export const Projects = () => {
   const { themeColors, userRole } = useTheme();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isEditMode, canEdit } = useEditMode();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -185,9 +186,11 @@ export const Projects = () => {
             />
           </div>
           
-          <AddContentButton onClick={() => setShowAddForm(true)}>
-            Add Project
-          </AddContentButton>
+          {canEdit && (
+            <AddContentButton onClick={() => setShowAddForm(true)}>
+              Add Project
+            </AddContentButton>
+          )}
         </div>
 
         {/* Preview Pane Based Project Showcase */}
@@ -211,7 +214,7 @@ export const Projects = () => {
               >
                 <DeleteButton
                   onDelete={() => deleteProjectMutation.mutate(project.id)}
-                  isVisible={isEditMode}
+                  isVisible={isEditMode && canEdit}
                 />
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-4">
@@ -247,35 +250,43 @@ export const Projects = () => {
                 style={{ backgroundColor: themeColors.surface }}
               >
                 <CardContent className="p-6">
-                  <OverlayEditWrapper
-                    onEdit={() => {}}
-                    className="aspect-video mb-4 rounded-lg overflow-hidden"
+                  <InlineEditImage
+                    value={selectedProject.image_url}
+                    onSave={(url) => updateProjectMutation.mutate({ id: selectedProject.id, field: 'image_url', value: url })}
+                    bucket="projects"
                   >
-                    <img
-                      src={selectedProject.image_url || '/placeholder.svg'}
-                      alt={selectedProject.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </OverlayEditWrapper>
+                    <div className="aspect-video mb-4 rounded-lg overflow-hidden">
+                      <img
+                        src={selectedProject.image_url || '/placeholder.svg'}
+                        alt={selectedProject.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </InlineEditImage>
                   
-                  <OverlayEditWrapper onEdit={() => {}}>
+                  <InlineEditText
+                    value={selectedProject.title}
+                    onSave={(value) => updateProjectMutation.mutate({ id: selectedProject.id, field: 'title', value })}
+                  >
                     <h2 className="text-2xl font-bold mb-4 text-white">
                       {selectedProject.title}
                     </h2>
-                  </OverlayEditWrapper>
+                  </InlineEditText>
                   
-                  <OverlayEditWrapper onEdit={() => {}}>
+                  <InlineEditText
+                    value={selectedProject.description || ''}
+                    onSave={(value) => updateProjectMutation.mutate({ id: selectedProject.id, field: 'description', value })}
+                    multiline
+                  >
                     <p className="text-base mb-6 leading-relaxed text-white">
                       {selectedProject.description}
                     </p>
-                  </OverlayEditWrapper>
+                  </InlineEditText>
 
                   {selectedProject.completion_date && (
-                    <OverlayEditWrapper onEdit={() => {}}>
-                      <p className="text-sm mb-4" style={{ color: themeColors.accent }}>
-                        Completed: {formatDate(selectedProject.completion_date)}
-                      </p>
-                    </OverlayEditWrapper>
+                    <p className="text-sm mb-4" style={{ color: themeColors.accent }}>
+                      Completed: {formatDate(selectedProject.completion_date)}
+                    </p>
                   )}
                   
                   {selectedProject.technologies && (
@@ -355,10 +366,6 @@ export const Projects = () => {
         onSubmit={addProjectMutation.mutate}
       />
 
-      <EditorToolbar
-        isEditMode={isEditMode}
-        onToggleEditMode={() => setIsEditMode(!isEditMode)}
-      />
     </div>
   );
 };

@@ -6,9 +6,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { EditModeProvider } from "@/contexts/EditModeContext";
 import { Header } from "@/components/layout/Header";
 import { AdaptiveNavigation } from "@/components/layout/AdaptiveNavigation";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
+import { GlobalEditModeToolbar } from "@/components/editor/GlobalEditModeToolbar";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { useSessionManagement } from "@/hooks/useSessionManagement";
 import { Homepage } from "@/pages/Homepage";
@@ -33,7 +35,10 @@ const App = () => {
         <BrowserRouter>
           <AuthProvider>
             <ThemeProvider>
-              <AppContent />
+              <EditModeProvider>
+                <AppContent />
+                <GlobalEditModeToolbar />
+              </EditModeProvider>
             </ThemeProvider>
           </AuthProvider>
         </BrowserRouter>

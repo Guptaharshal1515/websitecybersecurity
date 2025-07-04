@@ -9,7 +9,10 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 import { AddContentButton } from '@/components/editor/AddContentButton';
 import { CertificateForm } from '@/components/editor/forms/CertificateForm';
-import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
+import { InlineEditText } from '@/components/editor/InlineEditText';
+import { InlineEditImage } from '@/components/editor/InlineEditImage';
+import { DeleteButton } from '@/components/editor/DeleteButton';
+import { useEditMode } from '@/contexts/EditModeContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface Certificate {
@@ -26,6 +29,7 @@ export const CybersecurityCertificates = () => {
   const { themeColors, userRole } = useTheme();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isEditMode, canEdit } = useEditMode();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -91,6 +95,39 @@ export const CybersecurityCertificates = () => {
     }
   });
 
+  const deleteCertificateMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('certificates')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certificates', 'cybersecurity'] });
+      toast({ title: 'Certificate deleted successfully!' });
+    }
+  });
+
+  const updateCertificateMutation = useMutation({
+    mutationFn: async ({ id, field, value }: { id: string; field: string; value: string }) => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .update({ [field]: value })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['certificates', 'cybersecurity'] });
+      toast({ title: 'Certificate updated successfully!' });
+    }
+  });
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
@@ -110,16 +147,18 @@ export const CybersecurityCertificates = () => {
             />
           </div>
           
-          <AddContentButton onClick={() => setShowAddForm(true)}>
-            Add Certificate
-          </AddContentButton>
+          {canEdit && (
+            <AddContentButton onClick={() => setShowAddForm(true)}>
+              Add Certificate
+            </AddContentButton>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {dummyCertificates.map((cert) => (
             <Card 
               key={cert.id}
-              className="border-0 hover:shadow-lg transition-shadow duration-300 group"
+              className="border-0 hover:shadow-lg transition-shadow duration-300 group relative"
               style={{ 
                 backgroundColor: themeColors.surface,
                 boxShadow: `0 0 20px ${themeColors.primary}50`
@@ -131,8 +170,16 @@ export const CybersecurityCertificates = () => {
                 e.currentTarget.style.boxShadow = `0 0 20px ${themeColors.primary}50`;
               }}
             >
+              <DeleteButton
+                onDelete={() => deleteCertificateMutation.mutate(cert.id)}
+                isVisible={isEditMode && canEdit}
+              />
               <CardContent className="p-6">
-                <OverlayEditWrapper onEdit={() => {}}>
+                <InlineEditImage
+                  value={cert.image_url}
+                  onSave={(url) => updateCertificateMutation.mutate({ id: cert.id, field: 'image_url', value: url })}
+                  bucket="certificates"
+                >
                   <div className="aspect-video mb-4 rounded-lg overflow-hidden">
                     <img
                       src={cert.image_url || '/placeholder.svg'}
@@ -140,19 +187,26 @@ export const CybersecurityCertificates = () => {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                </OverlayEditWrapper>
+                </InlineEditImage>
                 
-                <OverlayEditWrapper onEdit={() => {}}>
+                <InlineEditText
+                  value={cert.title}
+                  onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'title', value })}
+                >
                   <h3 className="text-xl font-semibold mb-2 text-white">
                     {cert.title}
                   </h3>
-                </OverlayEditWrapper>
+                </InlineEditText>
                 
-                <OverlayEditWrapper onEdit={() => {}}>
+                <InlineEditText
+                  value={cert.description || ''}
+                  onSave={(value) => updateCertificateMutation.mutate({ id: cert.id, field: 'description', value })}
+                  multiline
+                >
                   <p className="text-sm mb-4 leading-relaxed text-white">
                     {cert.description}
                   </p>
-                </OverlayEditWrapper>
+                </InlineEditText>
                 
                 {cert.certificate_url && (
                   <a

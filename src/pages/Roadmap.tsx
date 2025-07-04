@@ -1,10 +1,16 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronRight, ChevronDown, ExternalLink, X } from 'lucide-react';
+import { AddContentButton } from '@/components/editor/AddContentButton';
+import { RoadmapForm } from '@/components/editor/forms/RoadmapForm';
+import { InlineEditText } from '@/components/editor/InlineEditText';
+import { DeleteButton } from '@/components/editor/DeleteButton';
+import { useEditMode } from '@/contexts/EditModeContext';
+import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
 interface RoadmapData {
@@ -39,8 +45,12 @@ interface ResourceModal {
 export const Roadmap = () => {
   const { themeColors, userRole } = useTheme();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const { isEditMode, canEdit } = useEditMode();
+  const queryClient = useQueryClient();
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['cybersecurity', 'blockchain', 'cloud']);
   const [selectedResource, setSelectedResource] = useState<ResourceModal | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   // Only redirect if user is not logged in or is specifically a viewer
   if (!user) {
@@ -463,22 +473,53 @@ export const Roadmap = () => {
     }
   };
 
+  const addRoadmapMutation = useMutation({
+    mutationFn: async (newRoadmap: { title: string; description: string }) => {
+      const { data, error } = await supabase
+        .from('roadmaps')
+        .insert([newRoadmap])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roadmaps'] });
+      toast({ title: 'Roadmap category added successfully!' });
+      setShowAddForm(false);
+    }
+  });
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto px-4 py-16">
-        <div className="relative mb-16">
-          <h1 
-            className="text-4xl font-bold text-center text-white"
-          >
-            Harshal Gupta's Roadmap Journey
-          </h1>
-          <div 
-            className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-1 rounded mt-2"
-            style={{ 
-              backgroundColor: themeColors.primary,
-              boxShadow: `0 0 10px ${themeColors.primary}`
-            }}
-          />
+        <div className="flex justify-between items-center mb-16">
+          <div className="relative">
+            <h1 
+              className="text-4xl font-bold text-center text-white"
+            >
+              Harshal Gupta's Roadmap Journey
+            </h1>
+            <div 
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-1 rounded mt-2"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                boxShadow: `0 0 10px ${themeColors.primary}`
+              }}
+            />
+          </div>
+          
+          {canEdit && (
+            <div className="flex gap-2">
+              <AddContentButton onClick={() => setShowAddForm(true)}>
+                Add Category
+              </AddContentButton>
+              <AddContentButton onClick={() => {}}>
+                Add Topics
+              </AddContentButton>
+            </div>
+          )}
         </div>
 
         {/* Main Tech Categories */}

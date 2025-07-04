@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Calendar, Plus, X, ExternalLink } from 'lucide-react';
 import { AddContentButton } from '@/components/editor/AddContentButton';
 import { JourneyForm } from '@/components/editor/forms/JourneyForm';
-import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
-import { EditorToolbar } from '@/components/editor/EditorToolbar';
+import { InlineEditText } from '@/components/editor/InlineEditText';
 import { DeleteButton } from '@/components/editor/DeleteButton';
+import { useEditMode } from '@/contexts/EditModeContext';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -28,10 +28,10 @@ export const Journey = () => {
   const { themeColors, userRole } = useTheme();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isEditMode, canEdit } = useEditMode();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<JourneyEntry | null>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
 
   if (!user) {
     return (
@@ -203,9 +203,11 @@ export const Journey = () => {
             />
           </div>
           
-          <AddContentButton onClick={() => setShowAddForm(true)}>
-            Add Progress
-          </AddContentButton>
+          {canEdit && (
+            <AddContentButton onClick={() => setShowAddForm(true)}>
+              Add Progress
+            </AddContentButton>
+          )}
         </div>
 
         <div className="max-w-4xl mx-auto">
@@ -249,24 +251,31 @@ export const Journey = () => {
                     >
                       <DeleteButton
                         onDelete={() => deleteEntryMutation.mutate(entry.id)}
-                        isVisible={isEditMode}
+                        isVisible={isEditMode && canEdit}
                       />
                       <CardContent className="p-6">
-                        <OverlayEditWrapper onEdit={() => {}}>
+                        <InlineEditText
+                          value={entry.title}
+                          onSave={(value) => updateEntryMutation.mutate({ id: entry.id, field: 'title', value })}
+                        >
                           <h3 className="text-lg font-semibold mb-2 text-white">
                             {entry.title}
                           </h3>
-                        </OverlayEditWrapper>
+                        </InlineEditText>
                         
                         {entry.description && (
-                          <OverlayEditWrapper onEdit={() => {}}>
+                          <InlineEditText
+                            value={entry.description}
+                            onSave={(value) => updateEntryMutation.mutate({ id: entry.id, field: 'description', value })}
+                            multiline
+                          >
                             <p className="text-sm leading-relaxed text-gray-300 mb-2">
                               {entry.description.length > 100 
                                 ? `${entry.description.substring(0, 100)}...` 
                                 : entry.description
                               }
                             </p>
-                          </OverlayEditWrapper>
+                          </InlineEditText>
                         )}
 
                         {entry.resource_link && (
@@ -352,10 +361,6 @@ export const Journey = () => {
         onSubmit={addEntryMutation.mutate}
       />
 
-      <EditorToolbar
-        isEditMode={isEditMode}
-        onToggleEditMode={() => setIsEditMode(!isEditMode)}
-      />
     </div>
   );
 };

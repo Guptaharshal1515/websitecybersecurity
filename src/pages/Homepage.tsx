@@ -12,6 +12,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { InlineEditText } from '@/components/editor/InlineEditText';
 import { InlineEditImage } from '@/components/editor/InlineEditImage';
+import { AddContentButton } from '@/components/editor/AddContentButton';
+import { SocialLinkForm } from '@/components/editor/forms/SocialLinkForm';
+import { useEditMode } from '@/contexts/EditModeContext';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { uploadImageToStorage, getPublicUrl } from '@/utils/storage';
@@ -32,6 +35,7 @@ export const Homepage = () => {
   const { themeColors, userRole } = useTheme();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isEditMode, canEdit } = useEditMode();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -40,6 +44,7 @@ export const Homepage = () => {
   const [editingValue, setEditingValue] = useState<string>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const { data: content } = useQuery({
     queryKey: ['homepage-content'],
@@ -324,14 +329,23 @@ export const Homepage = () => {
 
         {/* Social Links */}
         <div className="text-center">
-          <p 
-            className="text-3xl mb-6 font-semibold"
-            style={{ color: themeColors.primary }}
-          >
-            Follow me or find me here
-          </p>
+          <div className="relative inline-block mb-6">
+            <p 
+              className="text-3xl font-semibold text-white"
+              style={{ color: themeColors.primary }}
+            >
+              Follow me or find me here
+            </p>
+            <div 
+              className="absolute bottom-0 left-0 w-full h-1 rounded animate-pulse"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                boxShadow: `0 0 10px ${themeColors.primary}, 0 0 20px ${themeColors.primary}`
+              }}
+            />
+          </div>
           
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 mb-4">
             {socialLinks.map((social) => (
               <a
                 key={social.name}
@@ -345,6 +359,12 @@ export const Homepage = () => {
               </a>
             ))}
           </div>
+          
+          {canEdit && (
+            <AddContentButton onClick={() => setShowAddForm(true)}>
+              Manage Social Links
+            </AddContentButton>
+          )}
         </div>
       </div>
 
@@ -408,6 +428,16 @@ export const Homepage = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <SocialLinkForm
+        isOpen={showAddForm}
+        onClose={() => setShowAddForm(false)}
+        onSubmit={(data) => {
+          // Handle social link submission
+          toast({ title: 'Social link functionality coming soon!' });
+          setShowAddForm(false);
+        }}
+      />
 
       <style>{`
         .welcome-glow {

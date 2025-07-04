@@ -19,6 +19,7 @@ interface Certificate {
   certificate_url: string;
   created_at: string;
   display_order: number;
+  completion_date?: string;
 }
 
 export const BlockchainCertificates = () => {
@@ -52,7 +53,8 @@ export const BlockchainCertificates = () => {
       image_url: '/placeholder.svg',
       certificate_url: 'https://example.com/blockchain-fundamentals',
       created_at: '2024-01-20',
-      display_order: 1
+      display_order: 1,
+      completion_date: '2024-02-10'
     },
     {
       id: '2',
@@ -61,7 +63,8 @@ export const BlockchainCertificates = () => {
       image_url: '/placeholder.svg',
       certificate_url: 'https://example.com/ethereum-smart-contracts',
       created_at: '2024-02-15',
-      display_order: 2
+      display_order: 2,
+      completion_date: '2024-04-20'
     },
     {
       id: '3',
@@ -70,7 +73,8 @@ export const BlockchainCertificates = () => {
       image_url: '/placeholder.svg',
       certificate_url: 'https://example.com/defi-protocol',
       created_at: '2024-03-05',
-      display_order: 3
+      display_order: 3,
+      completion_date: '2024-05-15'
     },
     {
       id: '4',
@@ -79,7 +83,8 @@ export const BlockchainCertificates = () => {
       image_url: '/placeholder.svg',
       certificate_url: 'https://example.com/web3-development',
       created_at: '2024-03-25',
-      display_order: 4
+      display_order: 4,
+      completion_date: '2024-07-01'
     }
   ] : certificates;
 
@@ -190,9 +195,18 @@ export const BlockchainCertificates = () => {
                 <div className="flex items-center gap-2 mb-4">
                   <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
                   <span className="text-white">
-                    {formatDate(dummyCertificates[currentIndex]?.created_at)}
+                    Created: {formatDate(dummyCertificates[currentIndex]?.created_at)}
                   </span>
                 </div>
+                
+                {dummyCertificates[currentIndex]?.completion_date && (
+                  <div className="flex items-center gap-2 mb-4">
+                    <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
+                    <span className="text-white">
+                      Completed: {formatDate(dummyCertificates[currentIndex]?.completion_date)}
+                    </span>
+                  </div>
+                )}
                 
                 {dummyCertificates[currentIndex]?.certificate_url && (
                   <Button

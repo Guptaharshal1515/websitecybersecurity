@@ -55,7 +55,8 @@ export const CybersecurityCertificates = () => {
       image_url: '/placeholder.svg',
       certificate_url: 'https://example.com/security-plus',
       type: 'cybersecurity',
-      display_order: 1
+      display_order: 1,
+      completion_date: '2024-01-15'
     },
     {
       id: 'dummy-2',
@@ -64,7 +65,8 @@ export const CybersecurityCertificates = () => {
       image_url: '/placeholder.svg',
       certificate_url: 'https://example.com/cyberops',
       type: 'cybersecurity',
-      display_order: 2
+      display_order: 2,
+      completion_date: '2024-03-22'
     },
     {
       id: 'dummy-3',
@@ -73,7 +75,8 @@ export const CybersecurityCertificates = () => {
       image_url: '/placeholder.svg',
       certificate_url: 'https://example.com/ceh',
       type: 'cybersecurity',
-      display_order: 3
+      display_order: 3,
+      completion_date: '2024-06-10'
     }
   ] : certificates;
 
@@ -207,6 +210,12 @@ export const CybersecurityCertificates = () => {
                     {cert.description}
                   </p>
                 </InlineEditText>
+                
+                {cert.completion_date && (
+                  <p className="text-xs mb-3 opacity-80 text-white">
+                    Completed: {new Date(cert.completion_date).toLocaleDateString()}
+                  </p>
+                )}
                 
                 {cert.certificate_url && (
                   <a

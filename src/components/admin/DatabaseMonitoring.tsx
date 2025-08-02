@@ -23,14 +23,14 @@ export const DatabaseMonitoring = () => {
         { count: certificatesCount },
         { count: projectsCount },
         { count: journeyCount },
-        { count: trackerCount },
+        { count: achievementsCount },
         { count: roadmapsCount }
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('certificates').select('*', { count: 'exact', head: true }),
         supabase.from('projects').select('*', { count: 'exact', head: true }),
         supabase.from('journey_entries').select('*', { count: 'exact', head: true }),
-        supabase.from('tracker_entries').select('*', { count: 'exact', head: true }),
+        supabase.from('achievements').select('*', { count: 'exact', head: true }),
         supabase.from('roadmaps').select('*', { count: 'exact', head: true })
       ]);
 
@@ -39,7 +39,7 @@ export const DatabaseMonitoring = () => {
         certificates: certificatesCount || 0,
         projects: projectsCount || 0,
         journey: journeyCount || 0,
-        tracker: trackerCount || 0,
+        achievements: achievementsCount || 0,
         roadmaps: roadmapsCount || 0
       };
     },
@@ -70,8 +70,8 @@ export const DatabaseMonitoring = () => {
           icon: <Calendar className="h-5 w-5" />
         },
         {
-          name: 'Tracker Entries',
-          count: stats.tracker,
+          name: 'Achievements',
+          count: stats.achievements || 0,
           icon: <Target className="h-5 w-5" />
         },
         {

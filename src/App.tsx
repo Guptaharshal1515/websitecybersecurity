@@ -19,7 +19,8 @@ import { CybersecurityCertificates } from "@/pages/CybersecurityCertificates";
 import { BlockchainCertificates } from "@/pages/BlockchainCertificates";
 import { Projects } from "@/pages/Projects";
 import { Journey } from "@/pages/Journey";
-import { Tracker } from "@/pages/Tracker";
+import Achievements from "@/pages/Achievements";
+import AdditionalCertificates from "@/pages/AdditionalCertificates";
 import { Roadmap } from "@/pages/Roadmap";
 import { Admin } from "@/pages/Admin";
 import NotFound from "./pages/NotFound";
@@ -61,7 +62,8 @@ const AppContent = () => {
         <Route path="/blockchain-certificates" element={<BlockchainCertificates />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/journey" element={<Journey />} />
-        <Route path="/tracker" element={<Tracker />} />
+        <Route path="/achievements" element={<Achievements />} />
+        <Route path="/additional-certificates" element={<AdditionalCertificates />} />
         <Route path="/roadmap" element={<Roadmap />} />
         <Route 
           path="/admin" 

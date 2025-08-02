@@ -29,7 +29,8 @@ export const AdaptiveNavigation = () => {
     { path: '/blockchain-certificates', label: 'Blockchain', icon: Award },
     { path: '/projects', label: 'Projects', icon: Briefcase },
     { path: '/journey', label: 'Journey', icon: Map },
-    { path: '/tracker', label: 'Tracker', icon: Target },
+    { path: '/achievements', label: 'Achievements', icon: Target },
+    { path: '/additional-certificates', label: 'Additional Certs', icon: Award },
     { path: '/roadmap', label: 'Roadmap', icon: FileText },
   ];
 

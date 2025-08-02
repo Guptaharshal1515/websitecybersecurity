@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          achievement_type: string | null
+          certificate_url: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          title: string
+          updated_at: string | null
+          upload_date: string
+        }
+        Insert: {
+          achievement_type?: string | null
+          certificate_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          title: string
+          updated_at?: string | null
+          upload_date?: string
+        }
+        Update: {
+          achievement_type?: string | null
+          certificate_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          title?: string
+          updated_at?: string | null
+          upload_date?: string
+        }
+        Relationships: []
+      }
+      additional_certificates: {
+        Row: {
+          certificate_url: string | null
+          completion_date: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          certificate_url?: string | null
+          completion_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          certificate_url?: string | null
+          completion_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       archives: {
         Row: {
           content: string | null
@@ -443,80 +518,6 @@ export type Database = {
           url?: string
         }
         Relationships: []
-      }
-      tracker_categories: {
-        Row: {
-          created_at: string | null
-          display_order: number | null
-          emoji: string | null
-          id: string
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          display_order?: number | null
-          emoji?: string | null
-          id?: string
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          display_order?: number | null
-          emoji?: string | null
-          id?: string
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      tracker_entries: {
-        Row: {
-          category_id: string | null
-          completed_by: string | null
-          completion_date: string | null
-          created_at: string | null
-          id: string
-          is_completed: boolean | null
-          proof_link: string | null
-          title: string
-          type: string
-          updated_at: string | null
-        }
-        Insert: {
-          category_id?: string | null
-          completed_by?: string | null
-          completion_date?: string | null
-          created_at?: string | null
-          id?: string
-          is_completed?: boolean | null
-          proof_link?: string | null
-          title: string
-          type: string
-          updated_at?: string | null
-        }
-        Update: {
-          category_id?: string | null
-          completed_by?: string | null
-          completion_date?: string | null
-          created_at?: string | null
-          id?: string
-          is_completed?: boolean | null
-          proof_link?: string | null
-          title?: string
-          type?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tracker_entries_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "tracker_categories"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {

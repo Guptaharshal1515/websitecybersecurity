@@ -1,6 +1,7 @@
 import { InlineEditText } from '@/components/editor/InlineEditText';
 import { InlineEditImage } from '@/components/editor/InlineEditImage';
 import { useTheme } from '@/contexts/ThemeContext';
+import { motion } from 'framer-motion';
 
 interface ProfileSectionProps {
   introduction: string;
@@ -43,7 +44,16 @@ export const ProfileSection = ({
 
       {/* Right Side - Profile Image */}
       <div className="flex justify-center lg:justify-end">
-        <div className="relative">
+        <motion.div 
+          className="relative"
+          initial={{ opacity: 0, scale: 0.8, rotate: 360 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{ 
+            duration: 1.2, 
+            delay: 0.5,
+            rotate: { duration: 1.5, ease: "easeOut" }
+          }}
+        >
         <div className="w-80 h-80 rounded-full overflow-hidden border-4 border-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-1">
           <InlineEditImage
             value={profileImageUrl}
@@ -61,7 +71,7 @@ export const ProfileSection = ({
         </div>
           {/* Glowing ring effect */}
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 opacity-30 blur-lg animate-pulse"></div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

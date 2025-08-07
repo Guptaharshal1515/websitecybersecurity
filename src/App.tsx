@@ -20,7 +20,6 @@ import { BlockchainCertificates } from "@/pages/BlockchainCertificates";
 import { Projects } from "@/pages/Projects";
 import { Journey } from "@/pages/Journey";
 import Achievements from "@/pages/Achievements";
-import AdditionalCertificates from "@/pages/AdditionalCertificates";
 import { Roadmap } from "@/pages/Roadmap";
 import { Admin } from "@/pages/Admin";
 import NotFound from "./pages/NotFound";

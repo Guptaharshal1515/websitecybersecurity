@@ -53,42 +53,6 @@ export type Database = {
         }
         Relationships: []
       }
-      additional_certificates: {
-        Row: {
-          certificate_url: string | null
-          completion_date: string | null
-          created_at: string | null
-          description: string | null
-          display_order: number | null
-          id: string
-          image_url: string | null
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          certificate_url?: string | null
-          completion_date?: string | null
-          created_at?: string | null
-          description?: string | null
-          display_order?: number | null
-          id?: string
-          image_url?: string | null
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          certificate_url?: string | null
-          completion_date?: string | null
-          created_at?: string | null
-          description?: string | null
-          display_order?: number | null
-          id?: string
-          image_url?: string | null
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       archives: {
         Row: {
           content: string | null

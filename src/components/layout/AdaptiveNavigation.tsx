@@ -7,7 +7,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
-  LogOut, Settings, Home, FileText, Award, Briefcase, Map, Target, User,
+  LogOut, Settings, Home, FileText, Award, Briefcase, Map, Trophy, User,
   Menu, X, BarChart3, Shield, Users, Database
 } from 'lucide-react';
 
@@ -29,8 +29,7 @@ export const AdaptiveNavigation = () => {
     { path: '/blockchain-certificates', label: 'Blockchain', icon: Award },
     { path: '/projects', label: 'Projects', icon: Briefcase },
     { path: '/journey', label: 'Journey', icon: Map },
-    { path: '/achievements', label: 'Achievements', icon: Target },
-    { path: '/additional-certificates', label: 'Additional Certs', icon: Award },
+    { path: '/achievements', label: 'Achievements', icon: Trophy },
     { path: '/roadmap', label: 'Roadmap', icon: FileText },
   ];
 

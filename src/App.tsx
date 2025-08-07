@@ -62,8 +62,7 @@ const AppContent = () => {
         <Route path="/blockchain-certificates" element={<BlockchainCertificates />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/journey" element={<Journey />} />
-        <Route path="/achievements" element={<Achievements />} />
-        <Route path="/additional-certificates" element={<AdditionalCertificates />} />
+          <Route path="/achievements" element={<Achievements />} />
         <Route path="/roadmap" element={<Roadmap />} />
         <Route 
           path="/admin" 

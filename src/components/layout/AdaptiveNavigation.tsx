@@ -150,9 +150,9 @@ export const AdaptiveNavigation = () => {
           </SheetTrigger>
           <SheetContent side="left" className="w-80" style={{ backgroundColor: themeColors.surface }}>
             <div className="flex justify-between items-center mb-6">
-              <Link to="/" className="text-xl font-bold" style={{ color: themeColors.primary }}>
-                WebsiteCyberSec
-              </Link>
+              <div className="flex items-center">
+                {/* Brand name removed */}
+              </div>
             </div>
             <nav className="space-y-2">
               {navigationItems.map(({ path, label, icon: Icon }) => (
@@ -208,9 +208,9 @@ export const AdaptiveNavigation = () => {
     >
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold" style={{ color: themeColors.primary }}>
-            WebsiteCyberSec
-          </Link>
+          <div className="flex items-center">
+            {/* Brand name removed */}
+          </div>
 
           <nav className="hidden lg:flex items-center gap-6">
             {navigationItems.map(({ path, label, icon: Icon }) => (

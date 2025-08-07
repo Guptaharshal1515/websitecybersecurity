@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { LogOut, Settings, Home, FileText, Award, Briefcase, Map, Target, User } from 'lucide-react';
+import { LogOut, Settings, Home, FileText, Award, Briefcase, Map, Trophy, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export const Header = () => {
@@ -40,25 +40,24 @@ export const Header = () => {
     { path: '/blockchain-certificates', label: 'Blockchain', icon: Award },
     { path: '/projects', label: 'Projects', icon: Briefcase },
     { path: '/journey', label: 'Journey', icon: Map },
-    { path: '/achievements', label: 'Achievements', icon: Target },
-    { path: '/additional-certificates', label: 'Additional Certs', icon: Award },
+    { path: '/achievements', label: 'Achievements', icon: Trophy },
     { path: '/roadmap', label: 'Roadmap', icon: FileText },
   ];
 
   return (
     <header 
-      className={`fixed z-50 transition-all duration-500 ${
+      className={`fixed z-50 transition-all duration-700 ease-out ${
         isScrolled 
-          ? 'left-4 top-4 w-auto rounded-2xl shadow-2xl' 
-          : 'top-0 left-0 right-0 w-full'
+          ? 'left-6 top-6 w-auto rounded-2xl shadow-2xl border-2' 
+          : 'top-0 left-0 right-0 w-full border-b'
       } ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}
       style={{ 
         backgroundColor: isScrolled 
-          ? themeColors.background + 'E6'
-          : themeColors.background,
-        borderColor: themeColors.primary + '20',
-        border: isScrolled ? `2px solid ${themeColors.primary}40` : 'none',
-        backdropFilter: 'blur(15px)'
+          ? 'hsl(var(--background) / 0.95)'
+          : 'hsl(var(--background) / 0.85)',
+        borderColor: isScrolled ? 'hsl(var(--primary) / 0.3)' : 'hsl(var(--border))',
+        backdropFilter: 'blur(15px)',
+        WebkitBackdropFilter: 'blur(15px)'
       }}
     >
       <div className={`${isScrolled ? 'px-4' : 'container mx-auto px-4'} py-3`}>
@@ -69,22 +68,22 @@ export const Header = () => {
             </div>
           )}
 
-          <nav className={`flex items-center ${isScrolled ? 'gap-2' : 'gap-6'}`}>
+          <nav className={`flex items-center ${isScrolled ? 'gap-1' : 'gap-6'}`}>
             {navigationItems.map(({ path, label, icon: Icon }) => (
               <Link
                 key={path}
                 to={path}
-                className={`flex items-center ${isScrolled ? 'p-2 justify-center' : 'gap-2 px-3 py-2'} rounded-md transition-colors ${
+                className={`flex items-center ${isScrolled ? 'p-3 justify-center w-12 h-12' : 'gap-2 px-3 py-2'} rounded-lg transition-all duration-300 hover:scale-105 ${
                   location.pathname === path 
-                    ? 'text-white' 
-                    : 'text-gray-400 hover:text-white'
+                    ? 'text-white shadow-lg' 
+                    : 'text-muted-foreground hover:text-primary'
                 }`}
                 style={{
-                  backgroundColor: location.pathname === path ? themeColors.primary : 'transparent'
+                  backgroundColor: location.pathname === path ? 'hsl(var(--primary))' : 'transparent'
                 }}
                 title={isScrolled ? label : undefined}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className={`${isScrolled ? 'h-5 w-5' : 'h-4 w-4'}`} />
                 {!isScrolled && label}
               </Link>
             ))}
@@ -101,7 +100,7 @@ export const Header = () => {
                     <Link to="/admin">
                       <Button 
                         size="sm" 
-                        style={{ backgroundColor: themeColors.primary }}
+                        className="bg-primary hover:bg-primary/90"
                       >
                         <Settings className="h-4 w-4 mr-2" />
                         Admin
@@ -112,7 +111,7 @@ export const Header = () => {
                     onClick={signOut} 
                     variant="outline" 
                     size="sm"
-                    style={{ borderColor: themeColors.primary, color: themeColors.primary }}
+                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
                     Logout
@@ -121,7 +120,7 @@ export const Header = () => {
               ) : (
                 <Link to="/login">
                   <Button 
-                    style={{ backgroundColor: themeColors.primary }}
+                    className="bg-primary hover:bg-primary/90"
                   >
                     <User className="h-4 w-4 mr-2" />
                     Login

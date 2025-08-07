@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Users, Database, Activity } from 'lucide-react';
@@ -13,19 +12,18 @@ import { AuditLogger } from '@/components/admin/AuditLogger';
 
 export const Admin = () => {
   const { user, userRole } = useAuth();
-  const { themeColors } = useTheme();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   if (!user || userRole !== 'admin') {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: themeColors.background }}>
-        <Card className="border-0" style={{ backgroundColor: themeColors.surface }}>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="border border-border bg-card">
           <CardContent className="p-12 text-center">
-            <Shield className="h-16 w-16 mx-auto mb-4" style={{ color: themeColors.primary }} />
-            <h2 className="text-2xl font-bold mb-2" style={{ color: themeColors.text }}>
+            <Shield className="h-16 w-16 mx-auto mb-4 text-primary" />
+            <h2 className="text-2xl font-bold mb-2 text-foreground">
               Access Denied
             </h2>
-            <p style={{ color: themeColors.accent }}>
+            <p className="text-muted-foreground">
               This area is restricted to administrators only.
             </p>
           </CardContent>
@@ -35,17 +33,16 @@ export const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16">
         <div className="relative mb-16">
-          <h1 className="text-4xl font-bold text-center text-white">
+          <h1 className="text-4xl font-bold text-center text-foreground">
             Admin Dashboard
           </h1>
           <div 
-            className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-1 rounded mt-2"
+            className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-1 rounded mt-2 bg-primary shadow-lg"
             style={{ 
-              backgroundColor: themeColors.primary,
-              boxShadow: `0 0 10px ${themeColors.primary}`
+              boxShadow: `0 0 10px hsl(var(--primary))`
             }}
           />
         </div>
@@ -64,78 +61,74 @@ export const Admin = () => {
           <TabsContent value="dashboard" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card 
-              className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 
-              style={{ backgroundColor: themeColors.surface }}
+              className="p-6 cursor-pointer hover:shadow-lg transition-shadow bg-card border border-border" 
               onClick={() => setActiveTab('users')}
             >
               <div className="flex items-center gap-4">
-                <Users className="h-8 w-8" style={{ color: themeColors.primary }} />
+                <Users className="h-8 w-8 text-primary" />
                 <div>
-                  <h3 className="font-semibold" style={{ color: themeColors.text }}>User Management</h3>
-                  <p className="text-sm" style={{ color: themeColors.accent }}>Manage user roles and permissions (Admin only)</p>
+                  <h3 className="font-semibold text-card-foreground">User Management</h3>
+                  <p className="text-sm text-muted-foreground">Manage user roles and permissions (Admin only)</p>
                 </div>
               </div>
             </Card>
 
               <Card 
-                className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 
-                style={{ backgroundColor: themeColors.surface }}
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow bg-card border border-border" 
                 onClick={() => setActiveTab('logs')}
               >
                 <div className="flex items-center gap-4">
-                  <Activity className="h-8 w-8" style={{ color: themeColors.primary }} />
+                  <Activity className="h-8 w-8 text-primary" />
                   <div>
-                    <h3 className="font-semibold" style={{ color: themeColors.text }}>System Logs</h3>
-                    <p className="text-sm" style={{ color: themeColors.accent }}>View system activity</p>
+                    <h3 className="font-semibold text-card-foreground">System Logs</h3>
+                    <p className="text-sm text-muted-foreground">View system activity</p>
                   </div>
                 </div>
               </Card>
 
               <Card 
-                className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 
-                style={{ backgroundColor: themeColors.surface }}
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow bg-card border border-border" 
                 onClick={() => setActiveTab('monitoring')}
               >
                 <div className="flex items-center gap-4">
-                  <Database className="h-8 w-8" style={{ color: themeColors.primary }} />
+                  <Database className="h-8 w-8 text-primary" />
                   <div>
-                    <h3 className="font-semibold" style={{ color: themeColors.text }}>Database Monitoring</h3>
-                    <p className="text-sm" style={{ color: themeColors.accent }}>Monitor database performance</p>
+                    <h3 className="font-semibold text-card-foreground">Database Monitoring</h3>
+                    <p className="text-sm text-muted-foreground">Monitor database performance</p>
                   </div>
                 </div>
               </Card>
 
               <Card 
-                className="p-6 cursor-pointer hover:shadow-lg transition-shadow" 
-                style={{ backgroundColor: themeColors.surface }}
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow bg-card border border-border" 
                 onClick={() => setActiveTab('security')}
               >
                 <div className="flex items-center gap-4">
-                  <Shield className="h-8 w-8" style={{ color: themeColors.primary }} />
+                  <Shield className="h-8 w-8 text-primary" />
                   <div>
-                    <h3 className="font-semibold" style={{ color: themeColors.text }}>Security Dashboard</h3>
-                    <p className="text-sm" style={{ color: themeColors.accent }}>Security monitoring</p>
+                    <h3 className="font-semibold text-card-foreground">Security Dashboard</h3>
+                    <p className="text-sm text-muted-foreground">Security monitoring</p>
                   </div>
                 </div>
               </Card>
             </div>
 
-            <Card style={{ backgroundColor: themeColors.surface }}>
+            <Card className="bg-card border border-border">
               <CardHeader>
-                <CardTitle style={{ color: themeColors.text }}>System Information</CardTitle>
+                <CardTitle className="text-card-foreground">System Information</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-3 gap-6">
                   <div>
-                    <h3 className="font-semibold mb-2" style={{ color: themeColors.text }}>Current User</h3>
-                    <p style={{ color: themeColors.accent }}>{user.email}</p>
+                    <h3 className="font-semibold mb-2 text-card-foreground">Current User</h3>
+                    <p className="text-muted-foreground">{user.email}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2" style={{ color: themeColors.text }}>Role</h3>
-                    <p style={{ color: themeColors.accent }} className="capitalize">{userRole}</p>
+                    <h3 className="font-semibold mb-2 text-card-foreground">Role</h3>
+                    <p className="text-muted-foreground capitalize">{userRole}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2" style={{ color: themeColors.text }}>Status</h3>
+                    <h3 className="font-semibold mb-2 text-card-foreground">Status</h3>
                     <p className="text-green-400">Active</p>
                   </div>
                 </div>
@@ -155,16 +148,16 @@ export const Admin = () => {
             <DatabaseMonitoring />
           </TabsContent>
 
+          <TabsContent value="security" className="space-y-6">
+            <SecurityDashboard />
+          </TabsContent>
+
           <TabsContent value="analytics" className="space-y-6">
             <SystemAnalytics />
           </TabsContent>
 
           <TabsContent value="audit" className="space-y-6">
             <AuditLogger />
-          </TabsContent>
-
-          <TabsContent value="security" className="space-y-6">
-            <SecurityDashboard />
           </TabsContent>
         </Tabs>
       </div>

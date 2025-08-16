@@ -120,10 +120,26 @@ export default function Achievements() {
 
   const goToNext = () => {
     setCurrentIndex((prev) => (prev + 1) % achievements.length);
+    // Trigger glow animation
+    const activeCard = document.querySelector('.achievement-card-active');
+    if (activeCard) {
+      activeCard.classList.add('glow-animation');
+      setTimeout(() => {
+        activeCard.classList.remove('glow-animation');
+      }, 1000);
+    }
   };
 
   const goToPrevious = () => {
     setCurrentIndex((prev) => (prev - 1 + achievements.length) % achievements.length);
+    // Trigger glow animation
+    const activeCard = document.querySelector('.achievement-card-active');
+    if (activeCard) {
+      activeCard.classList.add('glow-animation');
+      setTimeout(() => {
+        activeCard.classList.remove('glow-animation');
+      }, 1000);
+    }
   };
 
   const getItemStyle = (index: number) => {
@@ -182,6 +198,25 @@ export default function Achievements() {
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .glow-animation {
+            animation: glow-pulse 1s ease-in-out !important;
+          }
+          
+          @keyframes glow-pulse {
+            0% { 
+              box-shadow: 0 0 5px hsl(var(--primary)), 0 0 10px hsl(var(--primary)), 0 0 15px hsl(var(--primary)) !important;
+            }
+            50% { 
+              box-shadow: 0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary)) !important;
+            }
+            100% { 
+              box-shadow: 0 0 5px hsl(var(--primary)), 0 0 10px hsl(var(--primary)), 0 0 15px hsl(var(--primary)) !important;
+            }
+          }
+        `
+      }} />
       <div className="container mx-auto px-4 py-8 h-screen flex flex-col">
         {/* Header */}
         <div className="text-center mb-8">
@@ -277,10 +312,16 @@ export default function Achievements() {
                         <FileText className="h-16 w-16 text-muted-foreground mx-auto" />
                         <p className="text-muted-foreground">No achievements to display</p>
                         {canEdit && isEditMode && (
-                          <Button onClick={() => openEditForm()} className="flex items-center gap-2">
-                            <Plus className="h-4 w-4" />
-                            Add Your First Achievement
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button onClick={() => openEditForm()} className="flex items-center gap-2">
+                              <Plus className="h-4 w-4" />
+                              Add Achievement
+                            </Button>
+                            <Button onClick={() => openEditForm()} variant="outline" className="flex items-center gap-2">
+                              <FileText className="h-4 w-4" />
+                              Add Certificate
+                            </Button>
+                          </div>
                         )}
                       </div>
                   </div>
@@ -313,7 +354,7 @@ export default function Achievements() {
                         {achievements.map((achievement, index) => (
                           <motion.div
                             key={achievement.id}
-                            className="absolute w-64 h-80"
+                            className={`absolute w-64 h-80 ${index === currentIndex ? 'achievement-card-active' : ''}`}
                             style={getItemStyle(index)}
                             animate={getItemStyle(index)}
                             transition={{

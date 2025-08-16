@@ -153,9 +153,9 @@ export default function Achievements() {
   };
 
   const getRoleTint = () => {
-    if (userRole === 'admin') return 'from-red-500/10 to-red-600/10 border-red-500/20';
-    if (userRole === 'customer') return 'from-blue-500/10 to-blue-600/10 border-blue-500/20';
-    return 'from-primary/10 to-primary/20 border-primary/20';
+    if (userRole === 'admin') return 'from-destructive/10 to-destructive/20 border-destructive/20';
+    if (userRole === 'customer') return 'from-primary/10 to-primary/20 border-primary/20';
+    return 'from-accent/10 to-accent/20 border-accent/20';
   };
 
   if (isLoading) {
@@ -282,7 +282,7 @@ export default function Achievements() {
                               ease: [0.25, 0.1, 0.25, 1]
                             }}
                           >
-                            <Card className={`relative w-full h-full bg-gradient-to-br ${getRoleTint()} hover:border-primary/30 transition-all duration-300 overflow-hidden group shadow-lg`}>
+                            <Card className={`relative w-full h-full bg-gradient-to-br ${getRoleTint()} hover:border-primary/40 transition-all duration-300 overflow-hidden group shadow-lg border`}>
                               {canEdit && isEditMode && (
                 <DeleteButton
                   onDelete={() => deleteAchievement(achievement.id)}

@@ -52,7 +52,7 @@ const AppContent = () => {
   useSessionManagement(); // Initialize session management
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen dark">
       {isEnabled('adaptive_navigation') ? <AdaptiveNavigation /> : <Header />}
       <Routes>
         <Route path="/" element={<Homepage />} />

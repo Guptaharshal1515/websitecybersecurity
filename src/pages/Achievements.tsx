@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar, FileText, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, FileText, ExternalLink, Plus, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { AddContentButton } from '@/components/editor/AddContentButton';
-import { EditableText } from '@/components/admin/EditableText';
-import { EditableImage } from '@/components/admin/EditableImage';
-import { DeleteButton } from '@/components/editor/DeleteButton';
 import { useEditMode } from '@/contexts/EditModeContext';
+import { AddContentButton } from '@/components/editor/AddContentButton';
+import { DeleteButton } from '@/components/editor/DeleteButton';
+import { InlineEditText } from '@/components/editor/InlineEditText';
+import { InlineEditImage } from '@/components/editor/InlineEditImage';
+import { OverlayEditWrapper } from '@/components/editor/OverlayEditWrapper';
+import { AchievementForm } from '@/components/editor/forms/AchievementForm';
 
 interface Achievement {
   id: string;
@@ -27,6 +29,8 @@ export default function Achievements() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingAchievement, setEditingAchievement] = useState<Achievement | undefined>();
   const { userRole } = useAuth();
   const { isEditMode } = useEditMode();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -104,6 +108,16 @@ export default function Achievements() {
     }
   };
 
+  const openEditForm = (achievement?: Achievement) => {
+    setEditingAchievement(achievement);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingAchievement(undefined);
+  };
+
   const goToNext = () => {
     setCurrentIndex((prev) => (prev + 1) % achievements.length);
   };
@@ -171,7 +185,20 @@ export default function Achievements() {
       <div className="container mx-auto px-4 py-8 h-screen flex flex-col">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-4">Achievements</h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <h1 className="text-4xl font-bold text-foreground">Achievements</h1>
+            {canEdit && isEditMode && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => openEditForm()}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Achievement
+              </Button>
+            )}
+          </div>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             A showcase of my accomplishments, certifications, and milestones achieved throughout my journey.
           </p>
@@ -191,9 +218,14 @@ export default function Achievements() {
                   className="space-y-4"
                 >
                   <div className="space-y-2">
-                    <h3 className="text-xl font-semibold text-foreground">
-                      {achievements[currentIndex]?.title}
-                    </h3>
+                    <InlineEditText
+                      value={achievements[currentIndex]?.title || ''}
+                      onSave={(value) => updateAchievement(achievements[currentIndex].id, { title: value })}
+                    >
+                      <h3 className="text-xl font-semibold text-foreground">
+                        {achievements[currentIndex]?.title}
+                      </h3>
+                    </InlineEditText>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
                       {new Date(achievements[currentIndex]?.upload_date).toLocaleDateString()}
@@ -204,9 +236,15 @@ export default function Achievements() {
                   </div>
                   
                   {achievements[currentIndex]?.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {achievements[currentIndex].description}
-                    </p>
+                    <InlineEditText
+                      value={achievements[currentIndex]?.description || ''}
+                      onSave={(value) => updateAchievement(achievements[currentIndex].id, { description: value })}
+                      multiline
+                    >
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {achievements[currentIndex].description}
+                      </p>
+                    </InlineEditText>
                   )}
                   
                   {achievements[currentIndex]?.certificate_url && (
@@ -235,15 +273,16 @@ export default function Achievements() {
               >
                 {achievements.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
-                    <div className="text-center space-y-4">
-                      <FileText className="h-16 w-16 text-muted-foreground mx-auto" />
-                      <p className="text-muted-foreground">No achievements to display</p>
-                      {canEdit && isEditMode && (
-                      <AddContentButton onClick={() => window.location.href = '/admin'}>
-                        Add Achievement
-                      </AddContentButton>
-                      )}
-                    </div>
+                      <div className="text-center space-y-4">
+                        <FileText className="h-16 w-16 text-muted-foreground mx-auto" />
+                        <p className="text-muted-foreground">No achievements to display</p>
+                        {canEdit && isEditMode && (
+                          <Button onClick={() => openEditForm()} className="flex items-center gap-2">
+                            <Plus className="h-4 w-4" />
+                            Add Your First Achievement
+                          </Button>
+                        )}
+                      </div>
                   </div>
                 ) : (
                   <>
@@ -282,54 +321,67 @@ export default function Achievements() {
                               ease: [0.25, 0.1, 0.25, 1]
                             }}
                           >
-                            <Card className={`relative w-full h-full bg-gradient-to-br ${getRoleTint()} hover:border-primary/40 transition-all duration-300 overflow-hidden group shadow-lg border`}>
-                              {canEdit && isEditMode && (
-                <DeleteButton
-                  onDelete={() => deleteAchievement(achievement.id)}
-                  isVisible={true}
-                  className="absolute top-2 right-2 z-10"
-                />
-                              )}
-                              
-                              <div className="p-6 h-full flex flex-col">
-                                {achievement.image_url ? (
-                                  <div className="flex-1 mb-4">
-                                    {canEdit && isEditMode ? (
-                    <EditableImage
-                      src={achievement.image_url}
-                      alt={achievement.title}
-                      onSave={(url) => updateAchievement(achievement.id, { image_url: url })}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                                    ) : (
-                                      <img
-                                        src={achievement.image_url}
-                                        alt={achievement.title}
-                                        className="w-full h-full object-cover rounded-lg"
-                                      />
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div className="flex-1 mb-4 bg-muted/50 rounded-lg flex items-center justify-center">
-                                    <FileText className="h-16 w-16 text-muted-foreground" />
+                            <OverlayEditWrapper 
+                              onEdit={() => openEditForm(achievement)}
+                              className="w-full h-full"
+                            >
+                              <Card className={`relative w-full h-full bg-gradient-to-br ${getRoleTint()} hover:border-primary/40 transition-all duration-300 overflow-hidden group shadow-lg border`}>
+                                {canEdit && isEditMode && (
+                                  <div className="absolute top-2 right-2 z-10 flex gap-1">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        openEditForm(achievement);
+                                      }}
+                                      className="h-6 w-6 p-0 bg-background/80"
+                                    >
+                                      <Settings className="h-3 w-3" />
+                                    </Button>
+                                    <DeleteButton
+                                      onDelete={() => deleteAchievement(achievement.id)}
+                                      isVisible={true}
+                                      className="h-6 w-6 p-0"
+                                    />
                                   </div>
                                 )}
+                              
+                                <div className="p-6 h-full flex flex-col">
+                                  {achievement.image_url ? (
+                                    <div className="flex-1 mb-4">
+                                      <InlineEditImage
+                                        value={achievement.image_url}
+                                        onSave={(url) => updateAchievement(achievement.id, { image_url: url })}
+                                        bucket="certificates"
+                                        className="w-full h-full"
+                                      >
+                                        <img
+                                          src={achievement.image_url}
+                                          alt={achievement.title}
+                                          className="w-full h-full object-cover rounded-lg"
+                                        />
+                                      </InlineEditImage>
+                                    </div>
+                                  ) : (
+                                    <div className="flex-1 mb-4 bg-muted/50 rounded-lg flex items-center justify-center">
+                                      <FileText className="h-16 w-16 text-muted-foreground" />
+                                    </div>
+                                  )}
                                 
-                                <div className="space-y-2">
-                                  {canEdit && isEditMode ? (
-                                    <EditableText
+                                  <div className="space-y-2">
+                                    <InlineEditText
                                       value={achievement.title}
                                       onSave={(value) => updateAchievement(achievement.id, { title: value })}
-                                      className="font-semibold text-sm"
-                                    />
-                                  ) : (
-                                    <h4 className="font-semibold text-sm line-clamp-2">
-                                      {achievement.title}
-                                    </h4>
-                                  )}
+                                    >
+                                      <h4 className="font-semibold text-sm line-clamp-2">
+                                        {achievement.title}
+                                      </h4>
+                                    </InlineEditText>
+                                  </div>
                                 </div>
-                              </div>
-                            </Card>
+                              </Card>
+                            </OverlayEditWrapper>
                           </motion.div>
                         ))}
                       </AnimatePresence>
@@ -356,11 +408,20 @@ export default function Achievements() {
 
         {canEdit && isEditMode && achievements.length > 0 && (
           <div className="mt-8 text-center">
-            <AddContentButton onClick={() => window.location.href = '/admin'}>
-              Add Achievement
-            </AddContentButton>
+            <Button onClick={() => openEditForm()} className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add Another Achievement
+            </Button>
           </div>
         )}
+
+        {/* Achievement Form Modal */}
+        <AchievementForm
+          isOpen={showForm}
+          onClose={closeForm}
+          achievement={editingAchievement}
+          onSave={fetchAchievements}
+        />
       </div>
     </div>
   );

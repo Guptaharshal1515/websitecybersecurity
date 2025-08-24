@@ -204,6 +204,14 @@ export default function Achievements() {
             animation: glow-pulse 1s ease-in-out !important;
           }
           
+          .text-glow {
+            border: 1px solid hsl(var(--primary) / 0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            background: hsl(var(--primary) / 0.05);
+            animation: text-glow-pulse 2s ease-in-out infinite;
+          }
+          
           @keyframes glow-pulse {
             0% { 
               box-shadow: 0 0 5px hsl(var(--primary)), 0 0 10px hsl(var(--primary)), 0 0 15px hsl(var(--primary)) !important;
@@ -213,6 +221,21 @@ export default function Achievements() {
             }
             100% { 
               box-shadow: 0 0 5px hsl(var(--primary)), 0 0 10px hsl(var(--primary)), 0 0 15px hsl(var(--primary)) !important;
+            }
+          }
+          
+          @keyframes text-glow-pulse {
+            0% { 
+              border-color: hsl(var(--primary) / 0.3);
+              box-shadow: 0 0 5px hsl(var(--primary) / 0.2);
+            }
+            50% { 
+              border-color: hsl(var(--primary) / 0.6);
+              box-shadow: 0 0 10px hsl(var(--primary) / 0.4), 0 0 20px hsl(var(--primary) / 0.2);
+            }
+            100% { 
+              border-color: hsl(var(--primary) / 0.3);
+              box-shadow: 0 0 5px hsl(var(--primary) / 0.2);
             }
           }
         `
@@ -409,9 +432,9 @@ export default function Achievements() {
                                       value={achievement.title}
                                       onSave={(value) => updateAchievement(achievement.id, { title: value })}
                                     >
-                                      <h4 className="font-semibold text-sm line-clamp-2">
-                                        {achievement.title}
-                                      </h4>
+                                       <h4 className="font-semibold text-sm line-clamp-2 text-glow">
+                                         {achievement.title}
+                                       </h4>
                                     </InlineEditText>
                                   </div>
                                 </div>

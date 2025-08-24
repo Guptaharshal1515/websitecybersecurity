@@ -242,22 +242,21 @@ export default function Achievements() {
       }} />
       <div className="container mx-auto px-4 py-8 h-screen flex flex-col">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div></div>
+        <div className="relative mb-8">
+          <div className="text-center">
             <h1 className="text-4xl font-bold text-foreground">Achievements</h1>
-            {canEdit && isEditMode && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => openEditForm()}
-                className="flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Add Certificate
-              </Button>
-            )}
           </div>
+          {canEdit && isEditMode && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => openEditForm()}
+              className="absolute top-0 right-0 flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add Achievement
+            </Button>
+          )}
           <p className="text-muted-foreground max-w-2xl mx-auto">
             A showcase of my accomplishments, certifications, and milestones achieved throughout my journey.
           </p>

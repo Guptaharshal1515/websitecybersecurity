@@ -21,7 +21,7 @@ export const EditModeProvider = ({ children }: { children: React.ReactNode }) =>
   const [isEditMode, setIsEditMode] = useState(false);
   const { userRole } = useAuth();
   
-  const canEdit = userRole === 'editor';
+  const canEdit = userRole === 'admin' || userRole === 'editor';
   
   const toggleEditMode = () => {
     if (canEdit) {

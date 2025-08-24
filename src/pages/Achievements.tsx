@@ -244,7 +244,10 @@ export default function Achievements() {
         {/* Header */}
         <div className="relative mb-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-foreground">Achievements</h1>
+            <h1 className="text-4xl font-bold text-foreground mb-4">Achievements</h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              A showcase of my accomplishments, certifications, and milestones achieved throughout my journey.
+            </p>
           </div>
           {canEdit && isEditMode && (
             <Button
@@ -257,9 +260,6 @@ export default function Achievements() {
               Add Achievement
             </Button>
           )}
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            A showcase of my accomplishments, certifications, and milestones achieved throughout my journey.
-          </p>
         </div>
 
         {/* Main Content */}

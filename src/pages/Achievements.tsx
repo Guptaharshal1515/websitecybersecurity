@@ -220,7 +220,8 @@ export default function Achievements() {
       <div className="container mx-auto px-4 py-8 h-screen flex flex-col">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div></div>
             <h1 className="text-4xl font-bold text-foreground">Achievements</h1>
             {canEdit && isEditMode && (
               <Button
@@ -230,7 +231,7 @@ export default function Achievements() {
                 className="flex items-center gap-2"
               >
                 <Plus className="h-4 w-4" />
-                Add Achievement
+                Add Certificate
               </Button>
             )}
           </div>
@@ -354,7 +355,7 @@ export default function Achievements() {
                         {achievements.map((achievement, index) => (
                           <motion.div
                             key={achievement.id}
-                            className={`absolute w-64 h-80 ${index === currentIndex ? 'achievement-card-active' : ''}`}
+                            className={`absolute w-80 h-96 ${index === currentIndex ? 'achievement-card-active' : ''}`}
                             style={getItemStyle(index)}
                             animate={getItemStyle(index)}
                             transition={{
@@ -367,30 +368,16 @@ export default function Achievements() {
                               className="w-full h-full"
                             >
                               <Card className={`relative w-full h-full bg-gradient-to-br ${getRoleTint()} hover:border-primary/40 transition-all duration-300 overflow-hidden group shadow-lg border`}>
-                                {canEdit && isEditMode && (
-                                  <div className="absolute top-2 right-2 z-10 flex gap-1">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        openEditForm(achievement);
-                                      }}
-                                      className="h-6 w-6 p-0 bg-background/80"
-                                    >
-                                      <Settings className="h-3 w-3" />
-                                    </Button>
-                                    <DeleteButton
-                                      onDelete={() => deleteAchievement(achievement.id)}
-                                      isVisible={true}
-                                      className="h-6 w-6 p-0"
-                                    />
-                                  </div>
-                                )}
-                              
                                 <div className="p-6 h-full flex flex-col">
                                   {achievement.image_url ? (
-                                    <div className="flex-1 mb-4">
+                                    <div 
+                                      className="flex-1 mb-4 cursor-pointer"
+                                      onClick={() => {
+                                        if (achievement.certificate_url && !isEditMode) {
+                                          window.open(achievement.certificate_url, '_blank');
+                                        }
+                                      }}
+                                    >
                                       <InlineEditImage
                                         value={achievement.image_url}
                                         onSave={(url) => updateAchievement(achievement.id, { image_url: url })}
@@ -400,12 +387,19 @@ export default function Achievements() {
                                         <img
                                           src={achievement.image_url}
                                           alt={achievement.title}
-                                          className="w-full h-full object-cover rounded-lg"
+                                          className="w-full h-full object-cover rounded-lg hover:scale-105 transition-transform duration-200"
                                         />
                                       </InlineEditImage>
                                     </div>
                                   ) : (
-                                    <div className="flex-1 mb-4 bg-muted/50 rounded-lg flex items-center justify-center">
+                                    <div 
+                                      className="flex-1 mb-4 bg-muted/50 rounded-lg flex items-center justify-center cursor-pointer"
+                                      onClick={() => {
+                                        if (achievement.certificate_url && !isEditMode) {
+                                          window.open(achievement.certificate_url, '_blank');
+                                        }
+                                      }}
+                                    >
                                       <FileText className="h-16 w-16 text-muted-foreground" />
                                     </div>
                                   )}

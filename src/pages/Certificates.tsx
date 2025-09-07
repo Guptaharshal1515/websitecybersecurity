@@ -233,11 +233,12 @@ export const Certificates = () => {
                 {/* Certificate Image - Hexagonal */}
                 <div className="flex-shrink-0 relative group">
                   <div 
-                    className="w-32 h-32 relative overflow-hidden transition-all duration-500 group-hover:scale-110"
+                    className="w-32 h-32 relative overflow-hidden transition-all duration-500 group-hover:scale-110 cursor-pointer"
                     style={{
                       clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
                       backgroundColor: themeColors.primary + '20'
                     }}
+                    onClick={() => cert.certificate_url && window.open(cert.certificate_url, '_blank')}
                   >
                     <img 
                       src={cert.image_url || '/placeholder.svg'} 
@@ -250,6 +251,11 @@ export const Certificates = () => {
                         background: `linear-gradient(135deg, ${themeColors.primary}40, ${themeColors.secondary}40)`
                       }}
                     />
+                    {cert.certificate_url && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="text-white text-xs font-medium">View Certificate</span>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Glowing border effect */}
@@ -313,25 +319,6 @@ export const Certificates = () => {
           </div>
         </div>
 
-        {/* Empty State */}
-        {certificates.length === 0 && (
-          <div className="text-center py-16 animate-fade-in">
-            <Award className="h-24 w-24 mx-auto mb-6 text-muted-foreground opacity-50" />
-            <h3 className="text-2xl font-semibold mb-4 text-foreground">No Certificates Yet</h3>
-            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Start building your professional credential collection by adding your first certificate.
-            </p>
-            {canEdit && (
-              <Button
-                onClick={() => setShowAddForm(true)}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Your First Certificate
-              </Button>
-            )}
-          </div>
-        )}
 
         {/* Certificate Form Modal */}
         <CertificateForm

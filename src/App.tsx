@@ -15,6 +15,7 @@ import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { useSessionManagement } from "@/hooks/useSessionManagement";
 import { Homepage } from "@/pages/Homepage";
 import { Login } from "@/pages/Login";
+import { Certificates } from "@/pages/Certificates";
 import { CybersecurityCertificates } from "@/pages/CybersecurityCertificates";
 import { BlockchainCertificates } from "@/pages/BlockchainCertificates";
 import { Projects } from "@/pages/Projects";
@@ -57,6 +58,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/certificates" element={<Certificates />} />
         <Route path="/cybersecurity-certificates" element={<CybersecurityCertificates />} />
         <Route path="/blockchain-certificates" element={<BlockchainCertificates />} />
         <Route path="/projects" element={<Projects />} />

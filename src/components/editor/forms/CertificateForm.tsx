@@ -14,14 +14,14 @@ interface CertificateFormData {
   completion_date: string;
   certificate_url: string;
   image_url?: string;
-  type: 'cybersecurity' | 'blockchain';
+  type: 'cybersecurity' | 'blockchain' | 'general';
 }
 
 interface CertificateFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: CertificateFormData) => void;
-  type: 'cybersecurity' | 'blockchain';
+  type: 'cybersecurity' | 'blockchain' | 'general';
 }
 
 export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: CertificateFormProps) => {
@@ -110,7 +110,10 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add {type === 'cybersecurity' ? 'Cybersecurity' : 'Blockchain'} Certificate</DialogTitle>
+          <DialogTitle>
+            Add {type === 'cybersecurity' ? 'Cybersecurity' : 
+                 type === 'blockchain' ? 'Blockchain' : 'Professional'} Certificate
+          </DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">

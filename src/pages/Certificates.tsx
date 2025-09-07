@@ -176,11 +176,11 @@ export const Certificates = () => {
             </div>
             
             <h1 className="text-5xl font-bold text-foreground mb-6 animate-scale-in">
-              Professional Certificates
+              Certificates & Credentials
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              A comprehensive collection of professional certifications and credentials that showcase 
-              my commitment to continuous learning and expertise across various domains.
+              Diverse certifications spanning multiple disciplines, from cloud technologies to emerging frameworks,
+              demonstrating my dedication to staying at the forefront of industry innovation.
             </p>
           </div>
           
@@ -198,44 +198,119 @@ export const Certificates = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          <div className="text-center p-6 rounded-xl animate-fade-in delay-100" style={{ backgroundColor: 'hsl(var(--card))' }}>
-            <div className="text-3xl font-bold mb-2" style={{ color: themeColors.primary }}>
+        <div className="flex justify-center mb-16">
+          <div className="text-center p-8 rounded-2xl animate-fade-in border-2 hover:scale-105 transition-all duration-300" 
+               style={{ 
+                 backgroundColor: 'hsl(var(--card))', 
+                 borderColor: themeColors.primary,
+                 boxShadow: `0 0 30px ${themeColors.primary}20`
+               }}>
+            <div className="text-4xl font-bold mb-3" style={{ color: themeColors.primary }}>
               {dummyCertificates.length}
             </div>
-            <div className="text-muted-foreground">Total Certificates</div>
-          </div>
-          
-          <div className="text-center p-6 rounded-xl animate-fade-in delay-200" style={{ backgroundColor: 'hsl(var(--card))' }}>
-            <div className="text-3xl font-bold mb-2" style={{ color: themeColors.accent }}>
-              {new Set(dummyCertificates.map(cert => cert.completion_date?.split('-')[0])).size}
-            </div>
-            <div className="text-muted-foreground">Years Active</div>
-          </div>
-          
-          <div className="text-center p-6 rounded-xl animate-fade-in delay-300" style={{ backgroundColor: 'hsl(var(--card))' }}>
-            <div className="text-3xl font-bold mb-2" style={{ color: themeColors.secondary }}>
-              100%
-            </div>
-            <div className="text-muted-foreground">Completion Rate</div>
+            <div className="text-lg text-muted-foreground font-medium">Professional Certificates</div>
+            <div className="mt-2 text-sm text-muted-foreground/70">Verified & Authentic</div>
           </div>
         </div>
 
-        {/* Certificates Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {dummyCertificates.map((cert, index) => (
-            <div 
-              key={cert.id}
-              className="animate-fade-in hover-scale"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <CertificateCard
-                certificate={cert}
-                onUpdate={(id, field, value) => updateCertificateMutation.mutate({ id, field, value })}
-                onDelete={(id) => deleteCertificateMutation.mutate(id)}
-              />
-            </div>
-          ))}
+        {/* Certificates Showcase - Unique Hexagonal Layout */}
+        <div className="relative">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-5" style={{ 
+            backgroundImage: `radial-gradient(circle at 2px 2px, ${themeColors.primary} 1px, transparent 0)`,
+            backgroundSize: '30px 30px'
+          }}></div>
+          
+          <div className="relative space-y-12">
+            {dummyCertificates.map((cert, index) => (
+              <div 
+                key={cert.id}
+                className={`flex items-center gap-8 animate-fade-in ${
+                  index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'
+                }`}
+                style={{ animationDelay: `${index * 200}ms` }}
+              >
+                {/* Certificate Image - Hexagonal */}
+                <div className="flex-shrink-0 relative group">
+                  <div 
+                    className="w-32 h-32 relative overflow-hidden transition-all duration-500 group-hover:scale-110"
+                    style={{
+                      clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                      backgroundColor: themeColors.primary + '20'
+                    }}
+                  >
+                    <img 
+                      src={cert.image_url || '/placeholder.svg'} 
+                      alt={cert.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div 
+                      className="absolute inset-0 bg-gradient-to-br opacity-30"
+                      style={{ 
+                        background: `linear-gradient(135deg, ${themeColors.primary}40, ${themeColors.secondary}40)`
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Glowing border effect */}
+                  <div 
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"
+                    style={{
+                      clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                      background: `linear-gradient(45deg, ${themeColors.primary}, ${themeColors.accent})`,
+                      filter: 'blur(8px)',
+                      transform: 'scale(1.1)',
+                      zIndex: -1
+                    }}
+                  />
+                </div>
+
+                {/* Certificate Content */}
+                <div className={`flex-1 space-y-4 ${index % 2 === 0 ? 'text-left' : 'text-right'}`}>
+                  <div className="relative group">
+                    <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
+                      {cert.title}
+                    </h3>
+                    <div 
+                      className={`h-1 bg-gradient-to-r from-primary to-secondary rounded-full mt-2 transition-all duration-300 group-hover:scale-x-110 ${
+                        index % 2 === 0 ? 'origin-left' : 'origin-right'
+                      }`}
+                      style={{ width: '60px' }}
+                    />
+                  </div>
+                  
+                  <p className="text-muted-foreground leading-relaxed max-w-md">
+                    {cert.description}
+                  </p>
+                  
+                  <div className="flex items-center gap-4">
+                    {cert.completion_date && (
+                      <span 
+                        className="px-3 py-1 rounded-full text-sm font-medium"
+                        style={{ 
+                          backgroundColor: themeColors.primary + '20',
+                          color: themeColors.primary
+                        }}
+                      >
+                        {new Date(cert.completion_date).getFullYear()}
+                      </span>
+                    )}
+                    
+                    {cert.certificate_url && (
+                      <a 
+                        href={cert.certificate_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:text-primary/80 transition-colors text-sm font-medium hover:underline"
+                      >
+                        View Certificate →
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Empty State */}

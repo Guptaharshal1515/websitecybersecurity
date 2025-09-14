@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Plus, Move, Trash2, Link, Save } from 'lucide-react';
+import { Plus, Move, Trash2, Link, Save, Maximize, Minimize } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface CanvasNode {
@@ -39,6 +39,7 @@ export const RoadmapCanvas = () => {
   const [connecting, setConnecting] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Access control
   if (!user || userRole === 'viewer') {
@@ -160,6 +161,15 @@ export const RoadmapCanvas = () => {
     toast({ title: 'Roadmap saved successfully!' });
   };
 
+  const toggleFullscreen = () => {
+    if (!isFullscreen) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+    setIsFullscreen(!isFullscreen);
+  };
+
   const NodeForm = () => {
     const [formData, setFormData] = useState({
       title: editingNode?.title || '',
@@ -265,6 +275,10 @@ export const RoadmapCanvas = () => {
               <Save className="h-4 w-4" />
               Save
             </Button>
+            <Button onClick={toggleFullscreen} variant="outline" className="flex items-center gap-2">
+              {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+            </Button>
           </div>
         </div>
 
@@ -276,7 +290,9 @@ export const RoadmapCanvas = () => {
 
         <div 
           ref={canvasRef}
-          className="relative w-full h-[600px] border rounded-lg overflow-hidden"
+          className={`relative w-full border rounded-lg overflow-hidden ${
+            isFullscreen ? 'h-screen' : 'h-[600px]'
+          }`}
           style={{ backgroundColor: themeColors.surface }}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}

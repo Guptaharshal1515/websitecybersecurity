@@ -30,8 +30,16 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete, enableImagePo
   const { isEditMode, canEdit } = useEditMode();
   const [showImageModal, setShowImageModal] = useState(false);
 
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (enableImagePopup && certificate.image_url && !isEditMode) {
+      setShowImageModal(true);
+    }
+  };
+
   const handleCardClick = () => {
-    if (certificate.certificate_url && !isEditMode) {
+    // Only open link if clicking on card but not on image when enableImagePopup is true
+    if (certificate.certificate_url && !isEditMode && !enableImagePopup) {
       window.open(certificate.certificate_url, '_blank', 'noopener,noreferrer');
     }
   };
@@ -39,7 +47,7 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete, enableImagePo
   return (
     <Card 
       className={`border-0 hover:shadow-lg transition-all duration-300 group relative ${
-        certificate.certificate_url && !isEditMode ? 'cursor-pointer hover:scale-[1.02]' : ''
+        certificate.certificate_url && !isEditMode && !enableImagePopup ? 'cursor-pointer hover:scale-[1.02]' : ''
       }`}
       style={{ 
         backgroundColor: themeColors.surface,
@@ -65,13 +73,9 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete, enableImagePo
         >
           <div 
             className={`aspect-video mb-4 rounded-lg overflow-hidden ${
-              enableImagePopup && !certificate.certificate_url && !isEditMode ? 'cursor-pointer hover:opacity-80' : ''
+              enableImagePopup && certificate.image_url && !isEditMode ? 'cursor-pointer hover:opacity-80' : ''
             }`}
-            onClick={() => {
-              if (enableImagePopup && !certificate.certificate_url && !isEditMode) {
-                setShowImageModal(true);
-              }
-            }}
+            onClick={handleImageClick}
           >
             <img
               src={certificate.image_url || '/placeholder.svg'}

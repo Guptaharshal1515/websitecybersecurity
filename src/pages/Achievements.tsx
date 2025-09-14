@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar, FileText, ExternalLink, Plus, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, FileText, ExternalLink, Plus, Settings, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,7 @@ export default function Achievements() {
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | undefined>();
+  const [showImageModal, setShowImageModal] = useState<{show: boolean, imageUrl: string, title: string} | null>(null);
   const { userRole } = useAuth();
   const { isEditMode } = useEditMode();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -398,10 +399,8 @@ export default function Achievements() {
                                   <div 
                                     className="flex-1 mb-4 cursor-pointer"
                                     onClick={() => {
-                                      if (achievement.certificate_url && !isEditMode) {
-                                        window.open(achievement.certificate_url, '_blank');
-                                      } else if (!achievement.certificate_url && achievement.image_url && !isEditMode) {
-                                        window.open(achievement.image_url, '_blank');
+                                      if (!isEditMode && achievement.image_url) {
+                                        setShowImageModal({ show: true, imageUrl: achievement.image_url, title: achievement.title });
                                       }
                                     }}
                                   >
@@ -419,13 +418,8 @@ export default function Achievements() {
                                       </InlineEditImage>
                                     </div>
                                   ) : (
-                                    <div 
-                                      className="flex-1 mb-4 bg-muted/50 rounded-lg flex items-center justify-center cursor-pointer"
-                                      onClick={() => {
-                                        if (achievement.certificate_url && !isEditMode) {
-                                          window.open(achievement.certificate_url, '_blank');
-                                        }
-                                      }}
+                                     <div 
+                                      className="flex-1 mb-4 bg-muted/50 rounded-lg flex items-center justify-center"
                                     >
                                       <FileText className="h-16 w-16 text-muted-foreground" />
                                     </div>
@@ -484,6 +478,29 @@ export default function Achievements() {
           achievement={editingAchievement}
           onSave={fetchAchievements}
         />
+
+        {/* Image Modal */}
+        {showImageModal?.show && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowImageModal(null)}
+          >
+            <div className="relative max-w-4xl max-h-full">
+              <button
+                onClick={() => setShowImageModal(null)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-70 z-10"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <img
+                src={showImageModal.imageUrl}
+                alt={showImageModal.title}
+                className="max-w-full max-h-full object-contain rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

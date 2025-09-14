@@ -343,6 +343,10 @@ export const Homepage = () => {
           50% { transform: scale(1.02); }
           100% { transform: scale(1.05); }
         }
+        
+        .animate-spin-slow {
+          animation: spin 10s linear infinite;
+        }
       `}</style>
     </div>
   );

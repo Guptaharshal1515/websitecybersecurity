@@ -23,6 +23,7 @@ interface Achievement {
   upload_date: string;
   display_order: number;
   achievement_type: string;
+  completion_date?: string;
 }
 
 export default function Achievements() {
@@ -286,7 +287,9 @@ export default function Achievements() {
                     </InlineEditText>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      {new Date(achievements[currentIndex]?.upload_date).toLocaleDateString()}
+                      {achievements[currentIndex]?.completion_date 
+                        ? new Date(achievements[currentIndex].completion_date!).toLocaleDateString()
+                        : new Date(achievements[currentIndex]?.upload_date).toLocaleDateString()}
                     </div>
                     <Badge variant="outline" className="text-xs">
                       {achievements[currentIndex]?.achievement_type}
@@ -392,14 +395,16 @@ export default function Achievements() {
                               <Card className={`relative w-full h-full bg-gradient-to-br ${getRoleTint()} hover:border-primary/40 transition-all duration-300 overflow-hidden group shadow-lg border`}>
                                 <div className="p-6 h-full flex flex-col">
                                   {achievement.image_url ? (
-                                    <div 
-                                      className="flex-1 mb-4 cursor-pointer"
-                                      onClick={() => {
-                                        if (achievement.certificate_url && !isEditMode) {
-                                          window.open(achievement.certificate_url, '_blank');
-                                        }
-                                      }}
-                                    >
+                                  <div 
+                                    className="flex-1 mb-4 cursor-pointer"
+                                    onClick={() => {
+                                      if (achievement.certificate_url && !isEditMode) {
+                                        window.open(achievement.certificate_url, '_blank');
+                                      } else if (!achievement.certificate_url && achievement.image_url && !isEditMode) {
+                                        window.open(achievement.image_url, '_blank');
+                                      }
+                                    }}
+                                  >
                                       <InlineEditImage
                                         value={achievement.image_url}
                                         onSave={(url) => updateAchievement(achievement.id, { image_url: url })}

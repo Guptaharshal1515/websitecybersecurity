@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           achievement_type: string | null
           certificate_url: string | null
+          completion_date: string | null
           created_at: string | null
           description: string | null
           display_order: number | null
@@ -30,6 +31,7 @@ export type Database = {
         Insert: {
           achievement_type?: string | null
           certificate_url?: string | null
+          completion_date?: string | null
           created_at?: string | null
           description?: string | null
           display_order?: number | null
@@ -42,6 +44,7 @@ export type Database = {
         Update: {
           achievement_type?: string | null
           certificate_url?: string | null
+          completion_date?: string | null
           created_at?: string | null
           description?: string | null
           display_order?: number | null
@@ -240,6 +243,7 @@ export type Database = {
           display_order: number | null
           entry_date: string
           id: string
+          image_url: string | null
           resource_link: string | null
           title: string
           updated_at: string | null
@@ -250,6 +254,7 @@ export type Database = {
           display_order?: number | null
           entry_date: string
           id?: string
+          image_url?: string | null
           resource_link?: string | null
           title: string
           updated_at?: string | null
@@ -260,6 +265,7 @@ export type Database = {
           display_order?: number | null
           entry_date?: string
           id?: string
+          image_url?: string | null
           resource_link?: string | null
           title?: string
           updated_at?: string | null

@@ -1,5 +1,6 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { RoadmapCanvas } from './RoadmapCanvas';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -42,7 +43,7 @@ interface ResourceModal {
   link: string;
 }
 
-export const Roadmap = () => {
+export const RoadmapOld = () => {
   const { themeColors, userRole } = useTheme();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -688,4 +689,9 @@ export const Roadmap = () => {
       )}
     </div>
   );
+};
+
+// New canvas-based roadmap as default export
+export const Roadmap = () => {
+  return <RoadmapCanvas />;
 };

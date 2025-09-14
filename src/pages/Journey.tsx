@@ -22,6 +22,7 @@ interface JourneyEntry {
   display_order: number | null;
   created_at: string | null;
   resource_link: string | null;
+  image_url: string | null;
 }
 
 export const Journey = () => {
@@ -88,7 +89,8 @@ export const Journey = () => {
       entry_date: '2024-01-15',
       display_order: 1,
       created_at: '2024-01-15',
-      resource_link: 'https://university.edu/cs-program'
+      resource_link: 'https://university.edu/cs-program',
+      image_url: null
     },
     {
       id: 'dummy-2',
@@ -97,7 +99,8 @@ export const Journey = () => {
       entry_date: '2024-02-20',
       display_order: 2,
       created_at: '2024-02-20',
-      resource_link: null
+      resource_link: null,
+      image_url: null
     },
     {
       id: 'dummy-3',
@@ -106,7 +109,8 @@ export const Journey = () => {
       entry_date: '2024-03-10',
       display_order: 3,
       created_at: '2024-03-10',
-      resource_link: 'https://cryptozombies.io/'
+      resource_link: 'https://cryptozombies.io/',
+      image_url: null
     },
     {
       id: 'dummy-4',
@@ -115,12 +119,13 @@ export const Journey = () => {
       entry_date: '2024-03-25',
       display_order: 4,
       created_at: '2024-03-25',
-      resource_link: null
+      resource_link: null,
+      image_url: null
     }
   ] : journeyEntries;
 
   const addEntryMutation = useMutation({
-    mutationFn: async (newEntry: { title: string; description: string; entry_date: string; resource_link?: string }) => {
+    mutationFn: async (newEntry: { title: string; description: string; entry_date: string; resource_link?: string; image_url?: string }) => {
       const { data, error } = await supabase
         .from('journey_entries')
         .insert([newEntry])
@@ -278,19 +283,26 @@ export const Journey = () => {
                           </InlineEditText>
                         )}
 
-                        {entry.resource_link && (
-                          <a
-                            href={entry.resource_link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-sm hover:underline"
-                            style={{ color: themeColors.primary }}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                            View
-                          </a>
-                        )}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {entry.resource_link && (
+                            <a
+                              href={entry.resource_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-sm hover:underline"
+                              style={{ color: themeColors.primary }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              View
+                            </a>
+                          )}
+                          {entry.image_url && (
+                            <span className="text-xs text-gray-400">
+                              📷 Photo available
+                            </span>
+                          )}
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
@@ -336,6 +348,17 @@ export const Journey = () => {
                 <p className="text-base leading-relaxed text-gray-300 mb-4">
                   {selectedEntry.description}
                 </p>
+              )}
+
+              {selectedEntry.image_url && (
+                <div className="mb-4">
+                  <img
+                    src={selectedEntry.image_url}
+                    alt={selectedEntry.title}
+                    className="w-full max-w-md mx-auto rounded-lg cursor-pointer"
+                    onClick={() => window.open(selectedEntry.image_url!, '_blank')}
+                  />
+                </div>
               )}
 
               {selectedEntry.resource_link && (

@@ -137,6 +137,7 @@ export const CybersecurityCertificates = () => {
               certificate={cert}
               onUpdate={(id, field, value) => updateCertificateMutation.mutate({ id, field, value })}
               onDelete={(id) => deleteCertificateMutation.mutate(id)}
+              enableImagePopup={true}
             />
           ))}
         </div>

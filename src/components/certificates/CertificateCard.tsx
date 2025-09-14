@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, X } from 'lucide-react';
 import { InlineEditText } from '@/components/editor/InlineEditText';
 import { InlineEditImage } from '@/components/editor/InlineEditImage';
 import { DeleteButton } from '@/components/editor/DeleteButton';
@@ -21,11 +22,13 @@ interface CertificateCardProps {
   certificate: Certificate;
   onUpdate: (id: string, field: string, value: string) => void;
   onDelete: (id: string) => void;
+  enableImagePopup?: boolean;
 }
 
-export const CertificateCard = ({ certificate, onUpdate, onDelete }: CertificateCardProps) => {
+export const CertificateCard = ({ certificate, onUpdate, onDelete, enableImagePopup }: CertificateCardProps) => {
   const { themeColors } = useTheme();
   const { isEditMode, canEdit } = useEditMode();
+  const [showImageModal, setShowImageModal] = useState(false);
 
   const handleCardClick = () => {
     if (certificate.certificate_url && !isEditMode) {
@@ -60,7 +63,16 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete }: Certificate
           onSave={(url) => onUpdate(certificate.id, 'image_url', url)}
           bucket="certificates"
         >
-          <div className="aspect-video mb-4 rounded-lg overflow-hidden">
+          <div 
+            className={`aspect-video mb-4 rounded-lg overflow-hidden ${
+              enableImagePopup && !certificate.certificate_url && !isEditMode ? 'cursor-pointer hover:opacity-80' : ''
+            }`}
+            onClick={() => {
+              if (enableImagePopup && !certificate.certificate_url && !isEditMode) {
+                setShowImageModal(true);
+              }
+            }}
+          >
             <img
               src={certificate.image_url || '/placeholder.svg'}
               alt={certificate.title}
@@ -115,6 +127,29 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete }: Certificate
           </div>
         )}
       </CardContent>
+
+      {/* Image Modal */}
+      {showImageModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowImageModal(false)}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <button
+              onClick={() => setShowImageModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-70 z-10"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <img
+              src={certificate.image_url || '/placeholder.svg'}
+              alt={certificate.title}
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </Card>
   );
 };

@@ -330,7 +330,7 @@ export default function Achievements() {
             <div className="lg:col-span-3">
               <div 
                 ref={containerRef}
-                className="relative h-96 perspective-1000"
+                className="relative h-[500px] perspective-1000"
                 style={{ perspective: '1000px' }}
               >
                 {achievements.length === 0 ? (
@@ -381,7 +381,7 @@ export default function Achievements() {
                         {achievements.map((achievement, index) => (
                           <motion.div
                             key={achievement.id}
-                            className={`absolute w-80 h-96 ${index === currentIndex ? 'achievement-card-active' : ''}`}
+                            className={`absolute w-96 h-[480px] ${index === currentIndex ? 'achievement-card-active' : ''}`}
                             style={getItemStyle(index)}
                             animate={getItemStyle(index)}
                             transition={{
@@ -394,10 +394,10 @@ export default function Achievements() {
                               className="w-full h-full"
                             >
                               <Card className={`relative w-full h-full bg-gradient-to-br ${getRoleTint()} hover:border-primary/40 transition-all duration-300 overflow-hidden group shadow-lg border`}>
-                                <div className="p-6 h-full flex flex-col">
+                                <div className="p-4 h-full flex flex-col">
                                   {achievement.image_url ? (
                                   <div 
-                                    className="flex-1 mb-4 cursor-pointer"
+                                    className="flex-1 mb-4 cursor-pointer rounded-lg overflow-hidden"
                                     onClick={() => {
                                       if (!isEditMode && achievement.image_url) {
                                         setShowImageModal({ show: true, imageUrl: achievement.image_url, title: achievement.title });
@@ -413,7 +413,7 @@ export default function Achievements() {
                                         <img
                                           src={achievement.image_url}
                                           alt={achievement.title}
-                                          className="w-full h-full object-cover rounded-lg hover:scale-105 transition-transform duration-200"
+                                          className="w-full h-full object-contain rounded-lg hover:scale-105 transition-transform duration-200 bg-background/10"
                                         />
                                       </InlineEditImage>
                                     </div>

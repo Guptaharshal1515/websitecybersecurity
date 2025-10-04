@@ -31,7 +31,8 @@ export const CybersecurityCertificates = () => {
         .from('certificates')
         .select('*')
         .eq('type', 'cybersecurity')
-        .order('display_order', { ascending: true });
+        .order('display_order', { ascending: true })
+        .order('completion_date', { ascending: false });
       if (error) throw error;
       return data as Certificate[];
     },

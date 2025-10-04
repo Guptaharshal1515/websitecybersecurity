@@ -15,6 +15,7 @@ interface CertificateFormData {
   certificate_url: string;
   image_url?: string;
   type: 'cybersecurity' | 'blockchain' | 'general';
+  display_order?: number;
 }
 
 interface CertificateFormProps {
@@ -34,7 +35,8 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
     completion_date: '',
     certificate_url: '',
     image_url: '',
-    type
+    type,
+    display_order: 0
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
@@ -89,7 +91,8 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
       completion_date: '',
       certificate_url: '',
       image_url: '',
-      type
+      type,
+      display_order: 0
     });
     setSelectedFile(null);
     setPreviewUrl('');
@@ -201,6 +204,20 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
               onChange={(e) => setFormData(prev => ({ ...prev, certificate_url: e.target.value }))}
               placeholder="https://..."
             />
+          </div>
+
+          {/* Display Order */}
+          <div className="space-y-2">
+            <Label htmlFor="display_order">Display Order (Priority)</Label>
+            <Input
+              id="display_order"
+              type="number"
+              value={formData.display_order}
+              onChange={(e) => setFormData(prev => ({ ...prev, display_order: parseInt(e.target.value) || 0 }))}
+              placeholder="0"
+              min="0"
+            />
+            <p className="text-xs text-muted-foreground">Lower numbers appear first. Use this to prioritize specific certificates.</p>
           </div>
 
           <div className="flex gap-2 pt-4">

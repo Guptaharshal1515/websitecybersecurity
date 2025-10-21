@@ -13,9 +13,15 @@ export const DeleteButton = ({ onDelete, isVisible, className = "" }: DeleteButt
 
   if (!isVisible) return null;
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onDelete();
+  };
+
   return (
     <Button
-      onClick={onDelete}
+      onClick={handleClick}
       size="sm"
       variant="destructive"
       className={`absolute top-2 right-2 h-8 w-8 p-0 opacity-80 hover:opacity-100 z-10 ${className}`}

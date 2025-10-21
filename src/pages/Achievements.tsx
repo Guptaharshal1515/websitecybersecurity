@@ -394,9 +394,13 @@ export default function Achievements() {
                               className="w-full h-full"
                             >
                               <Card className={`relative w-full h-full bg-gradient-to-br ${getRoleTint()} hover:border-primary/40 transition-all duration-300 overflow-hidden group shadow-lg border`}>
+                                <DeleteButton
+                                  onDelete={() => deleteAchievement(achievement.id)}
+                                  isVisible={isEditMode && canEdit}
+                                />
                                 <div className="p-4 h-full flex flex-col">
                                   {achievement.image_url ? (
-                                  <div 
+                                  <div
                                     className="flex-1 mb-4 cursor-pointer rounded-lg overflow-hidden"
                                     onClick={() => {
                                       if (!isEditMode && achievement.image_url) {

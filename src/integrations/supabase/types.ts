@@ -101,7 +101,7 @@ export type Database = {
           created_at: string
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           resource_id: string | null
           resource_type: string
           user_agent: string | null
@@ -112,7 +112,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type: string
           user_agent?: string | null
@@ -123,7 +123,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type?: string
           user_agent?: string | null
@@ -167,6 +167,45 @@ export type Database = {
           title?: string
           type?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      digital_badges: {
+        Row: {
+          badge_image_url: string | null
+          created_at: string
+          credential_url: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          issue_date: string | null
+          issuer: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          badge_image_url?: string | null
+          created_at?: string
+          credential_url?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          issue_date?: string | null
+          issuer: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          badge_image_url?: string | null
+          created_at?: string
+          credential_url?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          issue_date?: string | null
+          issuer?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }

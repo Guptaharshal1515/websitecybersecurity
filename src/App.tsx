@@ -22,6 +22,7 @@ import { Projects } from "@/pages/Projects";
 import { Journey } from "@/pages/Journey";
 import Achievements from "@/pages/Achievements";
 import { Roadmap } from "@/pages/Roadmap";
+import { DigitalBadges } from "@/pages/DigitalBadges";
 import { Admin } from "@/pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -65,6 +66,7 @@ const AppContent = () => {
         <Route path="/journey" element={<Journey />} />
         <Route path="/achievements" element={<Achievements />} />
         <Route path="/roadmap" element={<Roadmap />} />
+        <Route path="/digital-badges" element={<DigitalBadges />} />
         <Route 
           path="/admin" 
           element={

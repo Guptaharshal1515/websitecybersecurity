@@ -40,15 +40,15 @@ export const Header = () => {
     { path: '/cybersecurity-certificates', label: 'Cybersecurity', icon: Award },
     { path: '/blockchain-certificates', label: 'Blockchain', icon: Award },
     { path: '/projects', label: 'Projects', icon: Briefcase },
-    { path: '/journey', label: 'Journey', icon: Map, hideForCustomer: true },
+    { path: '/journey', label: 'Journey', icon: Map, editorOnly: true },
     { path: '/achievements', label: 'Achievements', icon: Trophy },
-    { path: '/roadmap', label: 'Roadmap', icon: FileText, hideForCustomer: true },
+    { path: '/roadmap', label: 'Roadmap', icon: FileText, editorOnly: true },
     { path: '/digital-badges', label: 'Digital Badges', icon: Award },
   ];
 
   // Filter navigation items based on user role
   const navigationItems = allNavigationItems.filter(item => {
-    if (userRole === 'customer' && item.hideForCustomer) {
+    if (item.editorOnly && userRole !== 'editor' && userRole !== 'admin') {
       return false;
     }
     return true;

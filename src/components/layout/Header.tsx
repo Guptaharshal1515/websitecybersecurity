@@ -5,6 +5,13 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { LogOut, Settings, Home, FileText, Award, Briefcase, Map, Trophy, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
+interface NavigationItem {
+  path: string;
+  label: string;
+  icon: any;
+  editorOnly?: boolean;
+}
+
 export const Header = () => {
   const { user, userRole, signOut } = useAuth();
   const { themeColors } = useTheme();
@@ -34,7 +41,7 @@ export const Header = () => {
     }
   }, [lastScrollY]);
 
-  const allNavigationItems = [
+  const allNavigationItems: NavigationItem[] = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/certificates', label: 'Certificates', icon: Award },
     { path: '/cybersecurity-certificates', label: 'Cybersecurity', icon: Award },
@@ -47,9 +54,11 @@ export const Header = () => {
   ];
 
   // Filter navigation items based on user role
-  const navigationItems = allNavigationItems.filter(item => {
-    if (item.editorOnly && userRole !== 'editor' && userRole !== 'admin') {
-      return false;
+  // Hide Journey and Roadmap from viewer and customer roles
+  const navigationItems = allNavigationItems.filter((item) => {
+    // If item is marked as editorOnly, only show to editor and admin
+    if (item.editorOnly === true) {
+      return userRole === 'editor' || userRole === 'admin';
     }
     return true;
   });

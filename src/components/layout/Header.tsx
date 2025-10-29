@@ -54,11 +54,11 @@ export const Header = () => {
   ];
 
   // Filter navigation items based on user role
-  // Hide Journey and Roadmap from viewer and customer roles
+  // Hide Journey and Roadmap from viewer role only
   const navigationItems = allNavigationItems.filter((item) => {
-    // If item is marked as editorOnly, only show to editor and admin
+    // If item is marked as editorOnly, hide from viewer only
     if (item.editorOnly === true) {
-      return userRole === 'editor' || userRole === 'admin';
+      return userRole !== 'viewer';
     }
     return true;
   });

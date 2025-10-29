@@ -41,8 +41,8 @@ export const Header = () => {
     }
   }, [lastScrollY]);
 
-  // Define all navigation items
-  const allNavItems: NavigationItem[] = [
+  // Define navigation items - Journey and Roadmap excluded
+  const visibleNavItems: NavigationItem[] = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/certificates', label: 'Certificates', icon: Award },
     { path: '/cybersecurity-certificates', label: 'Cybersecurity', icon: Award },
@@ -50,18 +50,7 @@ export const Header = () => {
     { path: '/projects', label: 'Projects', icon: Briefcase },
     { path: '/achievements', label: 'Achievements', icon: Trophy },
     { path: '/digital-badges', label: 'Digital Badges', icon: Shield },
-    { path: '/journey', label: 'Journey', icon: Map, hideForViewer: true },
-    { path: '/roadmap', label: 'Roadmap', icon: FileText, hideForViewer: true },
   ];
-
-  // Filter navigation based on user role - HIDE Journey & Roadmap from viewers
-  const visibleNavItems = allNavItems.filter((item) => {
-    // If item should be hidden for viewers AND user is a viewer, filter it out
-    if (item.hideForViewer && userRole === 'viewer') {
-      return false;
-    }
-    return true;
-  });
 
   return (
     <header 

@@ -7,7 +7,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
-  LogOut, Settings, Home, FileText, Award, Briefcase, Map, Trophy, User,
+  LogOut, Settings, Home, Award, Briefcase, Trophy, User,
   Menu, X, BarChart3, Shield, Users, Database
 } from 'lucide-react';
 
@@ -20,17 +20,18 @@ export const AdaptiveNavigation = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (!isEnabled('adaptive_navigation')) {
-    return null; // Fall back to original header
+    return null;
   }
 
+  // NEW navigation without Journey and Roadmap
   const baseNavItems = [
     { path: '/', label: 'Home', icon: Home },
+    { path: '/certificates', label: 'Certificates', icon: Award },
     { path: '/cybersecurity-certificates', label: 'Cybersecurity', icon: Award },
     { path: '/blockchain-certificates', label: 'Blockchain', icon: Award },
     { path: '/projects', label: 'Projects', icon: Briefcase },
-    { path: '/journey', label: 'Journey', icon: Map },
     { path: '/achievements', label: 'Achievements', icon: Trophy },
-    { path: '/roadmap', label: 'Roadmap', icon: FileText },
+    { path: '/digital-badges', label: 'Digital Badges', icon: Shield },
   ];
 
   const adminNavItems = [
@@ -42,20 +43,9 @@ export const AdaptiveNavigation = () => {
     { path: '/admin?tab=monitoring', label: 'Database', icon: Database },
   ];
 
-  const editorNavItems = [
-    ...baseNavItems,
-    { path: '/editor', label: 'Content', icon: FileText },
-  ];
-
   const getNavItems = () => {
-    switch (userRole) {
-      case 'admin':
-        return adminNavItems;
-      case 'editor':
-        return editorNavItems;
-      default:
-        return baseNavItems;
-    }
+    if (userRole === 'admin') return adminNavItems;
+    return baseNavItems;
   };
 
   const navigationItems = getNavItems();
@@ -150,9 +140,7 @@ export const AdaptiveNavigation = () => {
           </SheetTrigger>
           <SheetContent side="left" className="w-80" style={{ backgroundColor: themeColors.surface }}>
             <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center">
-                {/* Brand name removed */}
-              </div>
+              <div className="flex items-center" />
             </div>
             <nav className="space-y-2">
               {navigationItems.map(({ path, label, icon: Icon }) => (
@@ -197,7 +185,7 @@ export const AdaptiveNavigation = () => {
     );
   }
 
-  // Desktop Full Navigation (Enhanced)
+  // Desktop Full Navigation
   return (
     <header 
       className="sticky top-0 z-50 border-b backdrop-blur-sm"
@@ -208,9 +196,7 @@ export const AdaptiveNavigation = () => {
     >
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            {/* Brand name removed */}
-          </div>
+          <div className="flex items-center" />
 
           <nav className="hidden lg:flex items-center gap-6">
             {navigationItems.map(({ path, label, icon: Icon }) => (

@@ -1,20 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { LogOut, Settings, Home, FileText, Award, Briefcase, Map, Trophy, User, Shield } from 'lucide-react';
+import { LogOut, Settings, Home, Award, Briefcase, Trophy, User, Shield } from 'lucide-react';
 import { useState, useEffect } from 'react';
-
-interface NavigationItem {
-  path: string;
-  label: string;
-  icon: any;
-  hideForViewer?: boolean;
-}
 
 export const Header = () => {
   const { user, userRole, signOut } = useAuth();
-  const { themeColors } = useTheme();
   const location = useLocation();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -41,8 +32,8 @@ export const Header = () => {
     }
   }, [lastScrollY]);
 
-  // Define navigation items - Journey and Roadmap excluded
-  const visibleNavItems: NavigationItem[] = [
+  // Simple navigation array - NO Journey, NO Roadmap
+  const navigationLinks = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/certificates', label: 'Certificates', icon: Award },
     { path: '/cybersecurity-certificates', label: 'Cybersecurity', icon: Award },
@@ -70,14 +61,10 @@ export const Header = () => {
     >
       <div className={`${isScrolled ? 'px-4' : 'container mx-auto px-4'} py-3`}>
         <div className={`flex items-center ${isScrolled ? 'justify-center' : 'justify-between'}`}>
-          {!isScrolled && (
-            <div className="flex items-center">
-              {/* Portfolio title removed */}
-            </div>
-          )}
+          {!isScrolled && <div className="flex items-center" />}
 
           <nav className={`flex items-center ${isScrolled ? 'gap-1' : 'gap-6'}`}>
-            {visibleNavItems.map(({ path, label, icon: Icon }) => (
+            {navigationLinks.map(({ path, label, icon: Icon }) => (
               <Link
                 key={path}
                 to={path}
@@ -106,10 +93,7 @@ export const Header = () => {
                   </span>
                   {userRole === 'admin' && (
                     <Link to="/admin">
-                      <Button 
-                        size="sm" 
-                        className="bg-primary hover:bg-primary/90"
-                      >
+                      <Button size="sm" className="bg-primary hover:bg-primary/90">
                         <Settings className="h-4 w-4 mr-2" />
                         Admin
                       </Button>
@@ -127,9 +111,7 @@ export const Header = () => {
                 </div>
               ) : (
                 <Link to="/login">
-                  <Button 
-                    className="bg-primary hover:bg-primary/90"
-                  >
+                  <Button className="bg-primary hover:bg-primary/90">
                     <User className="h-4 w-4 mr-2" />
                     Login
                   </Button>

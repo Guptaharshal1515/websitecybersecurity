@@ -2,14 +2,14 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { LogOut, Settings, Home, FileText, Award, Briefcase, Map, Trophy, User } from 'lucide-react';
+import { LogOut, Settings, Home, FileText, Award, Briefcase, Map, Trophy, User, Shield } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface NavigationItem {
   path: string;
   label: string;
   icon: any;
-  editorOnly?: boolean;
+  hideForViewer?: boolean;
 }
 
 export const Header = () => {
@@ -41,22 +41,24 @@ export const Header = () => {
     }
   }, [lastScrollY]);
 
-  const allNavigationItems: NavigationItem[] = [
+  // Define all navigation items
+  const allNavItems: NavigationItem[] = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/certificates', label: 'Certificates', icon: Award },
     { path: '/cybersecurity-certificates', label: 'Cybersecurity', icon: Award },
     { path: '/blockchain-certificates', label: 'Blockchain', icon: Award },
     { path: '/projects', label: 'Projects', icon: Briefcase },
-    { path: '/journey', label: 'Journey', icon: Map, editorOnly: true },
     { path: '/achievements', label: 'Achievements', icon: Trophy },
-    { path: '/roadmap', label: 'Roadmap', icon: FileText, editorOnly: true },
-    { path: '/digital-badges', label: 'Digital Badges', icon: Award },
+    { path: '/digital-badges', label: 'Digital Badges', icon: Shield },
+    { path: '/journey', label: 'Journey', icon: Map, hideForViewer: true },
+    { path: '/roadmap', label: 'Roadmap', icon: FileText, hideForViewer: true },
   ];
 
-  // Hide Journey and Roadmap from viewer role only
-  const navigationItems = allNavigationItems.filter((item) => {
-    if (item.editorOnly === true) {
-      return userRole !== 'viewer';
+  // Filter navigation based on user role - HIDE Journey & Roadmap from viewers
+  const visibleNavItems = allNavItems.filter((item) => {
+    // If item should be hidden for viewers AND user is a viewer, filter it out
+    if (item.hideForViewer && userRole === 'viewer') {
+      return false;
     }
     return true;
   });
@@ -86,7 +88,7 @@ export const Header = () => {
           )}
 
           <nav className={`flex items-center ${isScrolled ? 'gap-1' : 'gap-6'}`}>
-            {navigationItems.map(({ path, label, icon: Icon }) => (
+            {visibleNavItems.map(({ path, label, icon: Icon }) => (
               <Link
                 key={path}
                 to={path}

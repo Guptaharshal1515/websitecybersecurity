@@ -55,10 +55,13 @@ export const Header = () => {
 
   // Filter navigation items based on user role
   // Hide Journey and Roadmap from viewer role only
+  console.log('Current userRole in Header:', userRole);
   const navigationItems = allNavigationItems.filter((item) => {
     // If item is marked as editorOnly, hide from viewer only
     if (item.editorOnly === true) {
-      return userRole !== 'viewer';
+      const shouldShow = userRole !== 'viewer';
+      console.log(`Item ${item.label} (editorOnly: ${item.editorOnly}): userRole=${userRole}, shouldShow=${shouldShow}`);
+      return shouldShow;
     }
     return true;
   });

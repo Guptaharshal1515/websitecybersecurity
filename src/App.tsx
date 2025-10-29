@@ -63,9 +63,23 @@ const AppContent = () => {
         <Route path="/cybersecurity-certificates" element={<CybersecurityCertificates />} />
         <Route path="/blockchain-certificates" element={<BlockchainCertificates />} />
         <Route path="/projects" element={<Projects />} />
-        <Route path="/journey" element={<Journey />} />
+        <Route 
+          path="/journey" 
+          element={
+            <ProtectedRoute requiredRole="customer">
+              <Journey />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/achievements" element={<Achievements />} />
-        <Route path="/roadmap" element={<Roadmap />} />
+        <Route 
+          path="/roadmap" 
+          element={
+            <ProtectedRoute requiredRole="customer">
+              <Roadmap />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/digital-badges" element={<DigitalBadges />} />
         <Route 
           path="/admin" 

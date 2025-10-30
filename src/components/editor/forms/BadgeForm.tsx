@@ -19,6 +19,7 @@ interface BadgeFormProps {
     issue_date: string | null;
     badge_image_url: string | null;
     credential_url: string | null;
+    category: string | null;
   }) => void;
   initialData?: {
     title: string;
@@ -27,6 +28,7 @@ interface BadgeFormProps {
     issue_date: string | null;
     badge_image_url: string | null;
     credential_url: string | null;
+    category: string | null;
   } | null;
 }
 
@@ -37,7 +39,8 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
     description: '',
     issuer: '',
     issue_date: '',
-    credential_url: ''
+    credential_url: '',
+    category: ''
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -50,7 +53,8 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
         description: initialData.description || '',
         issuer: initialData.issuer,
         issue_date: initialData.issue_date || '',
-        credential_url: initialData.credential_url || ''
+        credential_url: initialData.credential_url || '',
+        category: initialData.category || ''
       });
       setPreviewUrl(initialData.badge_image_url);
     } else {
@@ -59,7 +63,8 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
         description: '',
         issuer: '',
         issue_date: '',
-        credential_url: ''
+        credential_url: '',
+        category: ''
       });
       setPreviewUrl(null);
     }
@@ -112,7 +117,8 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
         ...formData,
         issue_date: formData.issue_date || null,
         badge_image_url: imageUrl,
-        credential_url: formData.credential_url || null
+        credential_url: formData.credential_url || null,
+        category: formData.category || null
       });
 
       setFormData({
@@ -120,7 +126,8 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
         description: '',
         issuer: '',
         issue_date: '',
-        credential_url: ''
+        credential_url: '',
+        category: ''
       });
       setSelectedFile(null);
       setPreviewUrl(null);
@@ -200,6 +207,17 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
               value={formData.credential_url}
               onChange={(e) => setFormData(prev => ({ ...prev, credential_url: e.target.value }))}
               placeholder="https://..."
+              className="bg-background text-white border-muted"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="category" className="text-white">Category</Label>
+            <Input
+              id="category"
+              value={formData.category}
+              onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+              placeholder="e.g., AWS, Google Cloud, Microsoft Azure"
               className="bg-background text-white border-muted"
             />
           </div>

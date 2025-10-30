@@ -1,0 +1,9 @@
+-- Insert dummy digital badges for different company categories
+INSERT INTO digital_badges (title, description, issuer, issue_date, badge_image_url, credential_url, category, display_order) VALUES
+('AWS Certified Solutions Architect', 'Validated technical expertise in designing and deploying scalable systems on AWS', 'Amazon Web Services', '2024-01-15', 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400', 'https://aws.amazon.com/certification', 'AWS', 1),
+('Google Cloud Professional', 'Demonstrated proficiency in Google Cloud Platform architecture and implementation', 'Google Cloud', '2024-02-20', 'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=400', 'https://cloud.google.com/certification', 'Google Cloud', 2),
+('Microsoft Azure Administrator', 'Expertise in implementing, monitoring, and maintaining Microsoft Azure solutions', 'Microsoft', '2024-03-10', 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400', 'https://learn.microsoft.com/certifications', 'Microsoft Azure', 3),
+('CompTIA Security+', 'Comprehensive understanding of core security functions and best practices', 'CompTIA', '2023-11-05', 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400', 'https://www.comptia.org/certifications/security', 'CompTIA', 4),
+('Cisco CCNA', 'Proficiency in network fundamentals, IP connectivity, and security fundamentals', 'Cisco', '2023-09-15', 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400', 'https://www.cisco.com/c/en/us/training-events/training-certifications/certifications.html', 'Cisco', 5),
+('Red Hat Certified Engineer', 'Advanced skills in Red Hat Enterprise Linux system administration', 'Red Hat', '2024-04-01', 'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=400', 'https://www.redhat.com/en/services/certification', 'Red Hat', 6)
+ON CONFLICT DO NOTHING;

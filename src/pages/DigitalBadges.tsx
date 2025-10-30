@@ -12,6 +12,8 @@ import { DeleteButton } from '@/components/editor/DeleteButton';
 import { InlineEditText } from '@/components/editor/InlineEditText';
 import { InlineEditImage } from '@/components/editor/InlineEditImage';
 import { useEditMode } from '@/contexts/EditModeContext';
+import { GlobalEditModeToolbar } from '@/components/editor/GlobalEditModeToolbar';
+import { motion } from 'framer-motion';
 
 interface DigitalBadge {
   id: string;
@@ -21,6 +23,7 @@ interface DigitalBadge {
   issue_date: string | null;
   badge_image_url: string | null;
   credential_url: string | null;
+  category: string | null;
   display_order: number;
 }
 
@@ -146,6 +149,16 @@ export const DigitalBadges = () => {
     });
   };
 
+  // Group badges by category
+  const badgesByCategory = badges?.reduce((acc, badge) => {
+    const category = badge.category || 'General';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(badge);
+    return acc;
+  }, {} as Record<string, DigitalBadge[]>) || {};
+
   if (isLoading) {
     return (
       <div className="min-h-screen pt-24 px-4">
@@ -167,67 +180,91 @@ export const DigitalBadges = () => {
   }
 
   return (
-    <div className="min-h-screen pt-24 px-4 pb-12">
+    <div className="min-h-screen pt-24 px-4 pb-12" style={{ backgroundColor: themeColors.background }}>
       <div className="container mx-auto max-w-7xl">
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <h1 className="text-4xl font-bold mb-2" style={{ color: themeColors.text }}>
               Digital Badges
             </h1>
-            <p className="text-muted-foreground">
+            <p style={{ color: themeColors.text }}>
               Industry certifications and achievements
             </p>
-          </div>
+          </motion.div>
           
           {canEdit && (
-            <Button
-              onClick={() => setShowAddForm(true)}
-              className="bg-primary hover:bg-primary/90"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Badge
-            </Button>
+              <Button
+                onClick={() => setShowAddForm(true)}
+                style={{ backgroundColor: themeColors.primary }}
+                className="hover:opacity-90"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Badge
+              </Button>
+            </motion.div>
           )}
         </div>
 
         {badges.length === 0 ? (
-          <div className="text-center py-12">
-            <Award className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">No digital badges yet</p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <Award className="h-16 w-16 mx-auto mb-4" style={{ color: `${themeColors.text}80` }} />
+            <p style={{ color: themeColors.text }}>No digital badges yet</p>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {badges.map((badge, index) => (
-              <Card
-                key={badge.id}
-                className="group relative overflow-hidden border-border hover:border-primary transition-all duration-500 hover:shadow-xl hover:shadow-primary/20 animate-fade-in"
-                style={{
-                  animationDelay: `${index * 100}ms`,
-                }}
+          Object.entries(badgesByCategory).map(([category, categoryBadges], categoryIndex) => (
+            <motion.div
+              key={category}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: categoryIndex * 0.1 }}
+              className="mb-12"
+            >
+              <h2 
+                className="text-2xl font-bold mb-6 flex items-center gap-2"
+                style={{ color: themeColors.primary }}
               >
-                <CardContent className="p-6 relative">
-                  {isEditMode && canEdit && (
-                    <div className="absolute top-2 right-2 z-10 flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setEditingBadge(badge);
-                          setShowAddForm(true);
-                        }}
-                        className="h-8 px-3 bg-primary hover:bg-primary/90"
-                      >
-                        Edit
-                      </Button>
-                      <DeleteButton
-                        onDelete={() => deleteBadgeMutation.mutate(badge.id)}
-                        isVisible={true}
-                      />
-                    </div>
-                  )}
+                <Award className="h-6 w-6" />
+                {category}
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {categoryBadges.map((badge, index) => (
+                <motion.div
+                  key={badge.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ scale: 1.05, y: -10 }}
+                >
+                  <Card
+                    className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl"
+                    style={{ 
+                      borderColor: themeColors.primary,
+                      backgroundColor: themeColors.surface,
+                      borderWidth: '2px'
+                    }}
+                  >
+                  <CardContent className="p-6 relative">
+                    <DeleteButton 
+                      onDelete={() => deleteBadgeMutation.mutate(badge.id)}
+                      isVisible={isEditMode && canEdit}
+                    />
 
-                  {/* Badge Image */}
-                  <div className="relative mb-4 overflow-hidden rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 p-8 group-hover:scale-105 transition-transform duration-500">
-                    {isEditMode && canEdit ? (
+                    {/* Badge Image */}
+                    <div className="relative mb-4 overflow-hidden rounded-lg p-8 group-hover:scale-105 transition-transform duration-500"
+                      style={{ background: `linear-gradient(135deg, ${themeColors.primary}20, ${themeColors.accent || themeColors.primary}20)` }}
+                    >
                       <InlineEditImage
                         value={badge.badge_image_url}
                         onSave={(url) => 
@@ -236,39 +273,28 @@ export const DigitalBadges = () => {
                             updates: { badge_image_url: url } 
                           })
                         }
-                        bucket="certificates"
+                        bucket="badges"
                       >
                         {badge.badge_image_url ? (
-                          <img
+                          <motion.img
+                            whileHover={{ scale: 1.1, rotate: 5 }}
                             src={badge.badge_image_url}
                             alt={badge.title}
                             className="w-full h-48 object-contain"
                           />
                         ) : (
                           <div className="w-full h-48 flex items-center justify-center">
-                            <Award className="h-24 w-24 text-primary/30" />
+                            <Award className="h-24 w-24" style={{ color: `${themeColors.primary}50` }} />
                           </div>
                         )}
                       </InlineEditImage>
-                    ) : badge.badge_image_url ? (
-                      <img
-                        src={badge.badge_image_url}
-                        alt={badge.title}
-                        className="w-full h-48 object-contain"
-                      />
-                    ) : (
-                      <div className="w-full h-48 flex items-center justify-center">
-                        <Award className="h-24 w-24 text-primary/30" />
-                      </div>
-                    )}
-                    
-                    {/* Animated shine effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  </div>
+                      
+                      {/* Animated shine effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    </div>
 
-                  {/* Badge Info */}
-                  <div className="space-y-3">
-                    {isEditMode && canEdit ? (
+                    {/* Badge Info */}
+                    <div className="space-y-3">
                       <InlineEditText
                         value={badge.title}
                         onSave={(value) =>
@@ -278,19 +304,15 @@ export const DigitalBadges = () => {
                           })
                         }
                       >
-                        <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        <h3 className="text-xl font-bold group-hover:opacity-80 transition-opacity" 
+                          style={{ color: themeColors.text }}
+                        >
                           {badge.title}
                         </h3>
                       </InlineEditText>
-                    ) : (
-                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                        {badge.title}
-                      </h3>
-                    )}
 
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Building2 className="h-4 w-4" />
-                      {isEditMode && canEdit ? (
+                      <div className="flex items-center gap-2 text-sm" style={{ color: themeColors.primary }}>
+                        <Building2 className="h-4 w-4" />
                         <InlineEditText
                           value={badge.issuer}
                           onSave={(value) =>
@@ -300,22 +322,18 @@ export const DigitalBadges = () => {
                             })
                           }
                         >
-                          <span>{badge.issuer}</span>
+                          <span className="font-semibold">{badge.issuer}</span>
                         </InlineEditText>
-                      ) : (
-                        <span>{badge.issuer}</span>
-                      )}
-                    </div>
-
-                    {badge.issue_date && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="h-4 w-4" />
-                        <span>{formatDate(badge.issue_date)}</span>
                       </div>
-                    )}
 
-                    {badge.description && (
-                      isEditMode && canEdit ? (
+                      {badge.issue_date && (
+                        <div className="flex items-center gap-2 text-sm" style={{ color: `${themeColors.text}90` }}>
+                          <Calendar className="h-4 w-4" />
+                          <span>{formatDate(badge.issue_date)}</span>
+                        </div>
+                      )}
+
+                      {badge.description && (
                         <InlineEditText
                           value={badge.description}
                           onSave={(value) =>
@@ -326,41 +344,60 @@ export const DigitalBadges = () => {
                           }
                           multiline
                         >
-                          <p className="text-sm text-muted-foreground line-clamp-3">
+                          <p className="text-sm line-clamp-3" style={{ color: `${themeColors.text}90` }}>
                             {badge.description}
                           </p>
                         </InlineEditText>
-                      ) : (
-                        <p className="text-sm text-muted-foreground line-clamp-3">
-                          {badge.description}
-                        </p>
-                      )
-                    )}
+                      )}
 
-                    {badge.credential_url && (
-                      <a
-                        href={badge.credential_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-                      >
-                        View Credential
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    )}
-                  </div>
+                      {badge.credential_url && (
+                        <motion.a
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          href={badge.credential_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-sm font-medium hover:underline"
+                          style={{ color: themeColors.primary }}
+                        >
+                          View Credential
+                          <ExternalLink className="h-4 w-4" />
+                        </motion.a>
+                      )}
 
-                  {/* Decorative corner accent */}
-                  <div 
-                    className="absolute bottom-0 right-0 w-24 h-24 opacity-10 group-hover:opacity-20 transition-opacity"
-                    style={{
-                      background: `radial-gradient(circle at center, ${themeColors.primary}, transparent)`,
-                    }}
-                  />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      {isEditMode && canEdit && (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => {
+                            setEditingBadge(badge);
+                            setShowAddForm(true);
+                          }}
+                          className="mt-4 w-full py-2 px-4 rounded-lg font-medium transition-colors"
+                          style={{ 
+                            backgroundColor: themeColors.primary,
+                            color: 'white'
+                          }}
+                        >
+                          Edit Badge
+                        </motion.button>
+                      )}
+                    </div>
+
+                    {/* Decorative corner accent */}
+                    <div 
+                      className="absolute bottom-0 right-0 w-24 h-24 opacity-10 group-hover:opacity-20 transition-opacity"
+                      style={{
+                        background: `radial-gradient(circle at center, ${themeColors.primary}, transparent)`,
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
+              ))}
+            </div>
+          </motion.div>
+          ))
         )}
 
         <BadgeForm
@@ -370,8 +407,18 @@ export const DigitalBadges = () => {
             setEditingBadge(null);
           }}
           onSubmit={handleSubmit}
-          initialData={editingBadge}
+          initialData={editingBadge ? {
+            title: editingBadge.title,
+            description: editingBadge.description || '',
+            issuer: editingBadge.issuer,
+            issue_date: editingBadge.issue_date,
+            badge_image_url: editingBadge.badge_image_url,
+            credential_url: editingBadge.credential_url,
+            category: editingBadge.category
+          } : null}
         />
+
+        <GlobalEditModeToolbar />
       </div>
     </div>
   );

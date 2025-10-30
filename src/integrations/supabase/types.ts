@@ -173,6 +173,7 @@ export type Database = {
       digital_badges: {
         Row: {
           badge_image_url: string | null
+          category: string | null
           created_at: string
           credential_url: string | null
           description: string | null
@@ -185,6 +186,7 @@ export type Database = {
         }
         Insert: {
           badge_image_url?: string | null
+          category?: string | null
           created_at?: string
           credential_url?: string | null
           description?: string | null
@@ -197,6 +199,7 @@ export type Database = {
         }
         Update: {
           badge_image_url?: string | null
+          category?: string | null
           created_at?: string
           credential_url?: string | null
           description?: string | null

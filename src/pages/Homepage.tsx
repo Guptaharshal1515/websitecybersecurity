@@ -79,6 +79,14 @@ export const Homepage = () => {
     },
   });
 
+  const { data: badgesCount } = useQuery({
+    queryKey: ['badges-count'],
+    queryFn: async () => {
+      const { count } = await supabase.from('digital_badges').select('id', { count: 'exact' });
+      return count || 0;
+    },
+  });
+
   const { data: socialLinks } = useQuery({
     queryKey: ['social-links'],
     queryFn: async () => {
@@ -240,6 +248,7 @@ export const Homepage = () => {
         <NavigationBoxes 
           certificatesCount={certificatesCount}
           projectsCount={projectsCount}
+          badgesCount={badgesCount}
         />
 
         <SocialLinksSection 

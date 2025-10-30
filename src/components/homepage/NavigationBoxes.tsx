@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Shield, Code, User } from 'lucide-react';
+import { Shield, Code, User, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface NavigationBoxesProps {
@@ -10,9 +10,10 @@ interface NavigationBoxesProps {
     blockchain: number;
   } | undefined;
   projectsCount: number | undefined;
+  badgesCount: number | undefined;
 }
 
-export const NavigationBoxes = ({ certificatesCount, projectsCount }: NavigationBoxesProps) => {
+export const NavigationBoxes = ({ certificatesCount, projectsCount, badgesCount }: NavigationBoxesProps) => {
   const { themeColors } = useTheme();
   const navigate = useNavigate();
 
@@ -43,11 +44,20 @@ export const NavigationBoxes = ({ certificatesCount, projectsCount }: Navigation
       route: "/projects",
       gradient: "from-green-500 to-emerald-500",
       glowColor: "#16a34a"
+    },
+    {
+      title: "Digital Badges",
+      subtitle: "Certifications",
+      count: `${badgesCount || 6} Collected`,
+      icon: Award,
+      route: "/digital-badges",
+      gradient: "from-purple-500 to-pink-500",
+      glowColor: "#9333ea"
     }
   ];
 
   return (
-    <div className="grid md:grid-cols-3 gap-8 mb-20 relative">
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20 relative">
       {/* Background decoration */}
       <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10 rounded-3xl blur-3xl opacity-30"></div>
       

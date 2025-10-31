@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useEditMode } from '@/contexts/EditModeContext';
 import { CertificateCard } from '@/components/certificates/CertificateCard';
 import { CertificateForm } from '@/components/editor/forms/CertificateForm';
+import { GlobalEditModeToolbar } from '@/components/editor/GlobalEditModeToolbar';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Award, BookOpen, GraduationCap } from 'lucide-react';
@@ -26,6 +27,7 @@ export const Certificates = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingCert, setEditingCert] = useState<Certificate | null>(null);
 
   const { data: certificates = [], isLoading } = useQuery({
     queryKey: ['certificates', 'general'],
@@ -39,6 +41,29 @@ export const Certificates = () => {
       return data as Certificate[];
     },
   });
+
+  // Real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('certificates-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'certificates',
+          filter: `type=eq.general`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['certificates', 'general'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   // Add dummy certificates if none exist for demo purposes
   const dummyCertificates = certificates.length === 0 ? [
@@ -89,6 +114,7 @@ export const Certificates = () => {
       queryClient.invalidateQueries({ queryKey: ['certificates', 'general'] });
       toast({ title: 'Certificate added successfully!' });
       setShowAddForm(false);
+      setEditingCert(null);
     },
     onError: (error) => {
       toast({ 
@@ -146,6 +172,18 @@ export const Certificates = () => {
     }
   });
 
+  const handleSubmit = (data: any) => {
+    if (editingCert) {
+      updateCertificateMutation.mutate({
+        id: editingCert.id,
+        field: 'all',
+        value: JSON.stringify(data)
+      });
+    } else {
+      addCertificateMutation.mutate(data);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: themeColors.background }}>
@@ -159,6 +197,7 @@ export const Certificates = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
+      <GlobalEditModeToolbar />
       <div className="container mx-auto px-4 py-16">
         {/* Animated Hero Section */}
         <div className="relative mb-16 text-center">
@@ -221,99 +260,19 @@ export const Certificates = () => {
             backgroundSize: '30px 30px'
           }}></div>
           
-          <div className="relative space-y-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {dummyCertificates.map((cert, index) => (
-              <div 
+              <div
                 key={cert.id}
-                className={`flex items-center gap-8 animate-fade-in ${
-                  index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'
-                }`}
-                style={{ animationDelay: `${index * 200}ms` }}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                {/* Certificate Image - Hexagonal */}
-                <div className="flex-shrink-0 relative group">
-                  <div 
-                    className="w-32 h-32 relative overflow-hidden transition-all duration-500 group-hover:scale-110 cursor-pointer"
-                    style={{
-                      clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
-                      backgroundColor: themeColors.primary + '20'
-                    }}
-                    onClick={() => cert.certificate_url && window.open(cert.certificate_url, '_blank')}
-                  >
-                    <img 
-                      src={cert.image_url || '/placeholder.svg'} 
-                      alt={cert.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div 
-                      className="absolute inset-0 bg-gradient-to-br opacity-30"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${themeColors.primary}40, ${themeColors.secondary}40)`
-                      }}
-                    />
-                    {cert.certificate_url && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span className="text-white text-xs font-medium">View Certificate</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Glowing border effect */}
-                  <div 
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"
-                    style={{
-                      clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
-                      background: `linear-gradient(45deg, ${themeColors.primary}, ${themeColors.accent})`,
-                      filter: 'blur(8px)',
-                      transform: 'scale(1.1)',
-                      zIndex: -1
-                    }}
-                  />
-                </div>
-
-                {/* Certificate Content */}
-                <div className={`flex-1 space-y-4 ${index % 2 === 0 ? 'text-left' : 'text-right'}`}>
-                  <div className="relative group">
-                    <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
-                      {cert.title}
-                    </h3>
-                    <div 
-                      className={`h-1 bg-gradient-to-r from-primary to-secondary rounded-full mt-2 transition-all duration-300 group-hover:scale-x-110 ${
-                        index % 2 === 0 ? 'origin-left' : 'origin-right'
-                      }`}
-                      style={{ width: '60px' }}
-                    />
-                  </div>
-                  
-                  <p className="text-muted-foreground leading-relaxed max-w-md">
-                    {cert.description}
-                  </p>
-                  
-                  <div className="flex items-center gap-4">
-                    {cert.completion_date && (
-                      <span 
-                        className="px-3 py-1 rounded-full text-sm font-medium"
-                        style={{ 
-                          backgroundColor: themeColors.primary + '20',
-                          color: themeColors.primary
-                        }}
-                      >
-                        {new Date(cert.completion_date).getFullYear()}
-                      </span>
-                    )}
-                    
-                    {cert.certificate_url && (
-                      <a 
-                        href={cert.certificate_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:text-primary/80 transition-colors text-sm font-medium hover:underline"
-                      >
-                        View Certificate →
-                      </a>
-                    )}
-                  </div>
-                </div>
+                <CertificateCard
+                  certificate={cert}
+                  onUpdate={(id, field, value) => updateCertificateMutation.mutate({ id, field, value })}
+                  onDelete={(id) => deleteCertificateMutation.mutate(id)}
+                  enableImagePopup={true}
+                />
               </div>
             ))}
           </div>
@@ -323,8 +282,11 @@ export const Certificates = () => {
         {/* Certificate Form Modal */}
         <CertificateForm
           isOpen={showAddForm}
-          onClose={() => setShowAddForm(false)}
-          onSubmit={addCertificateMutation.mutate}
+          onClose={() => {
+            setShowAddForm(false);
+            setEditingCert(null);
+          }}
+          onSubmit={handleSubmit}
           type="general"
         />
       </div>

@@ -170,61 +170,61 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
         style={{ backgroundColor: themeColors.surface }}
       >
         <DialogHeader>
-          <DialogTitle className="text-white">
+          <DialogTitle className="text-foreground">
             {initialData ? 'Edit Badge' : 'Add Digital Badge'}
           </DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="title" className="text-white">Badge Title *</Label>
+            <Label htmlFor="title" className="text-foreground">Badge Title *</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               placeholder="e.g., AWS Certified Solutions Architect"
               required
-              className="bg-background text-white border-muted"
+              className="bg-background text-foreground border-muted"
             />
           </div>
 
           <div>
-            <Label htmlFor="issuer" className="text-white">Issuer / Company Name *</Label>
+            <Label htmlFor="issuer" className="text-foreground">Issuer / Company Name *</Label>
             <Input
               id="issuer"
               value={formData.issuer}
               onChange={(e) => setFormData(prev => ({ ...prev, issuer: e.target.value }))}
               placeholder="e.g., Amazon Web Services"
               required
-              className="bg-background text-white border-muted"
+              className="bg-background text-foreground border-muted"
             />
           </div>
           
           <div>
-            <Label htmlFor="description" className="text-white">Description</Label>
+            <Label htmlFor="description" className="text-foreground">Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               placeholder="Brief description of the badge..."
-              className="bg-background text-white border-muted"
+              className="bg-background text-foreground border-muted"
               rows={3}
             />
           </div>
 
           <div>
-            <Label htmlFor="issue_date" className="text-white">Completion Date</Label>
+            <Label htmlFor="issue_date" className="text-foreground">Completion Date</Label>
             <Input
               id="issue_date"
               type="date"
               value={formData.issue_date}
               onChange={(e) => setFormData(prev => ({ ...prev, issue_date: e.target.value }))}
-              className="bg-background text-white border-muted"
+              className="bg-background text-foreground border-muted"
             />
           </div>
 
           <div>
-            <Label htmlFor="category" className="text-white">Category</Label>
+            <Label htmlFor="category" className="text-foreground">Category</Label>
             {!showNewCategory ? (
               <div className="flex gap-2">
                 <Select
@@ -237,7 +237,7 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
                     }
                   }}
                 >
-                  <SelectTrigger className="bg-background text-white border-muted">
+                  <SelectTrigger className="bg-background text-foreground border-muted">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -261,7 +261,7 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                   placeholder="Enter new category name"
-                  className="bg-background text-white border-muted"
+                  className="bg-background text-foreground border-muted"
                 />
                 <Button
                   type="button"
@@ -292,19 +292,19 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
           </div>
 
           <div>
-            <Label htmlFor="credential_url" className="text-white">Credential URL</Label>
+            <Label htmlFor="credential_url" className="text-foreground">Credential URL</Label>
             <Input
               id="credential_url"
               type="url"
               value={formData.credential_url}
               onChange={(e) => setFormData(prev => ({ ...prev, credential_url: e.target.value }))}
               placeholder="https://..."
-              className="bg-background text-white border-muted"
+              className="bg-background text-foreground border-muted"
             />
           </div>
 
           <div>
-            <Label className="text-white">Badge Image</Label>
+            <Label className="text-foreground">Badge Image</Label>
             <div className="mt-2 space-y-3">
               {previewUrl && (
                 <div className="relative inline-block">
@@ -328,7 +328,7 @@ export const BadgeForm = ({ isOpen, onClose, onSubmit, initialData }: BadgeFormP
                   type="file"
                   accept="image/*"
                   onChange={handleFileSelect}
-                  className="bg-background text-white border-muted"
+                  className="bg-background text-foreground border-muted"
                   id="badge-image"
                 />
                 <label htmlFor="badge-image">

@@ -65,8 +65,8 @@ export const Certificates = () => {
     };
   }, [queryClient]);
 
-  // Add dummy certificates if none exist for demo purposes
-  const dummyCertificates = certificates.length === 0 ? [
+  // Show dummy certificates only when not in edit mode and no real certificates exist
+  const displayCertificates = certificates.length === 0 && !isEditMode ? [
     {
       id: 'dummy-1',
       title: 'Google Cloud Professional Certificate',
@@ -245,7 +245,7 @@ export const Certificates = () => {
                  boxShadow: `0 0 30px ${themeColors.primary}20`
                }}>
             <div className="text-4xl font-bold mb-3" style={{ color: themeColors.primary }}>
-              {dummyCertificates.length}
+              {displayCertificates.length}
             </div>
             <div className="text-lg text-muted-foreground font-medium">Professional Certificates</div>
             <div className="mt-2 text-sm text-muted-foreground/70">Verified & Authentic</div>
@@ -261,7 +261,7 @@ export const Certificates = () => {
           }}></div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {dummyCertificates.map((cert, index) => (
+            {displayCertificates.map((cert, index) => (
               <div
                 key={cert.id}
                 className="animate-fade-in"

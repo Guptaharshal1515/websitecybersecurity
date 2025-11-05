@@ -252,7 +252,7 @@ export const Certificates = () => {
           </div>
         </div>
 
-        {/* Certificates Showcase - Unique Hexagonal Layout */}
+        {/* Certificates Showcase - Dynamic Animated Layout */}
         <div className="relative">
           {/* Background pattern */}
           <div className="absolute inset-0 opacity-5" style={{ 
@@ -264,8 +264,11 @@ export const Certificates = () => {
             {displayCertificates.map((cert, index) => (
               <div
                 key={cert.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className="opacity-0 animate-[slideInUp_0.6s_ease-out_forwards]"
+                style={{ 
+                  animationDelay: `${index * 150}ms`,
+                  transform: 'translateY(30px)'
+                }}
               >
                 <CertificateCard
                   certificate={cert}

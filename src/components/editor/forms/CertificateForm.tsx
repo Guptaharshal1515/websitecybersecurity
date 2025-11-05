@@ -10,10 +10,12 @@ import { Upload, X } from 'lucide-react';
 
 interface CertificateFormData {
   title: string;
-  description: string;
   completion_date: string;
+  issued_by: string;
   certificate_url: string;
+  description: string;
   image_url?: string;
+  credentials?: string;
   type: 'cybersecurity' | 'blockchain' | 'general';
   display_order?: number;
 }
@@ -31,10 +33,12 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<CertificateFormData>({
     title: '',
-    description: '',
     completion_date: '',
+    issued_by: '',
     certificate_url: '',
+    description: '',
     image_url: '',
+    credentials: '',
     type,
     display_order: 0
   });
@@ -87,10 +91,12 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
   const resetForm = () => {
     setFormData({
       title: '',
-      description: '',
       completion_date: '',
+      issued_by: '',
       certificate_url: '',
+      description: '',
       image_url: '',
+      credentials: '',
       type,
       display_order: 0
     });
@@ -120,9 +126,73 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title */}
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-foreground">Title *</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="Certificate title"
+              className="text-foreground"
+              required
+            />
+          </div>
+
+          {/* Completion Date */}
+          <div className="space-y-2">
+            <Label htmlFor="completion_date" className="text-foreground">Completion Date</Label>
+            <Input
+              id="completion_date"
+              type="date"
+              value={formData.completion_date}
+              onChange={(e) => setFormData(prev => ({ ...prev, completion_date: e.target.value }))}
+              className="text-foreground"
+            />
+          </div>
+
+          {/* Issued By */}
+          <div className="space-y-2">
+            <Label htmlFor="issued_by" className="text-foreground">Issued By *</Label>
+            <Input
+              id="issued_by"
+              value={formData.issued_by}
+              onChange={(e) => setFormData(prev => ({ ...prev, issued_by: e.target.value }))}
+              placeholder="Organization or institution name"
+              className="text-foreground"
+              required
+            />
+          </div>
+
+          {/* Certificate URL */}
+          <div className="space-y-2">
+            <Label htmlFor="certificate_url" className="text-foreground">Certificate URL</Label>
+            <Input
+              id="certificate_url"
+              type="url"
+              value={formData.certificate_url}
+              onChange={(e) => setFormData(prev => ({ ...prev, certificate_url: e.target.value }))}
+              placeholder="https://..."
+              className="text-foreground"
+            />
+          </div>
+
+          {/* Description */}
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-foreground">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Certificate description"
+              className="text-foreground"
+              rows={3}
+            />
+          </div>
+
           {/* Image Upload */}
           <div className="space-y-2">
-            <Label>Certificate Image</Label>
+            <Label className="text-foreground">Certificate Image</Label>
             <div className="border-2 border-dashed border-border rounded-lg p-4">
               {previewUrl ? (
                 <div className="relative">
@@ -159,65 +229,16 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
             />
           </div>
 
-          {/* Title */}
+          {/* Credentials (Optional) */}
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="credentials" className="text-foreground">Credentials (Optional)</Label>
             <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="Certificate title"
-              required
+              id="credentials"
+              value={formData.credentials}
+              onChange={(e) => setFormData(prev => ({ ...prev, credentials: e.target.value }))}
+              placeholder="e.g., Certificate ID or credentials number"
+              className="text-foreground"
             />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Certificate description"
-              rows={3}
-            />
-          </div>
-
-          {/* Completion Date */}
-          <div className="space-y-2">
-            <Label htmlFor="completion_date">Completion Date</Label>
-            <Input
-              id="completion_date"
-              type="date"
-              value={formData.completion_date}
-              onChange={(e) => setFormData(prev => ({ ...prev, completion_date: e.target.value }))}
-            />
-          </div>
-
-          {/* Certificate Link */}
-          <div className="space-y-2">
-            <Label htmlFor="certificate_url">Certificate Link</Label>
-            <Input
-              id="certificate_url"
-              type="url"
-              value={formData.certificate_url}
-              onChange={(e) => setFormData(prev => ({ ...prev, certificate_url: e.target.value }))}
-              placeholder="https://..."
-            />
-          </div>
-
-          {/* Display Order */}
-          <div className="space-y-2">
-            <Label htmlFor="display_order">Display Order (Priority)</Label>
-            <Input
-              id="display_order"
-              type="number"
-              value={formData.display_order}
-              onChange={(e) => setFormData(prev => ({ ...prev, display_order: parseInt(e.target.value) || 0 }))}
-              placeholder="0"
-              min="0"
-            />
-            <p className="text-xs text-muted-foreground">Lower numbers appear first. Use this to prioritize specific certificates.</p>
           </div>
 
           <div className="flex gap-2 pt-4">

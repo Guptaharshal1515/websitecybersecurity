@@ -89,7 +89,7 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete, enableImagePo
           value={certificate.title}
           onSave={(value) => onUpdate(certificate.id, 'title', value)}
         >
-          <h3 className="text-xl font-semibold mb-2 text-white">
+          <h3 className="text-xl font-semibold mb-2 text-foreground">
             {certificate.title}
           </h3>
         </InlineEditText>
@@ -99,13 +99,13 @@ export const CertificateCard = ({ certificate, onUpdate, onDelete, enableImagePo
           onSave={(value) => onUpdate(certificate.id, 'description', value)}
           multiline
         >
-          <p className="text-sm mb-4 leading-relaxed text-white">
+          <p className="text-sm mb-4 leading-relaxed text-muted-foreground">
             {certificate.description}
           </p>
         </InlineEditText>
         
         {certificate.completion_date && (
-          <p className="text-xs mb-3 opacity-80 text-white">
+          <p className="text-xs mb-3 opacity-80 text-muted-foreground">
             Completed: {new Date(certificate.completion_date).toLocaleDateString('en-GB')}
           </p>
         )}

@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, Settings, Home, Award, Briefcase, Trophy, User, Shield } from 'lucide-react';
+import { LogOut, Settings, Home, Award, Briefcase, Trophy, User, Shield, Map } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export const Header = () => {
@@ -32,13 +32,13 @@ export const Header = () => {
     }
   }, [lastScrollY]);
 
-  // Simple navigation array - NO Journey, NO Roadmap
   const navigationLinks = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/certificates', label: 'Certificates', icon: Award },
     { path: '/cybersecurity-certificates', label: 'Cybersecurity', icon: Award },
     { path: '/blockchain-certificates', label: 'Blockchain', icon: Award },
     { path: '/projects', label: 'Projects', icon: Briefcase },
+    { path: '/journey', label: 'Journey', icon: Map },
     { path: '/achievements', label: 'Achievements', icon: Trophy },
     { path: '/digital-badges', label: 'Digital Badges', icon: Shield },
   ];

@@ -8,7 +8,7 @@ import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   LogOut, Settings, Home, Award, Briefcase, Trophy, User,
-  Menu, X, BarChart3, Shield, Users, Database
+  Menu, X, BarChart3, Shield, Users, Database, Map
 } from 'lucide-react';
 
 export const AdaptiveNavigation = () => {
@@ -23,13 +23,13 @@ export const AdaptiveNavigation = () => {
     return null;
   }
 
-  // NEW navigation without Journey and Roadmap
   const baseNavItems = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/certificates', label: 'Certificates', icon: Award },
     { path: '/cybersecurity-certificates', label: 'Cybersecurity', icon: Award },
     { path: '/blockchain-certificates', label: 'Blockchain', icon: Award },
     { path: '/projects', label: 'Projects', icon: Briefcase },
+    { path: '/journey', label: 'Journey', icon: Map },
     { path: '/achievements', label: 'Achievements', icon: Trophy },
     { path: '/digital-badges', label: 'Digital Badges', icon: Shield },
   ];

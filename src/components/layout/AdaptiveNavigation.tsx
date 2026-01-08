@@ -25,7 +25,6 @@ export const AdaptiveNavigation = () => {
 
   const baseNavItems = [
     { path: '/', label: 'Home', icon: Home },
-    { path: '/certificates', label: 'Certificates', icon: Award },
     { path: '/cybersecurity-certificates', label: 'Cybersecurity', icon: Award },
     { path: '/blockchain-certificates', label: 'Blockchain', icon: Award },
     { path: '/projects', label: 'Projects', icon: Briefcase },

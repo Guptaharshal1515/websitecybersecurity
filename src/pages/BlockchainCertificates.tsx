@@ -47,49 +47,8 @@ export const BlockchainCertificates = () => {
     },
   });
 
-  // Add dummy certificates if none exist
-  const dummyCertificates = certificates.length === 0 ? [
-    {
-      id: '1',
-      title: 'Blockchain Fundamentals',
-      description: 'Comprehensive understanding of blockchain technology, consensus mechanisms, and decentralized systems.',
-      image_url: '/placeholder.svg',
-      certificate_url: 'https://example.com/blockchain-fundamentals',
-      created_at: '2024-01-20',
-      display_order: 1,
-      completion_date: '2024-02-10'
-    },
-    {
-      id: '2',
-      title: 'Ethereum Smart Contracts',
-      description: 'Advanced Solidity programming and smart contract development on Ethereum blockchain.',
-      image_url: '/placeholder.svg',
-      certificate_url: 'https://example.com/ethereum-smart-contracts',
-      created_at: '2024-02-15',
-      display_order: 2,
-      completion_date: '2024-04-20'
-    },
-    {
-      id: '3',
-      title: 'DeFi Protocol Development',
-      description: 'Building decentralized finance applications and understanding DeFi ecosystem protocols.',
-      image_url: '/placeholder.svg',
-      certificate_url: 'https://example.com/defi-protocol',
-      created_at: '2024-03-05',
-      display_order: 3,
-      completion_date: '2024-05-15'
-    },
-    {
-      id: '4',
-      title: 'Web3 Development',
-      description: 'Full-stack Web3 application development using modern blockchain technologies.',
-      image_url: '/placeholder.svg',
-      certificate_url: 'https://example.com/web3-development',
-      created_at: '2024-03-25',
-      display_order: 4,
-      completion_date: '2024-07-01'
-    }
-  ] : certificates;
+  // Show actual data
+  const displayCertificates = certificates;
 
   const addCertificateMutation = useMutation({
     mutationFn: async (newCert: any) => {
@@ -148,16 +107,19 @@ export const BlockchainCertificates = () => {
   };
 
   const nextCertificate = () => {
-    setCurrentIndex((prev) => (prev + 1) % dummyCertificates.length);
+    if (displayCertificates.length === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % displayCertificates.length);
   };
 
   const prevCertificate = () => {
-    setCurrentIndex((prev) => (prev - 1 + dummyCertificates.length) % dummyCertificates.length);
+    if (displayCertificates.length === 0) return;
+    setCurrentIndex((prev) => (prev - 1 + displayCertificates.length) % displayCertificates.length);
   };
 
   const getPositionStyle = (index: number) => {
     const diff = index - currentIndex;
-    const totalCerts = dummyCertificates.length;
+    const totalCerts = displayCertificates.length;
+    if (totalCerts === 0) return {};
     
     // Normalize difference to handle circular array
     const normalizedDiff = ((diff + totalCerts) % totalCerts);
@@ -178,6 +140,8 @@ export const BlockchainCertificates = () => {
       boxShadow: adjustedDiff === 0 ? `0 0 30px ${themeColors.primary}` : 'none'
     };
   };
+
+  const currentCert = displayCertificates[currentIndex];
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
@@ -213,49 +177,55 @@ export const BlockchainCertificates = () => {
               style={{ backgroundColor: themeColors.surface }}
             >
               <CardContent className="p-6">
-                <InlineEditText
-                  value={dummyCertificates[currentIndex]?.title || ''}
-                  onSave={(value) => updateCertificateMutation.mutate({ id: dummyCertificates[currentIndex].id, field: 'title', value })}
-                >
-                  <h2 className="text-2xl font-bold mb-4 text-white">
-                    {dummyCertificates[currentIndex]?.title}
-                  </h2>
-                </InlineEditText>
-                
-                <InlineEditText
-                  value={dummyCertificates[currentIndex]?.description || ''}
-                  onSave={(value) => updateCertificateMutation.mutate({ id: dummyCertificates[currentIndex].id, field: 'description', value })}
-                  multiline
-                >
-                  <p className="text-base mb-4 text-white">
-                    {dummyCertificates[currentIndex]?.description}
-                  </p>
-                </InlineEditText>
-                
-                {dummyCertificates[currentIndex]?.completion_date && (
-                  <div className="flex items-center gap-2 mb-4">
-                    <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
-                    <span className="text-white">
-                      Completed: {formatDate(dummyCertificates[currentIndex]?.completion_date)}
-                    </span>
-                  </div>
-                )}
-                
-                {dummyCertificates[currentIndex]?.certificate_url && (
-                  <Button
-                    asChild
-                    className="w-full"
-                    style={{ backgroundColor: themeColors.primary }}
-                  >
-                    <a
-                      href={dummyCertificates[currentIndex].certificate_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                {currentCert ? (
+                  <>
+                    <InlineEditText
+                      value={currentCert.title || ''}
+                      onSave={(value) => updateCertificateMutation.mutate({ id: currentCert.id, field: 'title', value })}
                     >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      View Certificate
-                    </a>
-                  </Button>
+                      <h2 className="text-2xl font-bold mb-4 text-white">
+                        {currentCert.title}
+                      </h2>
+                    </InlineEditText>
+                    
+                    <InlineEditText
+                      value={currentCert.description || ''}
+                      onSave={(value) => updateCertificateMutation.mutate({ id: currentCert.id, field: 'description', value })}
+                      multiline
+                    >
+                      <p className="text-base mb-4 text-white">
+                        {currentCert.description}
+                      </p>
+                    </InlineEditText>
+                    
+                    {currentCert.completion_date && (
+                      <div className="flex items-center gap-2 mb-4">
+                        <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
+                        <span className="text-white">
+                          Completed: {formatDate(currentCert.completion_date)}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {currentCert.certificate_url && (
+                      <Button
+                        asChild
+                        className="w-full"
+                        style={{ backgroundColor: themeColors.primary }}
+                      >
+                        <a
+                          href={currentCert.certificate_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          View Certificate
+                        </a>
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-white text-center">No certificates available. Add one to get started!</p>
                 )}
               </CardContent>
             </Card>
@@ -271,7 +241,7 @@ export const BlockchainCertificates = () => {
                 perspective: '1200px'
               }}
             >
-              {dummyCertificates.map((cert, index) => (
+              {displayCertificates.map((cert, index) => (
                 <div
                   key={cert.id}
                   className="absolute top-1/2 left-1/2 transition-all duration-700 ease-out cursor-pointer"
@@ -355,7 +325,7 @@ export const BlockchainCertificates = () => {
 
             {/* Indicators */}
             <div className="flex gap-2 mt-4">
-              {dummyCertificates.map((_, index) => (
+              {displayCertificates.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}

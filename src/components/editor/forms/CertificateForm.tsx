@@ -11,11 +11,9 @@ import { Upload, X } from 'lucide-react';
 interface CertificateFormData {
   title: string;
   completion_date: string;
-  issued_by: string;
   certificate_url: string;
   description: string;
   image_url?: string;
-  credentials?: string;
   type: 'cybersecurity' | 'blockchain' | 'general';
   display_order?: number;
 }
@@ -34,11 +32,9 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
   const [formData, setFormData] = useState<CertificateFormData>({
     title: '',
     completion_date: '',
-    issued_by: '',
     certificate_url: '',
     description: '',
     image_url: '',
-    credentials: '',
     type,
     display_order: 0
   });
@@ -92,11 +88,9 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
     setFormData({
       title: '',
       completion_date: '',
-      issued_by: '',
       certificate_url: '',
       description: '',
       image_url: '',
-      credentials: '',
       type,
       display_order: 0
     });
@@ -151,18 +145,6 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
             />
           </div>
 
-          {/* Issued By */}
-          <div className="space-y-2">
-            <Label htmlFor="issued_by" className="text-foreground">Issued By *</Label>
-            <Input
-              id="issued_by"
-              value={formData.issued_by}
-              onChange={(e) => setFormData(prev => ({ ...prev, issued_by: e.target.value }))}
-              placeholder="Organization or institution name"
-              className="text-foreground"
-              required
-            />
-          </div>
 
           {/* Certificate URL */}
           <div className="space-y-2">
@@ -229,17 +211,6 @@ export const CertificateForm = ({ isOpen, onClose, onSubmit, type }: Certificate
             />
           </div>
 
-          {/* Credentials (Optional) */}
-          <div className="space-y-2">
-            <Label htmlFor="credentials" className="text-foreground">Credentials (Optional)</Label>
-            <Input
-              id="credentials"
-              value={formData.credentials}
-              onChange={(e) => setFormData(prev => ({ ...prev, credentials: e.target.value }))}
-              placeholder="e.g., Certificate ID or credentials number"
-              className="text-foreground"
-            />
-          </div>
 
           <div className="flex gap-2 pt-4">
             <Button type="button" variant="outline" onClick={onClose} className="flex-1">

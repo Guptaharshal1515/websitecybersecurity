@@ -38,39 +38,8 @@ export const CybersecurityCertificates = () => {
     },
   });
 
-  // Add dummy certificates if none exist
-  const dummyCertificates = certificates.length === 0 ? [
-    {
-      id: 'dummy-1',
-      title: 'CompTIA Security+',
-      description: 'Foundational cybersecurity certification covering network security, threats, and vulnerabilities.',
-      image_url: '/placeholder.svg',
-      certificate_url: 'https://example.com/security-plus',
-      type: 'cybersecurity',
-      display_order: 1,
-      completion_date: '2024-01-15'
-    },
-    {
-      id: 'dummy-2',
-      title: 'Cisco CyberOps Associate',
-      description: 'Security operations center fundamentals and incident response methodologies.',
-      image_url: '/placeholder.svg',
-      certificate_url: 'https://example.com/cyberops',
-      type: 'cybersecurity',
-      display_order: 2,
-      completion_date: '2024-03-22'
-    },
-    {
-      id: 'dummy-3',
-      title: 'CEH - Certified Ethical Hacker',
-      description: 'Comprehensive ethical hacking and penetration testing methodologies.',
-      image_url: '/placeholder.svg',
-      certificate_url: 'https://example.com/ceh',
-      type: 'cybersecurity',
-      display_order: 3,
-      completion_date: '2024-06-10'
-    }
-  ] : certificates;
+  // Show actual data, no dummy certificates
+  const displayCertificates = certificates;
 
   const addCertificateMutation = useMutation({
     mutationFn: async (newCert: any) => {
@@ -132,7 +101,7 @@ export const CybersecurityCertificates = () => {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {dummyCertificates.map((cert) => (
+          {displayCertificates.map((cert) => (
             <CertificateCard
               key={cert.id}
               certificate={cert}

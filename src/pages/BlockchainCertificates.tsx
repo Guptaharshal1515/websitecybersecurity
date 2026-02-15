@@ -1,0 +1,381 @@
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, ExternalLink, Calendar, X } from 'lucide-react';
+import { AddContentButton } from '@/components/editor/AddContentButton';
+import { CertificateForm } from '@/components/editor/forms/CertificateForm';
+import { InlineEditText } from '@/components/editor/InlineEditText';
+import { InlineEditImage } from '@/components/editor/InlineEditImage';
+import { DeleteButton } from '@/components/editor/DeleteButton';
+import { useEditMode } from '@/contexts/EditModeContext';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
+
+interface Certificate {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  certificate_url: string;
+  created_at: string;
+  display_order: number;
+  completion_date?: string;
+}
+
+export const BlockchainCertificates = () => {
+  const { themeColors } = useTheme();
+  const { toast } = useToast();
+  const { canEdit, isEditMode } = useEditMode();
+  const queryClient = useQueryClient();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const { data: certificates = [] } = useQuery({
+    queryKey: ['blockchain-certificates'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .select('*')
+        .eq('type', 'blockchain')
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      return data as Certificate[];
+    },
+  });
+
+  // Show actual data
+  const displayCertificates = certificates;
+
+  const addCertificateMutation = useMutation({
+    mutationFn: async (newCert: any) => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .insert([{ ...newCert, type: 'blockchain' }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blockchain-certificates'] });
+      toast({ title: 'Certificate added successfully!' });
+      setShowAddForm(false);
+    }
+  });
+
+  const updateCertificateMutation = useMutation({
+    mutationFn: async ({ id, field, value }: { id: string; field: string; value: string }) => {
+      const { data, error } = await supabase
+        .from('certificates')
+        .update({ [field]: value })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blockchain-certificates'] });
+      toast({ title: 'Certificate updated successfully!' });
+    }
+  });
+
+  const deleteCertificateMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('certificates')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blockchain-certificates'] });
+      toast({ title: 'Certificate deleted successfully!' });
+    }
+  });
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+  };
+
+  const nextCertificate = () => {
+    if (displayCertificates.length === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % displayCertificates.length);
+  };
+
+  const prevCertificate = () => {
+    if (displayCertificates.length === 0) return;
+    setCurrentIndex((prev) => (prev - 1 + displayCertificates.length) % displayCertificates.length);
+  };
+
+  const getPositionStyle = (index: number) => {
+    const diff = index - currentIndex;
+    const totalCerts = displayCertificates.length;
+    if (totalCerts === 0) return {};
+    
+    // Normalize difference to handle circular array
+    const normalizedDiff = ((diff + totalCerts) % totalCerts);
+    const adjustedDiff = normalizedDiff > totalCerts / 2 ? normalizedDiff - totalCerts : normalizedDiff;
+    
+    const angle = (adjustedDiff * 50) * (Math.PI / 180); // Increased spacing between certificates
+    const radius = 280; // Increased radius for larger arc
+    const x = Math.sin(angle) * radius;
+    const z = Math.cos(angle) * radius;
+    
+    const scale = adjustedDiff === 0 ? 1.2 : Math.max(0.7, 1 - Math.abs(adjustedDiff) * 0.2); // Larger center certificate
+    const opacity = adjustedDiff === 0 ? 1 : Math.max(0.4, 1 - Math.abs(adjustedDiff) * 0.3);
+    
+    return {
+      transform: `translateX(${x}px) translateZ(${z}px) scale(${scale})`,
+      opacity,
+      zIndex: adjustedDiff === 0 ? 10 : 5 - Math.abs(adjustedDiff),
+      boxShadow: adjustedDiff === 0 ? `0 0 30px ${themeColors.primary}` : 'none'
+    };
+  };
+
+  const currentCert = displayCertificates[currentIndex];
+
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
+      <div className="container mx-auto px-4 py-16">
+        <div className="flex justify-between items-center mb-16">
+          <div className="relative">
+            <h1 
+              className="text-4xl font-bold text-center text-white"
+            >
+              Blockchain Certificates
+            </h1>
+            <div 
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-1 rounded mt-2"
+              style={{ 
+                backgroundColor: themeColors.primary,
+                boxShadow: `0 0 10px ${themeColors.primary}`
+              }}
+            />
+          </div>
+          
+          {canEdit && (
+            <AddContentButton onClick={() => setShowAddForm(true)}>
+              Add Certificate
+            </AddContentButton>
+          )}
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-12 items-center">
+          {/* Certificate Details Sidebar */}
+          <div className="lg:w-1/3 space-y-6">
+            <Card 
+              className="border-0"
+              style={{ backgroundColor: themeColors.surface }}
+            >
+              <CardContent className="p-6">
+                {currentCert ? (
+                  <>
+                    <InlineEditText
+                      value={currentCert.title || ''}
+                      onSave={(value) => updateCertificateMutation.mutate({ id: currentCert.id, field: 'title', value })}
+                    >
+                      <h2 className="text-2xl font-bold mb-4 text-white">
+                        {currentCert.title}
+                      </h2>
+                    </InlineEditText>
+                    
+                    <InlineEditText
+                      value={currentCert.description || ''}
+                      onSave={(value) => updateCertificateMutation.mutate({ id: currentCert.id, field: 'description', value })}
+                      multiline
+                    >
+                      <p className="text-base mb-4 text-white">
+                        {currentCert.description}
+                      </p>
+                    </InlineEditText>
+                    
+                    {currentCert.completion_date && (
+                      <div className="flex items-center gap-2 mb-4">
+                        <Calendar className="h-4 w-4" style={{ color: themeColors.primary }} />
+                        <span className="text-white">
+                          Completed: {formatDate(currentCert.completion_date)}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {currentCert.certificate_url && (
+                      <Button
+                        asChild
+                        className="w-full"
+                        style={{ backgroundColor: themeColors.primary }}
+                      >
+                        <a
+                          href={currentCert.certificate_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          View Certificate
+                        </a>
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-white text-center">No certificates available. Add one to get started!</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* 3D Circular Arc Display */}
+          <div className="lg:w-2/3 flex flex-col items-center">
+            <div 
+              className="relative"
+              style={{ 
+                height: '500px', 
+                width: '700px',
+                perspective: '1200px'
+              }}
+            >
+              {displayCertificates.map((cert, index) => (
+                <div
+                  key={cert.id}
+                  className="absolute top-1/2 left-1/2 transition-all duration-700 ease-out cursor-pointer"
+                  style={{
+                    ...getPositionStyle(index),
+                    transformOrigin: 'center center',
+                    marginLeft: '-120px', // Increased for larger certificates
+                    marginTop: '-90px'
+                  }}
+                  onClick={() => {
+                    if (index === currentIndex) {
+                      setSelectedCertificate(cert);
+                    } else {
+                      setCurrentIndex(index);
+                    }
+                  }}
+                >
+                  <Card 
+                    className="w-60 h-40 border-0 hover:shadow-xl transition-shadow duration-300" // Increased size
+                    style={{ 
+                      backgroundColor: themeColors.surface,
+                      boxShadow: index === currentIndex ? `0 0 30px ${themeColors.primary}` : 'none'
+                    }}
+                  >
+                    <CardContent className="p-6 h-full flex flex-col justify-center items-center text-center">
+                  <InlineEditImage
+                    value={cert.image_url}
+                    onSave={(url) => updateCertificateMutation.mutate({ id: cert.id, field: 'image_url', value: url })}
+                    bucket="certificates"
+                  >
+                    <img
+                      src={cert.image_url}
+                      alt={cert.title}
+                      className="w-16 h-16 mb-3 rounded"
+                    />
+                  </InlineEditImage>
+                  <DeleteButton
+                    onDelete={() => deleteCertificateMutation.mutate(cert.id)}
+                    isVisible={isEditMode && canEdit}
+                  />
+                      <h3 
+                        className="text-sm font-semibold truncate w-full text-white"
+                      >
+                        {cert.title}
+                      </h3>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
+
+            {/* Navigation Controls */}
+            <div className="flex gap-4 mt-8">
+              <Button
+                onClick={prevCertificate}
+                variant="outline"
+                size="lg"
+                className="border-2 hover:shadow-lg transition-all duration-300"
+                style={{ 
+                  borderColor: themeColors.primary, 
+                  color: themeColors.primary,
+                  backgroundColor: themeColors.background
+                }}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+              <Button
+                onClick={nextCertificate}
+                variant="outline"
+                size="lg"
+                className="border-2 hover:shadow-lg transition-all duration-300"
+                style={{ 
+                  borderColor: themeColors.primary, 
+                  color: themeColors.primary,
+                  backgroundColor: themeColors.background
+                }}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+            </div>
+
+            {/* Indicators */}
+            <div className="flex gap-2 mt-4">
+              {displayCertificates.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    index === currentIndex ? 'scale-125' : 'scale-100 opacity-50'
+                  }`}
+                  style={{ backgroundColor: themeColors.primary }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Certificate Modal */}
+      {selectedCertificate && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedCertificate(null)}
+        >
+          <div 
+            className="max-w-4xl w-full max-h-[90vh] overflow-auto rounded-lg relative"
+            style={{ backgroundColor: themeColors.surface }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedCertificate(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:opacity-80 z-10"
+              style={{ backgroundColor: themeColors.primary }}
+            >
+              <X className="h-5 w-5 text-white" />
+            </button>
+            
+            <div className="p-8">
+              <img
+                src={selectedCertificate.image_url}
+                alt={selectedCertificate.title}
+                className="w-full h-auto rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <CertificateForm
+        isOpen={showAddForm}
+        onClose={() => setShowAddForm(false)}
+        onSubmit={addCertificateMutation.mutate}
+        type="blockchain"
+      />
+    </div>
+  );
+};

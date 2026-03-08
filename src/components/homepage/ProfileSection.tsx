@@ -1,7 +1,7 @@
 import { InlineEditText } from '@/components/editor/InlineEditText';
 import { InlineEditImage } from '@/components/editor/InlineEditImage';
-import { useTheme } from '@/contexts/ThemeContext';
 import { motion } from 'framer-motion';
+import { Terminal } from 'lucide-react';
 
 interface ProfileSectionProps {
   introduction: string;
@@ -10,118 +10,110 @@ interface ProfileSectionProps {
   onUpdateProfileImage: (url: string) => void;
 }
 
-export const ProfileSection = ({ 
-  introduction, 
-  profileImageUrl, 
-  onUpdateIntroduction, 
-  onUpdateProfileImage 
+export const ProfileSection = ({
+  introduction,
+  profileImageUrl,
+  onUpdateIntroduction,
+  onUpdateProfileImage
 }: ProfileSectionProps) => {
-  const { themeColors } = useTheme();
-
   return (
-    <div className="grid lg:grid-cols-2 gap-12 items-center mb-20 relative">
-      {/* Floating elements */}
-      <div className="absolute top-0 left-1/4 w-2 h-2 bg-cyan-400 rounded-full animate-ping"></div>
-      <div className="absolute bottom-10 right-1/4 w-3 h-3 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
-      
-      {/* Left Side - Profile Section */}
-      <motion.div 
-        className="text-left space-y-8 relative z-10"
-        initial={{ opacity: 0, x: -100 }}
+    <div className="grid lg:grid-cols-5 gap-16 items-center mb-24 relative">
+      {/* Left - Text content (3 cols) */}
+      <motion.div
+        className="lg:col-span-3 space-y-8"
+        initial={{ opacity: 0, x: -40 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1, delay: 0.3 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
       >
         <div className="space-y-4">
-          <motion.p 
-            className="text-xl font-medium bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+            transition={{ delay: 0.5 }}
+            className="flex items-center gap-2 text-primary font-mono text-sm"
           >
-            Hello, It's Me
-          </motion.p>
-          <motion.h1 
-            className="text-5xl md:text-6xl font-black bg-gradient-to-r from-white via-blue-100 to-cyan-200 bg-clip-text text-transparent"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            <Terminal className="h-4 w-4" />
+            <span>~/about</span>
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="text-4xl md:text-5xl font-bold text-foreground tracking-tight"
           >
-            Harshal Gupta
-          </motion.h1>
-          <motion.div 
-            className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: 96 }}
-            transition={{ duration: 1, delay: 0.8 }}
+            Harshal <span className="text-gradient-primary">Gupta</span>
+          </motion.h2>
+
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="h-1 w-16 bg-primary rounded-full origin-left"
           />
         </div>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
+          transition={{ delay: 0.9 }}
         >
-          <InlineEditText
-            value={introduction}
-            onSave={onUpdateIntroduction}
-            multiline
-          >
-            <p className="text-xl leading-relaxed text-gray-100 font-light backdrop-blur-sm bg-white/5 p-6 rounded-2xl border border-white/10">
+          <InlineEditText value={introduction} onSave={onUpdateIntroduction} multiline>
+            <p className="text-base leading-[1.8] text-muted-foreground glass-card p-6 rounded-2xl">
               {introduction}
             </p>
           </InlineEditText>
         </motion.div>
+
+        {/* Stats row */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.1 }}
+          className="flex gap-8"
+        >
+          {[
+            { label: 'Focus', value: 'Security' },
+            { label: 'Stack', value: 'Web3' },
+            { label: 'Mode', value: 'Builder' },
+          ].map((stat) => (
+            <div key={stat.label} className="space-y-1">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+              <p className="text-sm font-semibold text-foreground">{stat.value}</p>
+            </div>
+          ))}
+        </motion.div>
       </motion.div>
 
-      {/* Right Side - Profile Image */}
-      <div className="flex justify-center lg:justify-end relative">
-        <motion.div 
-          className="relative"
-          initial={{ opacity: 0, scale: 0.5, rotate: 180 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ 
-            duration: 1.5, 
-            delay: 0.7,
-            type: "spring",
-            stiffness: 100
-          }}
-        >
-          {/* Animated rings */}
-          <div className="absolute -inset-8 animate-spin-slow">
-            <div className="w-full h-full rounded-full border-2 border-dashed border-cyan-400/30"></div>
-          </div>
-          <div className="absolute -inset-12 animate-spin-slow" style={{ animationDirection: 'reverse', animationDuration: '15s' }}>
-            <div className="w-full h-full rounded-full border border-dotted border-purple-500/20"></div>
-          </div>
-          
-          <div className="relative w-80 h-80 group">
-            {/* Gradient border */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-1 group-hover:scale-105 transition-transform duration-300">
-              <InlineEditImage
-                value={profileImageUrl}
-                onSave={onUpdateProfileImage}
-                bucket="profiles"
-              >
-                <div className="w-full h-full rounded-full overflow-hidden bg-gray-900">
-                  <img
-                    src={profileImageUrl || "/placeholder.svg"}
-                    alt="Profile"
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-              </InlineEditImage>
+      {/* Right - Profile image (2 cols) */}
+      <motion.div
+        className="lg:col-span-2 flex justify-center"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, delay: 0.5, type: 'spring', stiffness: 100 }}
+      >
+        <div className="relative w-72 h-72 lg:w-80 lg:h-80">
+          {/* Background decoration */}
+          <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/10 blur-2xl" />
+          <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-primary/30 via-transparent to-accent/20" />
+
+          <InlineEditImage value={profileImageUrl} onSave={onUpdateProfileImage} bucket="profiles">
+            <div className="relative w-full h-full rounded-2xl overflow-hidden bg-secondary">
+              <img
+                src={profileImageUrl || '/placeholder.svg'}
+                alt="Profile"
+                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+              />
+              {/* Overlay gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
             </div>
-            
-            {/* Floating particles */}
-            <div className="absolute -top-4 -right-4 w-4 h-4 bg-cyan-400 rounded-full animate-bounce opacity-70"></div>
-            <div className="absolute -bottom-4 -left-4 w-3 h-3 bg-purple-500 rounded-full animate-ping opacity-50"></div>
-            <div className="absolute top-1/4 -left-8 w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-            
-            {/* Glow effects */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 via-blue-500/20 to-purple-600/20 blur-2xl animate-pulse"></div>
-          </div>
-        </motion.div>
-      </div>
+          </InlineEditImage>
+
+          {/* Corner accents */}
+          <div className="absolute -top-2 -left-2 w-6 h-6 border-l-2 border-t-2 border-primary rounded-tl-lg" />
+          <div className="absolute -bottom-2 -right-2 w-6 h-6 border-r-2 border-b-2 border-accent rounded-br-lg" />
+        </div>
+      </motion.div>
     </div>
   );
 };

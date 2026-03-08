@@ -1,8 +1,8 @@
 import { AddContentButton } from '@/components/editor/AddContentButton';
 import { DeleteButton } from '@/components/editor/DeleteButton';
 import { useEditMode } from '@/contexts/EditModeContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { Shield, Code, Linkedin, Github, Twitter, X } from 'lucide-react';
+import { Linkedin, Github, Twitter, X, Shield, Code } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface SocialLink {
   id: string;
@@ -25,66 +25,48 @@ const getIconComponent = (name: string) => {
     'X': X,
     'Twitter': Twitter,
     'TryHackMe': Shield,
-    'HackTheBox': Code
+    'HackTheBox': Code,
   };
   return iconMap[name] || Code;
 };
 
-const getIconColor = (name: string) => {
-  const colorMap: { [key: string]: string } = {
-    'LinkedIn': '#0077b5',
-    'GitHub': '#333',
-    'X': '#000',
-    'Twitter': '#1da1f2',
-    'TryHackMe': '#dc2626',
-    'HackTheBox': '#16a34a'
-  };
-  return colorMap[name] || '#666';
-};
-
 export const SocialLinksSection = ({ socialLinks, onManageSocialLinks, onDeleteSocialLink }: SocialLinksSectionProps) => {
-  const { themeColors } = useTheme();
   const { canEdit } = useEditMode();
 
   return (
-    <div className="text-center">
-      <div className="relative inline-block mb-6">
-        <p 
-          className="text-3xl font-semibold text-white"
-          style={{ color: themeColors.primary }}
-        >
-          Follow me or find me here
-        </p>
-        <div 
-          className="absolute bottom-0 left-0 w-full h-1 rounded animate-pulse"
-          style={{ 
-            backgroundColor: themeColors.primary,
-            boxShadow: `0 0 10px ${themeColors.primary}, 0 0 20px ${themeColors.primary}`
-          }}
-        />
-      </div>
-      
-      <div className="flex justify-center gap-4 mb-4">
-        {socialLinks.map((social) => {
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.6 }}
+      className="text-center pb-16"
+    >
+      <p className="text-xs font-mono text-muted-foreground uppercase tracking-[0.3em] mb-8">
+        Connect
+      </p>
+
+      <div className="flex justify-center gap-3 mb-6">
+        {socialLinks.map((social, i) => {
           const IconComponent = getIconComponent(social.name);
-          const iconColor = getIconColor(social.name);
-          
           return (
-            <div key={social.id} className="relative group">
+            <motion.div
+              key={social.id}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.7 + i * 0.1, type: 'spring' }}
+              className="relative group"
+            >
               <a
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-200 cursor-pointer"
-                style={{ backgroundColor: iconColor }}
+                className="w-11 h-11 rounded-xl glass-card flex items-center justify-center hover:border-primary/40 hover:text-primary text-muted-foreground transition-all duration-300 hover:scale-110 hover:glow-primary"
               >
                 {social.icon_url ? (
-                  <img src={social.icon_url} alt={social.name} className="h-6 w-6" />
+                  <img src={social.icon_url} alt={social.name} className="h-4 w-4" />
                 ) : (
-                  <IconComponent className="h-6 w-6 text-white" />
+                  <IconComponent className="h-4 w-4" />
                 )}
               </a>
-              
               {canEdit && (
                 <DeleteButton
                   onDelete={() => onDeleteSocialLink(social.id)}
@@ -92,16 +74,16 @@ export const SocialLinksSection = ({ socialLinks, onManageSocialLinks, onDeleteS
                   className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100"
                 />
               )}
-            </div>
+            </motion.div>
           );
         })}
       </div>
-      
+
       {canEdit && (
         <AddContentButton onClick={onManageSocialLinks}>
           Manage Social Links
         </AddContentButton>
       )}
-    </div>
+    </motion.div>
   );
 };

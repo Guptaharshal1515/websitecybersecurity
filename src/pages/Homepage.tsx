@@ -1,24 +1,20 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { WelcomeSection } from '@/components/homepage/WelcomeSection';
 import { ProfileSection } from '@/components/homepage/ProfileSection';
 import { NavigationBoxes } from '@/components/homepage/NavigationBoxes';
 import { SocialLinksSection } from '@/components/homepage/SocialLinksSection';
 import { SocialLinkForm } from '@/components/editor/forms/SocialLinkForm';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 import { uploadImageToStorage, getPublicUrl } from '@/utils/storage';
-import { Shield, Code, User, Linkedin, Github, Twitter, Upload, X, Plus } from 'lucide-react';
+import { Upload } from 'lucide-react';
 
 interface HomepageContent {
   id: string;
@@ -32,12 +28,10 @@ interface HomepageContent {
 }
 
 export const Homepage = () => {
-  const { themeColors } = useTheme();
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Editor state
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState<string>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -51,7 +45,6 @@ export const Homepage = () => {
         .from('homepage_content')
         .select('*')
         .single();
-      
       if (error && error.code !== 'PGRST116') throw error;
       return data as HomepageContent | null;
     },
@@ -90,11 +83,7 @@ export const Homepage = () => {
   const { data: socialLinks } = useQuery({
     queryKey: ['social-links'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('social_links')
-        .select('*')
-        .order('display_order');
-      
+      const { data, error } = await supabase.from('social_links').select('*').order('display_order');
       if (error) throw error;
       return data || [];
     },
@@ -138,13 +127,9 @@ export const Homepage = () => {
     mutationFn: async (linkData: { name: string; url: string; icon_url?: string }) => {
       const { data, error } = await supabase
         .from('social_links')
-        .insert([{
-          ...linkData,
-          display_order: (socialLinks?.length || 0) + 1
-        }])
+        .insert([{ ...linkData, display_order: (socialLinks?.length || 0) + 1 }])
         .select()
         .single();
-      
       if (error) throw error;
       return data;
     },
@@ -160,11 +145,7 @@ export const Homepage = () => {
 
   const deleteSocialLinkMutation = useMutation({
     mutationFn: async (linkId: string) => {
-      const { error } = await supabase
-        .from('social_links')
-        .delete()
-        .eq('id', linkId);
-      
+      const { error } = await supabase.from('social_links').delete().eq('id', linkId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -175,11 +156,6 @@ export const Homepage = () => {
       toast({ title: 'Error deleting social link', description: error.message, variant: 'destructive' });
     }
   });
-
-  const handleEdit = (field: string, currentValue: string) => {
-    setEditingField(field);
-    setEditingValue(currentValue || '');
-  };
 
   const handleSaveText = async () => {
     if (editingField) {
@@ -192,10 +168,8 @@ export const Homepage = () => {
       try {
         const fileExt = selectedFile.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        
         await uploadImageToStorage(selectedFile, 'profiles', fileName);
         const publicUrl = getPublicUrl('profiles', fileName);
-        
         updateMutation.mutate({ profile_image_url: publicUrl });
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -209,9 +183,7 @@ export const Homepage = () => {
     if (file) {
       setSelectedFile(file);
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewUrl(e.target?.result as string);
-      };
+      reader.onload = (e) => setPreviewUrl(e.target?.result as string);
       reader.readAsDataURL(file);
     }
   };
@@ -224,34 +196,37 @@ export const Homepage = () => {
   };
 
   const defaultContent = {
-    welcome_message: "Welcome to My Space",
-    introduction: "I'm a passionate Computer Science student with a strong focus on Cybersecurity, Blockchain, and Cloud technologies. My journey blends formal education with hands-on experience, where I explore offensive security, red teaming, Web3 development, and more. Through this portfolio, I document my learning, certifications, projects, and progress toward becoming a skilled cyber professional.",
-    about_bio: "Passionate cybersecurity and blockchain enthusiast focused on building secure, decentralized solutions for the future.",
-    profile_image_url: null
+    welcome_message: 'Welcome to My Space',
+    introduction: "I'm a passionate Computer Science student with a strong focus on Cybersecurity, Blockchain, and Cloud technologies. My journey blends formal education with hands-on experience, where I explore offensive security, red teaming, Web3 development, and more.",
+    about_bio: 'Passionate cybersecurity and blockchain enthusiast.',
+    profile_image_url: null,
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
-      <div className="container mx-auto px-4 py-8">
-        <WelcomeSection 
+    <div className="min-h-screen bg-background relative">
+      {/* Subtle gradient orbs */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-accent/5 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="container mx-auto px-6">
+        <WelcomeSection
           welcomeMessage={content?.welcome_message || defaultContent.welcome_message}
           onUpdateWelcome={(value) => updateMutation.mutate({ welcome_message: value })}
         />
-
-        <ProfileSection 
+        <ProfileSection
           introduction={content?.introduction || defaultContent.introduction}
           profileImageUrl={content?.profile_image_url}
           onUpdateIntroduction={(value) => updateMutation.mutate({ introduction: value })}
           onUpdateProfileImage={(url) => updateMutation.mutate({ profile_image_url: url })}
         />
-
-        <NavigationBoxes 
+        <NavigationBoxes
           certificatesCount={certificatesCount}
           projectsCount={projectsCount}
           badgesCount={badgesCount}
         />
-
-        <SocialLinksSection 
+        <SocialLinksSection
           socialLinks={socialLinks || []}
           onManageSocialLinks={() => setShowAddForm(true)}
           onDeleteSocialLink={(id) => deleteSocialLinkMutation.mutate(id)}
@@ -266,16 +241,9 @@ export const Homepage = () => {
           </DialogHeader>
           <div className="space-y-4">
             {editingField === 'introduction' ? (
-              <Textarea
-                value={editingValue}
-                onChange={(e) => setEditingValue(e.target.value)}
-                rows={4}
-              />
+              <Textarea value={editingValue} onChange={(e) => setEditingValue(e.target.value)} rows={4} />
             ) : (
-              <Input
-                value={editingValue}
-                onChange={(e) => setEditingValue(e.target.value)}
-              />
+              <Input value={editingValue} onChange={(e) => setEditingValue(e.target.value)} />
             )}
             <div className="flex gap-2">
               <Button variant="outline" onClick={cancelEdit}>Cancel</Button>
@@ -304,13 +272,7 @@ export const Homepage = () => {
                 </div>
               )}
             </div>
-            <input
-              id="fileInput"
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
+            <input id="fileInput" type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
             <div className="flex gap-2">
               <Button variant="outline" onClick={cancelEdit}>Cancel</Button>
               <Button onClick={handleSaveImage} disabled={!selectedFile}>Save</Button>
@@ -324,39 +286,6 @@ export const Homepage = () => {
         onClose={() => setShowAddForm(false)}
         onSubmit={(data) => addSocialLinkMutation.mutate(data)}
       />
-
-      <style>{`
-        .welcome-glow {
-          text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-        
-        .glow-underline {
-          animation: glow-pulse 2s ease-in-out infinite alternate;
-        }
-        
-        @keyframes glow-pulse {
-          from {
-            box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
-          }
-          to {
-            box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
-          }
-        }
-        
-        .pixel-box:hover {
-          animation: none;
-        }
-        
-        @keyframes pixelPop {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.02); }
-          100% { transform: scale(1.05); }
-        }
-        
-        .animate-spin-slow {
-          animation: spin 10s linear infinite;
-        }
-      `}</style>
     </div>
   );
 };

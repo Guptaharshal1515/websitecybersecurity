@@ -166,7 +166,7 @@ export const Homepage = () => {
   const cancelEdit = () => { setEditingField(null); setEditingValue(''); setSelectedFile(null); setPreviewUrl(''); };
 
   const defaultContent = {
-    welcome_message: 'Welcome to My Space',
+    welcome_message: 'Welcome to My Page',
     introduction: "I'm a passionate Computer Science student with a strong focus on Cybersecurity, Blockchain, and Cloud technologies.",
     about_bio: 'Passionate cybersecurity and blockchain enthusiast.',
     profile_image_url: null,

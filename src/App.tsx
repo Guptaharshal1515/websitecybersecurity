@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { EditModeProvider } from "@/contexts/EditModeContext";
 import { Header } from "@/components/layout/Header";
 import { AdaptiveNavigation } from "@/components/layout/AdaptiveNavigation";
+import { Footer } from "@/components/layout/Footer";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { GlobalEditModeToolbar } from "@/components/editor/GlobalEditModeToolbar";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";

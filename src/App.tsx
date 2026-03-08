@@ -72,6 +72,7 @@ const AppContent = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatePresence>
+      <Footer />
     </div>
   );
 };

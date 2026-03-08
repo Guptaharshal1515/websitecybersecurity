@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.12 (cd3cf9e)"
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
@@ -533,7 +533,47 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      roadmap_subtopics_safe: {
+        Row: {
+          completed_by: string | null
+          created_at: string | null
+          display_order: number | null
+          id: string | null
+          is_completed: boolean | null
+          resource_link: string | null
+          title: string | null
+          topic_id: string | null
+        }
+        Insert: {
+          completed_by?: never
+          created_at?: string | null
+          display_order?: number | null
+          id?: string | null
+          is_completed?: boolean | null
+          resource_link?: string | null
+          title?: string | null
+          topic_id?: string | null
+        }
+        Update: {
+          completed_by?: never
+          created_at?: string | null
+          display_order?: number | null
+          id?: string | null
+          is_completed?: boolean | null
+          resource_link?: string | null
+          title?: string | null
+          topic_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roadmap_subtopics_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "roadmap_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_user_role: {

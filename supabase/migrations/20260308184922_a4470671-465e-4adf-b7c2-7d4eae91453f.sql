@@ -1,0 +1,1 @@
+UPDATE homepage_content SET welcome_message = 'Welcome to My Page' WHERE id = 'df539bd6-51b0-4784-81a9-54f7334b67fa';

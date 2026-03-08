@@ -68,7 +68,7 @@ export const Footer = () => {
               ))}
             </div>
             <p className="text-xs text-muted-foreground font-mono">
-              contact@example.com
+              guptaharshal1515@gmail.com
             </p>
           </div>
         </div>

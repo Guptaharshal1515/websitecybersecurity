@@ -1,12 +1,16 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTheme } from '@/contexts/ThemeContext';
 import { CertificateHeader } from '@/components/certificates/CertificateHeader';
 import { CertificateCard } from '@/components/certificates/CertificateCard';
 import { CertificateForm } from '@/components/editor/forms/CertificateForm';
+import { PageTransition } from '@/components/layout/PageTransition';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useToast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
+import { Shield } from 'lucide-react';
+import { AddContentButton } from '@/components/editor/AddContentButton';
+import { useEditMode } from '@/contexts/EditModeContext';
 
 interface Certificate {
   id: string;
@@ -19,8 +23,8 @@ interface Certificate {
 }
 
 export const CybersecurityCertificates = () => {
-  const { themeColors } = useTheme();
   const { toast } = useToast();
+  const { canEdit } = useEditMode();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -38,9 +42,6 @@ export const CybersecurityCertificates = () => {
     },
   });
 
-  // Show actual data, no dummy certificates
-  const displayCertificates = certificates;
-
   const addCertificateMutation = useMutation({
     mutationFn: async (newCert: any) => {
       const { data, error } = await supabase
@@ -48,7 +49,6 @@ export const CybersecurityCertificates = () => {
         .insert([{ ...newCert, type: 'cybersecurity' }])
         .select()
         .single();
-      
       if (error) throw error;
       return data;
     },
@@ -61,11 +61,7 @@ export const CybersecurityCertificates = () => {
 
   const deleteCertificateMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('certificates')
-        .delete()
-        .eq('id', id);
-      
+      const { error } = await supabase.from('certificates').delete().eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -82,7 +78,6 @@ export const CybersecurityCertificates = () => {
         .eq('id', id)
         .select()
         .single();
-      
       if (error) throw error;
       return data;
     },
@@ -93,23 +88,55 @@ export const CybersecurityCertificates = () => {
   });
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: themeColors.background }}>
-      <div className="container mx-auto px-4 py-16">
-        <CertificateHeader 
-          title="Cybersecurity Certificates"
-          onAddCertificate={() => setShowAddForm(true)}
-        />
+    <PageTransition>
+      <div className="min-h-screen bg-background relative">
+        {/* Background effects */}
+        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/3 -left-32 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
+          <div className="absolute bottom-1/3 -right-32 w-96 h-96 bg-accent/5 rounded-full blur-[120px]" />
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayCertificates.map((cert) => (
-            <CertificateCard
-              key={cert.id}
-              certificate={cert}
-              onUpdate={(id, field, value) => updateCertificateMutation.mutate({ id, field, value })}
-              onDelete={(id) => deleteCertificateMutation.mutate(id)}
-              enableImagePopup={true}
-            />
-          ))}
+        <div className="container mx-auto px-6">
+          <PageHeader
+            title="Cybersecurity Certificates"
+            subtitle="Certifications and credentials in offensive security, ethical hacking, and cyber defense."
+            actions={
+              canEdit ? (
+                <AddContentButton onClick={() => setShowAddForm(true)}>
+                  Add Certificate
+                </AddContentButton>
+              ) : undefined
+            }
+          />
+
+          {certificates.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-24"
+            >
+              <Shield className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-muted-foreground text-lg">No certificates yet</p>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-16">
+              {certificates.map((cert, index) => (
+                <motion.div
+                  key={cert.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.08, duration: 0.5 }}
+                >
+                  <CertificateCard
+                    certificate={cert}
+                    onUpdate={(id, field, value) => updateCertificateMutation.mutate({ id, field, value })}
+                    onDelete={(id) => deleteCertificateMutation.mutate(id)}
+                    enableImagePopup={true}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
 
         <CertificateForm
@@ -119,6 +146,6 @@ export const CybersecurityCertificates = () => {
           type="cybersecurity"
         />
       </div>
-    </div>
+    </PageTransition>
   );
 };

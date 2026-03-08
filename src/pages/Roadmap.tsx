@@ -116,7 +116,7 @@ export const RoadmapOld = () => {
     queryKey: ['roadmap-subtopics'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('roadmap_subtopics')
+        .from('roadmap_subtopics_safe')
         .select('*')
         .order('display_order', { ascending: true });
       if (error) throw error;

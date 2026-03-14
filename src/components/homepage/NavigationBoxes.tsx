@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Shield, Code, Briefcase, Award } from 'lucide-react';
+import { ShieldCheck, Blocks, FolderKanban, Medal, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface NavigationBoxesProps {
@@ -17,35 +17,43 @@ export const NavigationBoxes = ({ certificatesCount, projectsCount, badgesCount 
   const boxes = [
     {
       title: 'Cybersecurity',
+      subtitle: 'Certifications',
       count: certificatesCount?.cybersecurity || 0,
-      label: 'Certificates',
-      icon: Shield,
+      description: 'View your cybersecurity certifications.',
+      buttonLabel: 'View Certificates',
+      icon: ShieldCheck,
       route: '/cybersecurity-certificates',
-      accent: 'hsl(var(--primary))',
+      accentHsl: '160 84% 45%',
     },
     {
       title: 'Blockchain',
+      subtitle: 'Certifications',
       count: certificatesCount?.blockchain || 0,
-      label: 'Certificates',
-      icon: Code,
+      description: 'View your blockchain certifications',
+      buttonLabel: 'View Certificates',
+      icon: Blocks,
       route: '/blockchain-certificates',
-      accent: 'hsl(var(--accent))',
+      accentHsl: '45 93% 58%',
     },
     {
-      title: 'Projects',
+      title: 'Completed',
+      subtitle: 'Projects',
       count: projectsCount || 0,
-      label: 'Completed',
-      icon: Briefcase,
+      description: "View the projects you've completed.",
+      buttonLabel: 'View Projects',
+      icon: FolderKanban,
       route: '/projects',
-      accent: 'hsl(160 84% 45%)',
+      accentHsl: '200 80% 55%',
     },
     {
       title: 'Badges',
+      subtitle: 'Collected',
       count: badgesCount || 0,
-      label: 'Collected',
-      icon: Award,
+      description: "View all the badges you've collected.",
+      buttonLabel: 'View Badges',
+      icon: Medal,
       route: '/digital-badges',
-      accent: 'hsl(280 70% 55%)',
+      accentHsl: '280 70% 60%',
     },
   ];
 
@@ -62,7 +70,7 @@ export const NavigationBoxes = ({ certificatesCount, projectsCount, badgesCount 
         <div className="h-px flex-1 bg-border" />
       </motion.div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {boxes.map((box, i) => (
           <motion.div
             key={box.title}
@@ -72,39 +80,96 @@ export const NavigationBoxes = ({ certificatesCount, projectsCount, badgesCount 
           >
             <button
               onClick={() => navigate(box.route)}
-              className="w-full text-left group glass-card rounded-2xl p-6 hover:border-primary/30 transition-all duration-500 hover:glow-primary relative overflow-hidden"
+              className="w-full text-left group relative rounded-2xl overflow-hidden transition-all duration-500"
+              style={{
+                background: 'hsl(var(--card) / 0.7)',
+                backdropFilter: 'blur(16px)',
+              }}
             >
-              {/* Top accent line */}
+              {/* Glowing border */}
               <div
-                className="absolute top-0 left-0 right-0 h-[2px] opacity-60 group-hover:opacity-100 transition-opacity"
-                style={{ backgroundColor: box.accent }}
+                className="absolute inset-0 rounded-2xl opacity-40 group-hover:opacity-80 transition-opacity duration-500"
+                style={{
+                  boxShadow: `inset 0 0 0 1px hsl(${box.accentHsl} / 0.4), 0 0 20px hsl(${box.accentHsl} / 0.08)`,
+                }}
+              />
+              {/* Top glow bar */}
+              <div
+                className="absolute top-0 left-1/4 right-1/4 h-[1px] opacity-60 group-hover:opacity-100 group-hover:left-[10%] group-hover:right-[10%] transition-all duration-700"
+                style={{
+                  background: `linear-gradient(90deg, transparent, hsl(${box.accentHsl}), transparent)`,
+                }}
+              />
+              {/* Bottom glow */}
+              <div
+                className="absolute bottom-0 left-1/3 right-1/3 h-[1px] opacity-0 group-hover:opacity-60 transition-opacity duration-700"
+                style={{
+                  background: `linear-gradient(90deg, transparent, hsl(${box.accentHsl} / 0.6), transparent)`,
+                }}
               />
 
-              <div className="flex items-start justify-between mb-6">
-                <div
-                  className="p-2.5 rounded-xl transition-all duration-300 group-hover:scale-110"
-                  style={{ backgroundColor: box.accent + '15' }}
-                >
-                  <box.icon className="h-5 w-5" style={{ color: box.accent }} />
+              <div className="relative p-6 flex flex-col h-full min-h-[260px]">
+                {/* Header: icon + count */}
+                <div className="flex items-start justify-between mb-5">
+                  <div
+                    className="p-2.5 rounded-xl border transition-all duration-300 group-hover:scale-110"
+                    style={{
+                      borderColor: `hsl(${box.accentHsl} / 0.3)`,
+                      backgroundColor: `hsl(${box.accentHsl} / 0.08)`,
+                    }}
+                  >
+                    <box.icon
+                      className="h-5 w-5"
+                      style={{ color: `hsl(${box.accentHsl})` }}
+                    />
+                  </div>
+                  <span
+                    className="text-3xl font-bold font-mono"
+                    style={{ color: `hsl(${box.accentHsl})` }}
+                  >
+                    {box.count}
+                  </span>
                 </div>
+
+                {/* Title + subtitle */}
+                <h3 className="text-lg font-semibold text-foreground leading-tight">
+                  {box.title}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {box.subtitle}
+                </p>
+
+                {/* Divider */}
+                <div
+                  className="h-px w-full mb-4 opacity-20"
+                  style={{ backgroundColor: `hsl(${box.accentHsl})` }}
+                />
+
+                {/* Count repeated + description */}
                 <span
-                  className="text-3xl font-bold font-mono"
-                  style={{ color: box.accent }}
+                  className="text-2xl font-bold font-mono mb-1"
+                  style={{ color: `hsl(${box.accentHsl})` }}
                 >
                   {box.count}
                 </span>
-              </div>
+                <p className="text-xs text-muted-foreground mb-5 leading-relaxed">
+                  {box.description}
+                </p>
 
-              <h3 className="text-base font-semibold text-foreground mb-1">
-                {box.title}
-              </h3>
-              <p className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
-                {box.label}
-              </p>
-
-              {/* Hover arrow */}
-              <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
-                <span className="text-primary text-lg">→</span>
+                {/* Button */}
+                <div className="mt-auto">
+                  <div
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-300 group-hover:gap-3"
+                    style={{
+                      borderColor: `hsl(${box.accentHsl} / 0.4)`,
+                      color: `hsl(${box.accentHsl})`,
+                      backgroundColor: `hsl(${box.accentHsl} / 0.05)`,
+                    }}
+                  >
+                    {box.buttonLabel}
+                    <ChevronRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                  </div>
+                </div>
               </div>
             </button>
           </motion.div>

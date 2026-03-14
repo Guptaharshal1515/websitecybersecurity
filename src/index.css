@@ -118,4 +118,45 @@
   .glow-accent {
     box-shadow: 0 0 30px hsl(45 93% 58% / 0.15), 0 0 60px hsl(45 93% 58% / 0.05);
   }
+
+  /* Navigation box color variants */
+  .nav-box-primary .nav-box-border { box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.4); }
+  .nav-box-primary .nav-box-glow-bar { background: linear-gradient(90deg, transparent, hsl(var(--primary)), transparent); }
+  .nav-box-primary .nav-box-aura { background: hsl(var(--primary) / 0.08); }
+  .nav-box-primary .nav-box-icon-bg { border-color: hsl(var(--primary) / 0.3); background: hsl(var(--primary) / 0.08); }
+  .nav-box-primary .nav-box-icon { color: hsl(var(--primary)); }
+  .nav-box-primary .nav-box-text { color: hsl(var(--primary)); }
+  .nav-box-primary .nav-box-divider { background: hsl(var(--primary)); }
+  .nav-box-primary .nav-box-btn { border-color: hsl(var(--primary) / 0.4); color: hsl(var(--primary)); background: hsl(var(--primary) / 0.05); }
+  .nav-box-primary:hover { box-shadow: 0 0 30px hsl(var(--primary) / 0.15), 0 0 60px hsl(var(--primary) / 0.06); }
+
+  .nav-box-accent .nav-box-border { box-shadow: inset 0 0 0 1px hsl(var(--accent) / 0.4); }
+  .nav-box-accent .nav-box-glow-bar { background: linear-gradient(90deg, transparent, hsl(var(--accent)), transparent); }
+  .nav-box-accent .nav-box-aura { background: hsl(var(--accent) / 0.08); }
+  .nav-box-accent .nav-box-icon-bg { border-color: hsl(var(--accent) / 0.3); background: hsl(var(--accent) / 0.08); }
+  .nav-box-accent .nav-box-icon { color: hsl(var(--accent)); }
+  .nav-box-accent .nav-box-text { color: hsl(var(--accent)); }
+  .nav-box-accent .nav-box-divider { background: hsl(var(--accent)); }
+  .nav-box-accent .nav-box-btn { border-color: hsl(var(--accent) / 0.4); color: hsl(var(--accent)); background: hsl(var(--accent) / 0.05); }
+  .nav-box-accent:hover { box-shadow: 0 0 30px hsl(var(--accent) / 0.15), 0 0 60px hsl(var(--accent) / 0.06); }
+
+  .nav-box-info .nav-box-border { box-shadow: inset 0 0 0 1px hsl(200 80% 55% / 0.4); }
+  .nav-box-info .nav-box-glow-bar { background: linear-gradient(90deg, transparent, hsl(200 80% 55%), transparent); }
+  .nav-box-info .nav-box-aura { background: hsl(200 80% 55% / 0.08); }
+  .nav-box-info .nav-box-icon-bg { border-color: hsl(200 80% 55% / 0.3); background: hsl(200 80% 55% / 0.08); }
+  .nav-box-info .nav-box-icon { color: hsl(200 80% 55%); }
+  .nav-box-info .nav-box-text { color: hsl(200 80% 55%); }
+  .nav-box-info .nav-box-divider { background: hsl(200 80% 55%); }
+  .nav-box-info .nav-box-btn { border-color: hsl(200 80% 55% / 0.4); color: hsl(200 80% 55%); background: hsl(200 80% 55% / 0.05); }
+  .nav-box-info:hover { box-shadow: 0 0 30px hsl(200 80% 55% / 0.15), 0 0 60px hsl(200 80% 55% / 0.06); }
+
+  .nav-box-purple .nav-box-border { box-shadow: inset 0 0 0 1px hsl(280 70% 60% / 0.4); }
+  .nav-box-purple .nav-box-glow-bar { background: linear-gradient(90deg, transparent, hsl(280 70% 60%), transparent); }
+  .nav-box-purple .nav-box-aura { background: hsl(280 70% 60% / 0.08); }
+  .nav-box-purple .nav-box-icon-bg { border-color: hsl(280 70% 60% / 0.3); background: hsl(280 70% 60% / 0.08); }
+  .nav-box-purple .nav-box-icon { color: hsl(280 70% 60%); }
+  .nav-box-purple .nav-box-text { color: hsl(280 70% 60%); }
+  .nav-box-purple .nav-box-divider { background: hsl(280 70% 60%); }
+  .nav-box-purple .nav-box-btn { border-color: hsl(280 70% 60% / 0.4); color: hsl(280 70% 60%); background: hsl(280 70% 60% / 0.05); }
+  .nav-box-purple:hover { box-shadow: 0 0 30px hsl(280 70% 60% / 0.15), 0 0 60px hsl(280 70% 60% / 0.06); }
 }

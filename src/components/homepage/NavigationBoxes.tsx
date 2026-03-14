@@ -61,7 +61,7 @@ export const NavigationBoxes = ({ certificatesCount, projectsCount, badgesCount 
   ];
 
   return (
-    <div className="mb-24">
+    <div id="explore-section" className="mb-24">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

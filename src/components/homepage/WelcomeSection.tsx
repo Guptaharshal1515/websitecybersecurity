@@ -30,7 +30,7 @@ export const WelcomeSection = ({ welcomeMessage, onUpdateWelcome }: WelcomeSecti
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gradient-primary leading-[0.95]"
+              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gradient-primary leading-[1.1]"
             >
               {welcomeMessage}
             </motion.h1>
@@ -71,12 +71,20 @@ export const WelcomeSection = ({ welcomeMessage, onUpdateWelcome }: WelcomeSecti
           className="hidden lg:flex justify-center items-center"
         >
           <div className="relative w-full max-w-lg">
-            <div className="absolute -inset-8 bg-primary/5 rounded-full blur-[80px]" />
-            <img
-              src={heroIllustration}
-              alt="Cybersecurity and blockchain illustration"
-              className="relative w-full h-auto object-contain"
-            />
+            {/* Ambient glow behind illustration */}
+            <div className="absolute -inset-16 bg-primary/8 rounded-full blur-[120px]" />
+            <div className="absolute -inset-10 bg-accent/5 rounded-full blur-[100px]" />
+            {/* Mask to blend edges into background */}
+            <div className="relative overflow-hidden rounded-3xl" style={{
+              maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)',
+              WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)',
+            }}>
+              <img
+                src={heroIllustration}
+                alt="Cybersecurity and blockchain illustration"
+                className="w-full h-auto object-contain mix-blend-lighten"
+              />
+            </div>
           </div>
         </motion.div>
       </div>

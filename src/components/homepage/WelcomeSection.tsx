@@ -30,7 +30,7 @@ export const WelcomeSection = ({ welcomeMessage, onUpdateWelcome }: WelcomeSecti
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gradient-primary leading-[0.95]"
+              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gradient-primary leading-[1.1]"
             >
               {welcomeMessage}
             </motion.h1>

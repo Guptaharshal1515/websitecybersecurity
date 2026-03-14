@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { ChevronRight } from 'lucide-react';
 import { InlineEditText } from '@/components/editor/InlineEditText';
+import heroIllustration from '@/assets/hero-illustration.png';
 
 interface WelcomeSectionProps {
   welcomeMessage: string;
@@ -8,63 +10,75 @@ interface WelcomeSectionProps {
 }
 
 export const WelcomeSection = ({ welcomeMessage, onUpdateWelcome }: WelcomeSectionProps) => {
+  const scrollToExplore = () => {
+    const el = document.getElementById('explore-section');
+    el?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1.2 }}
-      className="pt-32 pb-8 relative"
+      className="pt-28 pb-12 relative min-h-[80vh] flex items-center"
     >
-      {/* Grid background pattern */}
-      <div className="absolute inset-0 -z-10 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px',
-        }}
-      />
+      <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
+        {/* Left - Text */}
+        <div className="space-y-6">
+          <InlineEditText value={welcomeMessage} onSave={onUpdateWelcome}>
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gradient-primary leading-[0.95]"
+            >
+              {welcomeMessage}
+            </motion.h1>
+          </InlineEditText>
 
-      <div className="text-center max-w-4xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-6"
-        >
-          <span className="inline-block px-4 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-mono uppercase tracking-[0.2em]">
-            Portfolio 2026
-          </span>
-        </motion.div>
-
-        <InlineEditText value={welcomeMessage} onSave={onUpdateWelcome}>
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="text-6xl md:text-8xl font-bold tracking-tight text-gradient-primary mb-6 leading-[0.9]"
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="text-base md:text-lg text-muted-foreground max-w-lg leading-relaxed"
           >
-            {welcomeMessage}
-          </motion.h1>
-        </InlineEditText>
+            Building secure digital infrastructure at the intersection of
+            <span className="text-primary font-medium"> cybersecurity</span>,
+            <span className="text-accent font-medium"> blockchain</span>,
+            <span className="text-foreground font-medium"> cloud</span>.
+          </motion.p>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-        >
-          Building secure digital infrastructure at the intersection of
-          <span className="text-primary font-medium"> cybersecurity</span>,
-          <span className="text-accent font-medium"> blockchain</span>, and
-          <span className="text-foreground font-medium"> cloud</span>.
-        </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.9 }}
+          >
+            <button
+              onClick={scrollToExplore}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-primary/40 bg-primary/5 text-primary font-medium text-sm hover:bg-primary/10 hover:border-primary/60 transition-all duration-300 group"
+            >
+              Explore Portfolio
+              <ChevronRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </button>
+          </motion.div>
+        </div>
 
-        {/* Animated line */}
+        {/* Right - Illustration */}
         <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1.2, delay: 1 }}
-          className="mt-10 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent max-w-lg mx-auto"
-        />
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="hidden lg:flex justify-center items-center"
+        >
+          <div className="relative w-full max-w-lg">
+            <div className="absolute -inset-8 bg-primary/5 rounded-full blur-[80px]" />
+            <img
+              src={heroIllustration}
+              alt="Cybersecurity and blockchain illustration"
+              className="relative w-full h-auto object-contain"
+            />
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );

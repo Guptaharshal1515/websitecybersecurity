@@ -23,12 +23,12 @@ export const WelcomeSection = ({ welcomeMessage, onUpdateWelcome }: WelcomeSecti
         <img
           src={heroBg}
           alt=""
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-right"
         />
         {/* Fade edges into site background */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/80" />
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-background/40" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/90" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background to-transparent" />
       </div>
 
       {/* Content */}

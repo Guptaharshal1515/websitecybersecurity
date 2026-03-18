@@ -40,13 +40,15 @@ export const WelcomeSection = ({ welcomeMessage, onUpdateWelcome }: WelcomeSecti
       >
         <div className="space-y-6">
           <InlineEditText value={welcomeMessage} onSave={onUpdateWelcome}>
-            <BlurText
-              text={welcomeMessage}
-              delay={150}
-              animateBy="words"
-              direction="top"
-              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gradient-primary leading-[1.1]"
-            />
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1]">
+              <BlurText
+                text={welcomeMessage}
+                delay={150}
+                animateBy="words"
+                direction="top"
+                className="text-gradient-primary"
+              />
+            </h1>
           </InlineEditText>
 
           <BlurText

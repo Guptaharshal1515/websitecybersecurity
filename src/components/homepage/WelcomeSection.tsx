@@ -70,21 +70,15 @@ export const WelcomeSection = ({ welcomeMessage, onUpdateWelcome }: WelcomeSecti
           transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="hidden lg:flex justify-center items-center"
         >
-          <div className="relative w-full max-w-lg">
+            <div className="relative w-full max-w-lg">
             {/* Ambient glow behind illustration */}
-            <div className="absolute -inset-16 bg-primary/8 rounded-full blur-[120px]" />
-            <div className="absolute -inset-10 bg-accent/5 rounded-full blur-[100px]" />
-            {/* Mask to blend edges into background */}
-            <div className="relative overflow-hidden rounded-3xl" style={{
-              maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)',
-              WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)',
-            }}>
-              <img
-                src={heroIllustration}
-                alt="Cybersecurity and blockchain illustration"
-                className="w-full h-auto object-contain mix-blend-lighten"
-              />
-            </div>
+            <div className="absolute inset-0 bg-primary/10 rounded-full blur-[80px] scale-125" />
+            <div className="absolute inset-0 bg-accent/8 rounded-full blur-[60px] scale-110" />
+            <img
+              src={heroIllustration}
+              alt="Cybersecurity and blockchain illustration"
+              className="relative w-full h-auto object-contain drop-shadow-[0_0_40px_hsl(var(--primary)/0.3)]"
+            />
           </div>
         </motion.div>
       </div>

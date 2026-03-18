@@ -45,7 +45,7 @@ export const WelcomeSection = ({ welcomeMessage, onUpdateWelcome }: WelcomeSecti
               delay={150}
               animateBy="words"
               direction="top"
-              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gradient-primary leading-[1.1]"
+              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1] text-primary"
             />
           </InlineEditText>
 
